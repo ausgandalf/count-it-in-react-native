@@ -34,7 +34,7 @@ Make sure you have Expo CLI installed:
 
 ```bash
 npm install -g expo-cli
-
+```
 Then clone and run the app:
 
 ```bash
@@ -42,6 +42,7 @@ git clone https://github.com/ausgandalf/count-it-in-react-native.git
 cd count-it-in
 npm install
 expo start
+```
 
 ---
 
