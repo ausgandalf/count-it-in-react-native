@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { TextInput, View } from 'react-native';
 import Modal from 'react-native-modal';
 import SetlistForm from './SetlistForm';
+import SetlistSongs from './SetlistSongs';
 
 export default function SetListView({
   viewMode = 'songs',
@@ -36,7 +37,7 @@ export default function SetListView({
 
   useEffect(() => {
     if (selected) {
-      console.log('SetListView: ', selected);
+      // console.log('SetListView: ', selected);
       setSelectedSetlist(selected);
     }
   }, [selected]);
@@ -59,7 +60,7 @@ export default function SetListView({
   const commonStyles = getCommonStyles();
 
   return (
-    <View>
+    <View style={{gap: 10}}>
 
       <SetlistPicker 
         viewMode={currentViewMode}
@@ -68,6 +69,12 @@ export default function SetListView({
         commonStyles={commonStyles}
         onChange={onSetlistSelected}
       />
+
+      {viewMode == 'setlist' && (
+        <View style={commonStyles.sub}>
+          <SetlistSongs setlist={selectedSetlist} onUpdate={onUpdate} />
+        </View>
+      )}
 
       <Modal 
         isVisible={isSetlistFormModalVisible} 
@@ -84,7 +91,7 @@ export default function SetListView({
               onSubmit={(setlist: { id: string, name: string; }) =>{
                 // TODO - Setlist list update
                 setSetlistFormModalVisible(false);
-                onUpdate('setlist', setlist);
+                onUpdate('updateSetlist', setlist);
               }}
               onCancel={() =>{
                 setSetlistFormModalVisible(false);

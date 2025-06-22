@@ -10,6 +10,11 @@ export const getCommonStyles = () => {
     bg: {
       backgroundColor: Colors[colorScheme ?? 'light'].background,
     },
+    sub: {
+      backgroundColor: Colors[colorScheme ?? 'light'].border,
+      padding: 20,
+      borderRadius: 8,
+    },
     icon: {
       marginHorizontal: 8,
       width: 16,
@@ -58,6 +63,11 @@ export const getCommonStyles = () => {
       paddingVertical: 12,
       paddingHorizontal: (windowWidth < 380) ? 20 : 24,
     },
+    buttonSm: {
+      borderRadius: 8,
+      paddingVertical: 8,
+      paddingHorizontal: (windowWidth < 380) ? 8 : 10,
+    },
     primaryButton: {
       backgroundColor: Colors[colorScheme ?? 'light'].button.primary.background,
       color: Colors[colorScheme ?? 'light'].button.primary.color,
@@ -85,10 +95,10 @@ export const getCommonStyles = () => {
     },
     triangle: {
       position: 'absolute',
-      right: 10,
+      right: 16,
       top: '50%',
       transform: [{ translateY: -8 }],
-      color: 'white',
+      color: Colors[colorScheme ?? 'light'].text,
       fontSize: 14,
     },
     modal: {
@@ -108,5 +118,13 @@ export const getCommonStyles = () => {
       borderTopRightRadius: 10,
       width: '100%',
     },
+    item: {
+      backgroundColor: Colors[colorScheme ?? 'light'].list.item.background,
+      color: Colors[colorScheme ?? 'light'].list.item.color,
+    },
+    selected: {
+      backgroundColor: Colors[colorScheme ?? 'light'].list.selected.background,
+      color: Colors[colorScheme ?? 'light'].list.selected.color,
+    }
   });
 }

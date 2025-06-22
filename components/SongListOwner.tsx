@@ -8,15 +8,22 @@ import Modal from 'react-native-modal';
 import SongForm from './SongForm';
 import SongList from './SongList';
 
-export default function SongListOwner({ type = 'select', songs = [], onSelect, onUpdate }: {
+export default function SongListOwner({ type = 'select', viewMode = 'songs', isSongModalOpen = false, songs = [], onSelect, onUpdate }: {
   type?: 'button' | 'select',
+  viewMode: 'songs' | 'setlist',
+  isSongModalOpen: boolean,
   songs?: SongType[];
   onSelect: (song: SongType) => void;
   onUpdate: (type:string, v:any) => void;
 }) {
 
+  const [currentViewMode, setViewMode] = useState(viewMode);
+  useEffect(() => setViewMode(viewMode), [viewMode]);
+
   const [isSongListModalVisible, setSongListModalVisible] = useState(false);
-  const toggleSongListModal = () => setSongListModalVisible(!isSongListModalVisible);
+  useEffect(() => {setSongListModalVisible(isSongModalOpen); console.log(isSongListModalVisible);}, [isSongModalOpen]);
+  
+  const toggleSongListModal = () => onUpdate('setSongListModalVisible', !isSongListModalVisible);
 
   const [isSongFormModalVisible, setSongFormModalVisible] = useState(false);
   const toggleSongFormModal = () => setSongFormModalVisible(!isSongFormModalVisible);
@@ -61,14 +68,17 @@ export default function SongListOwner({ type = 'select', songs = [], onSelect, o
   return (
 
     <View style={styles.container}>
-      <TouchableOpacity style={[[commonStyles.button, commonStyles.tertiaryButton], type == 'button' ? {} : commonStyles.full]} onPress={toggleSongListModal}>
-        {type == 'button' ? (
-          <Text style={commonStyles.buttonText}>Add a Song</Text>
-        ) : (
-          <Text style={commonStyles.buttonText}>{selectedSong ? selectedSong.name : 'Select A Song'}</Text>
-        )}
-        <Text style={commonStyles.triangle}>▼</Text>
-      </TouchableOpacity>
+
+      <View style={{display: currentViewMode == 'songs' ? 'flex' : 'none', width: '100%'}}>
+        <TouchableOpacity style={[[commonStyles.button, commonStyles.tertiaryButton], type == 'button' ? {} : commonStyles.full]} onPress={toggleSongListModal}>
+          {type == 'button' ? (
+            <Text style={commonStyles.buttonText}>Add a Song</Text>
+          ) : (
+            <Text style={commonStyles.buttonText}>{selectedSong ? selectedSong.name + (selectedSong.artist ? ' - ' + selectedSong.artist : '') : 'Select a Song'}</Text>
+          )}
+          <Text style={commonStyles.triangle}>▼</Text>
+        </TouchableOpacity>
+      </View>
 
       <Modal
         isVisible={isSongListModalVisible}
@@ -83,11 +93,12 @@ export default function SongListOwner({ type = 'select', songs = [], onSelect, o
             <SongList 
               songs={songList} 
               onSelect={(song) => {
-                setSongListModalVisible(false);
-                setSelectedSong(song);
+                onUpdate('setSongListModalVisible', false);
+                if (viewMode == 'songs') setSelectedSong(song);
                 onSelect(song);
               }} 
               openForm={openSongForm}
+              onDelete={(ids:string[]) => onUpdate('deleteSongsFromLibrary', ids)}
             />
           </View>
         </View>

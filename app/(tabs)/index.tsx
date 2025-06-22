@@ -152,12 +152,11 @@ export default function HomeScreen() {
   const [setlists, setSetlists] = useState<SetlistType[]>([]);
   const [selectedSong, setSelectedSong] = useState<SongType>();
   const [selectedSetlist, setSelectedSetlist] = useState<SetlistType>();
-  useEffect(() => {
-    if (selectedSetlist) {
-      console.log('index : selected setlist is : ', selectedSetlist);
-      setViewMode('setlist');
-    }
-  }, [selectedSetlist]);
+  const [selectedSongOnList, setSelectedSongOnList] = useState<SongType>();
+
+  const [isSongListModalVisible, setSongListModalVisible] = useState(false);
+
+  const [songImportMode, setSongImportMode] = useState(1);
 
   useEffect(() => {
     const doInitialLoad = async () => {
@@ -172,7 +171,7 @@ export default function HomeScreen() {
   }, []);
 
   const updateSong = (song: any) => {
-    console.log(song);
+    // console.log(song);
     if (song.id == '') {
       // New song
       if (!song.label) song.label = song.name.charAt(0).toUpperCase();
@@ -208,7 +207,6 @@ export default function HomeScreen() {
   }
 
   const updateSetlist = (setlist: any) => {
-    console.log(setlist);
     if (setlist.id == '') {
       // New setlist
       if (setlists.length > 4) return; // Can not add more than 5 setlists
@@ -221,6 +219,12 @@ export default function HomeScreen() {
       setSelectedSetlist(newSetlist);
     } else {
       // TODO
+      for (let i=0; i<setlists.length; i++) {
+        if (setlists[i].id == setlist.id) {
+          setlists[i] = setlist;
+          break;
+        }
+      }
     }
     
     const newSetlists = structuredClone(setlists);
@@ -232,12 +236,89 @@ export default function HomeScreen() {
     // TODO
     if (type == 'song') {
       updateSong(v);
-    } else if (type == 'setlist') {
+    } else if (type == 'updateSetlist') {
       updateSetlist(v);
     } else if (type == 'selectSetlist') {
       setSelectedSetlist(v);
+      setViewMode('setlist');
     } else if (type == 'setViewMode') {
       setViewMode(v);
+    } else if (type == 'setSongListModalVisible') {
+      setSongListModalVisible(v);
+    } else if (type == 'selectSongOnList') {
+      setBpm(v.bpm);
+      setSelectedSongOnList(v);
+    } else if (type == 'deleteSongFromSetlist') {
+      if (!selectedSetlist) return;
+      selectedSetlist.songs = selectedSetlist.songs.filter((item) => item.id != v.id);
+      updateSetlist(selectedSetlist);
+    } else if (type == 'deleteSelectedSetlist') {
+      if (!selectedSetlist) return;
+      const newSetlists = setlists.filter((item) => item.id != selectedSetlist.id);
+      setSetlists(newSetlists);
+      saveSetlists(newSetlists);
+    } else if (type == 'setBpm') {
+      setBpm(v);
+    } else if (type == 'saveBpm') {
+      // TODO 
+      if (viewMode == 'songs') {
+        if (selectedSong && !isNaN(Number(v))) {
+          // Let's save a song
+          selectedSong.bpm = Number(v);
+          updateSong(selectedSong);
+        }
+      } else {
+        // Let's save a song details in the setlist
+        if (selectedSongOnList && selectedSetlist && !isNaN(Number(v))) {
+          for (let i=0; i<selectedSetlist.songs.length; i++) {
+            if (selectedSetlist.songs[i].id == selectedSongOnList.id) {
+              selectedSetlist.songs[i]['bpm'] = v;
+              updateSetlist(selectedSetlist);
+              break;
+            }
+          }
+
+        }
+      }
+    } else if (type == 'setImportMode') {
+      setSongImportMode(v);
+    } else if (type == 'importSongs') {
+
+      let newSongs = structuredClone(songs);
+      let isSongsLibraryUpdated = false;
+
+      const songsToSetlist = [];
+
+      for (let i=0; i<v.length; i++) {
+        let song = v[i];
+        song = {
+          ...song,
+          id: generateSongID(song, 'custom'),
+          label: song.name.charAt(0).toUpperCase(),
+          isCustom: true 
+        };
+        if ((songImportMode == 1) && !isSongExists(newSongs, song)) {
+          newSongs.push({...song});
+          isSongsLibraryUpdated = true;
+        }
+        songsToSetlist.push({...song, id: song.id + '--' + Date.now().toString() + '-' + i});
+      }
+
+      // Update songs library
+      if (isSongsLibraryUpdated) {
+        setSongs(newSongs);
+        saveSongList(newSongs);
+      }
+
+      // Add to setlist
+      if (selectedSetlist && songsToSetlist.length > 0) {
+        selectedSetlist.songs = [...selectedSetlist.songs, ...songsToSetlist];
+        updateSetlist(selectedSetlist);
+      }
+    } else if (type == 'deleteSongsFromLibrary') {
+      const newSongs = songs.filter((item) => v.indexOf(item.id) == -1);
+      setSongs(newSongs);
+      saveSongList(newSongs);
     }
   }
 
@@ -273,8 +354,9 @@ export default function HomeScreen() {
     },
     middle: {
       flex: 1,
-      minHeight: viewMode == 'setlist' ? 480 : 100,
+      // minHeight: viewMode == 'setlist' ? 480 : 100,
       width: '100%',
+      zIndex: 1000,
     },
     bottom: {
       
@@ -285,84 +367,65 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.wrap}>
-        <View style={styles.body}>
-          <View style={styles.top}>
-            <Image
-              source={require('../../assets/images/logo.png')} // or use a remote URL
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
 
-          <View style={styles.middle}>
-
-            <View style={{gap: 10,}}>
-
-              <View style={{display: viewMode == 'songs' ? 'flex' : 'none'}}>
-                <SongListOwner 
-                  type='select' 
-                  songs={sortedSongList()} 
-                  onSelect={(song:SongType) => {
-                    // TODO
-                    setSelectedSong(song);
-                    setBpm(song.bpm??120);
-                  }} 
-                  onUpdate={onUpdate} 
-                />
-              </View>
-
-              <SetListView 
-                viewMode={viewMode}
-                selected={selectedSetlist}
-                setlist={setlists}
-                onUpdate={onUpdate} 
+        <View style={styles.wrap}>
+          <View style={styles.body}>
+            <View style={styles.top}>
+              <Image
+                source={require('../../assets/images/logo.png')} // or use a remote URL
+                style={styles.logo}
+                resizeMode="contain"
               />
-              
             </View>
-              
-          </View>
 
-          <View style={styles.bottom}>
-            <BpmControls
-              bpm={bpm}
-              onUpdate={(type:string, v:boolean|number) => {
-                if (type == 'bpm') {
-                  setBpm(v);
-                } else if (type == 'saveBpm') {
-                  // TODO 
-                  if (viewMode == 'songs') {
-                    if (selectedSong && !isNaN(Number(v))) {
-                      // Let's save a song
-                      selectedSong.bpm = Number(v);
-                      updateSong(selectedSong);
-                    }
-                  } else {
-                    // Let's save a song details in the setlist
-                    if (selectedSong && selectedSetlist && !isNaN(Number(v))) {
-                      for (let i=0; i<selectedSetlist.songs.length; i++) {
-                        if (selectedSetlist.songs[i].id == selectedSong.id) {
-                          selectedSetlist.songs[i]['bpm'] = v;
-                          setSelectedSetlist(structuredClone(selectedSetlist));
-                          break;
-                        }
+            <View style={styles.middle}>
+
+              <View style={{gap: 10, zIndex: 1000}}>
+                <View style={{zIndex: 1000}}>
+                  <SetListView 
+                    viewMode={viewMode}
+                    selected={selectedSetlist}
+                    setlist={setlists}
+                    onUpdate={onUpdate} 
+                  />
+                </View>
+
+                <View>
+                  <SongListOwner 
+                    type='select'
+                    viewMode={viewMode} 
+                    isSongModalOpen={isSongListModalVisible}
+                    songs={sortedSongList()} 
+                    onSelect={(song:SongType) => {
+                      // TODO
+                      if (viewMode == 'songs') {
+                        setSelectedSong(song);
+                      } else {
+                        // let's add it to selected setlist
+                        if (!selectedSetlist) return;
+                        song.id = song.id + '--' + Date.now().toString();
+                        selectedSetlist.songs.push(song)
+                        updateSetlist(selectedSetlist);
                       }
+                      setBpm(song.bpm??120);
+                    }} 
+                    onUpdate={onUpdate} 
+                  />
+                </View>
+                
+              </View>
+                
+            </View>
 
-                      // TODO - Then save it to local-storage...
-                      const newSetlist = [];
-                      for (let i=0; i<setlists.length; i++) {
-                        newSetlist.push((setlists[i]['id'] == selectedSetlist['id']) ? selectedSetlist : setlist[i]);
-                      }
-                      // Save
-
-                    }
-                  }
-                }
-              }}
-            />
+            <View style={styles.bottom}>
+              <BpmControls
+                bpm={bpm}
+                onUpdate={onUpdate}
+              />
+            </View>
           </View>
         </View>
-      </View>
+      
     </ScrollView>
   );
 }

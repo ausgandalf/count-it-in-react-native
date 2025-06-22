@@ -17,11 +17,12 @@ import {
 
 import { SongType } from '@/constants/Types';
 
-export default function SongList({ type = 'select', songs = [], onSelect = () => {}, openForm = () => {} }: {
+export default function SongList({ type = 'select', songs = [], onSelect = () => {}, onDelete = () => {}, openForm = () => {} }: {
   type?: 'button' | 'select',
-  songs?: SongType[];
-  onSelect: (song: SongType) => void;
-  openForm?: (isCreate:boolean, song:null|SongType) => void;
+  songs?: SongType[],
+  onSelect: (song: SongType) => void,
+  onDelete: (songId: string[]) => void,
+  openForm?: (isCreate:boolean, song:null|SongType) => void,
 }) {
 
   const [songList, setSongList] = useState(songs);
@@ -63,7 +64,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const isAllSelected = selectedIds.length === songList.length;
+  const isAllSelected = (songList.length > 0) && (selectedIds.length === songList.length);
   const isGroupSelected = (label:string) => {
     const ids = songList.filter(song => song.label == label).map((s) => s.id);
     let hasAll = true;
@@ -96,7 +97,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
 
   const deleteSelected = () => {
     // TODO : Delete action
-    setSongList(prev => prev.filter(song => !selectedIds.includes(song.id)));
+    onDelete(selectedIds);
     setSelectedIds([]);
   };
 
@@ -116,9 +117,10 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
         {(item.isLabel && item.isLabel == 1) ? (
           <Text style={[commonStyles.text, {fontSize: 20, color: Colors[colorScheme ?? 'light'].label}]}>{item.name}</Text>
         ) : (
-          <TouchableOpacity onPress={() => {
-            onSelect(item);
-          }} style={{flex: 1}}>
+          <TouchableOpacity 
+            onPress={() => onSelect(item)} 
+            style={{flex: 1}}
+          >
             <Text style={commonStyles.text}>{item.name}{item.artist ? ` - ${item.artist}` : ``}</Text>
           </TouchableOpacity>
         )}
@@ -129,9 +131,11 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity style={commonStyles.icon}>
-          <Ionicons name="trash-outline" size={20} color="#d11a2a" />
-        </TouchableOpacity>
+        {!(item.isLabel && item.isLabel == 1) && (
+          <TouchableOpacity style={commonStyles.icon} onPress={() => onDelete([item.id])}>
+            <Ionicons name="trash-outline" size={20} color="#d11a2a" />
+          </TouchableOpacity>
+        )}
       </View>
     )
   };
@@ -158,7 +162,12 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
           data={songList}
           keyExtractor={item => item.id}
           renderItem={renderItem}
-          contentContainerStyle={{ paddingInline: 20 }}
+          contentContainerStyle={{ paddingInline: 20, minHeight: 100 }}
+          ListEmptyComponent={() => (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+              <Text style={commonStyles.text}>No songs found.</Text>
+            </View>
+          )}
         />
       </View>
      

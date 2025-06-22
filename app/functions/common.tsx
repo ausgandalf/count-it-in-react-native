@@ -10,3 +10,19 @@ export const alert = (title:string, message: string = '') => {
     Alert.alert(title, message);
   }
 }
+
+export const confirm = (title:string, message: string, onOkay = () => {}) => {
+  if (Platform.OS === 'web') {
+    if (window.confirm(message)) onOkay();
+  } else {
+    Alert.alert(
+      title,
+      message,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: onOkay }
+      ],
+      { cancelable: true }
+    );
+  }
+}

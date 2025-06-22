@@ -35,8 +35,8 @@ export const Colors = {
         color: '#ffffff',
       },
       tertiary: {
-        background: '#444444',
-        color: '#ffffff',
+        background: '#999',
+        color: '#111',
       },
       danger: {
         background: '#f87171',
@@ -47,6 +47,16 @@ export const Colors = {
         color: '#ffffff',
       }
     },
+    list: {
+      item: {
+        background: '#ccc',
+        color: '#111',
+      },
+      selected: {
+        background: '#325934',
+        color: '#fff',
+      }
+    }
   },
   dark: {
     text: '#ECEDEE',
@@ -80,12 +90,22 @@ export const Colors = {
         color: '#ffffff',
       },
       danger: {
-        background: '#f87171',
+        background: '#f44336',
         color: '#ffffff',
       },
       disabled: {
         background: '#666666',
         color: '#ffffff',
+      }
+    },
+    list: {
+      item: {
+        background: '#444',
+        color: '#fff',
+      },
+      selected: {
+        background: '#325934',
+        color: '#fff',
       }
     },
   },

@@ -1,6 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import React, { useCallback, useEffect, useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
+import Svg, { Text as SvgText } from 'react-native-svg';
 
 const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) => {
 
@@ -17,29 +19,47 @@ const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) 
   );
 
   useEffect(() => {
+    console.log('SetlistPicker, viewMode:', viewMode, setlist);
     const dropdownData = setlist.map((item:any) => ({value: item.id, label: item.name})).slice(0, 5);
     if (dropdownData.length < 5) dropdownData.unshift({value: 'create', label: '➕ Create Setlist'});
     dropdownData.unshift(getFirstItem());
     setItems(dropdownData);
+
+    if (!selected) {
+      setValue('');
+    } else {
+      const selectedSetlist = setlist.find((item:any) => item.id == selected.id)
+      if (!selectedSetlist) setValue('');
+    }
+
   }, [viewMode, setlist])
 
   useEffect(() => {
     if (selected) {
-      console.log('SetListPicker: ', selected);
-      setValue(selected.id);
+      // console.log('SetListPicker: ', selected);
+      const selectedSetlist = setlist.find((item:any) => item.id == selected.id)
+      if (selectedSetlist) {
+        if (value != selected.id) setValue(selected.id);
+      } else {
+        setValue('');
+      }
+    } else {
+      setValue('');
     }
   }, [selected]);
   
   // On change handler
   const onChangeValue = (v: any) => {
     // TODO
-    console.log('SetlistPicker value changed to : ', v);
+    // console.log('SetlistPicker value changed to : ', v);
     if (v == 'create') {
       // TODO
       setValue('');
     }
     onChange(v);
   };
+
+  const colorScheme = useColorScheme();
 
   return (
     <DropDownPicker
@@ -55,10 +75,32 @@ const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) 
       textStyle={[commonStyles.text, { textAlign: 'center' }]} // text inside input
       listItemLabelStyle={[commonStyles.text, { textAlign: 'left' }]}
       ArrowDownIconComponent={() => (
-        <Ionicons name="chevron-down" size={20} color="#777" />
+        <Svg height="20" width="20">
+          <SvgText
+            x="10"
+            y="15"
+            fontSize="16"
+            fill={Colors[colorScheme ?? 'light'].text}
+            textAnchor="middle"
+          >
+            ▼
+          </SvgText>
+        </Svg>
+        // <Ionicons name="chevron-down" size={20} color="#777" />
       )}
       ArrowUpIconComponent={() => (
-        <Ionicons name="chevron-up" size={20} color="#777" />
+        <Svg height="20" width="20">
+          <SvgText
+            x="10"
+            y="15"
+            fontSize="16"
+            fill={Colors[colorScheme ?? 'light'].text}
+            textAnchor="middle"
+          >
+            ▲
+          </SvgText>
+        </Svg>
+        // <Ionicons name="chevron-up" size={20} color="#777" />
       )}
     />
   );

@@ -40,7 +40,6 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
 
   return (
     <View style={styles.container}>
-      <BeatLights bpm={bpmValue} playing={isPlaying} muted={isMuted} onError={() => setMuted(true)} />
       <View style={{gap: 10}}>
         <ThemedText type="default" textAlign="center">BPM: {bpmValue}</ThemedText>
         <Slider
@@ -50,7 +49,7 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
           value={bpmValue}
           onValueChange={(v) => {
             setBpmValue(v);
-            onStateUpdated('bpm', v);
+            onStateUpdated('setBpm', v);
           }}
         />
       </View>
@@ -73,6 +72,7 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
           <Text style={commonStyles.buttonText}>Save BPM</Text>
         </TouchableOpacity>
       </View>
+      <BeatLights bpm={bpmValue} playing={isPlaying} muted={isMuted} onError={() => setMuted(true)} />
     </View>
   );
 }
