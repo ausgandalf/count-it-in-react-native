@@ -3,8 +3,8 @@ export type SongType = {
   id: string,
   label: string,
   name: string,
-  artist?: string,
-  bpm?: number,
+  artist: string,
+  bpm: number,
   isCustom?: boolean,
   isLabel?: 1|0,
 }

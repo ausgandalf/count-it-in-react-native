@@ -1,10 +1,11 @@
-import { Image, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
-
 import BpmControls from '@/components/BpmControls';
 import SongListOwner from '@/components/SongListOwner';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useCallback, useEffect, useState } from 'react';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Image, Platform, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import { Songs } from '@/constants/Songs';
 import { SetlistType, SongType } from '@/constants/Types';
@@ -12,13 +13,72 @@ import { SetlistType, SongType } from '@/constants/Types';
 import SetListView from '@/components/SetListView';
 
 import { getCommonStyles } from '@/constants/Styles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { alert } from '../functions/common';
 
 function generateSongID(song: SongType, type: 'core'|'custom') {
   return `${type}-${song.name}-${song.artist}`
 }
 
+const handleExport = async (setlist:SetlistType) => {
+  if (!setlist) return;
+  const fileName = setlist.name + '-' + setlist.id + '.csv';
+  const csvHeader = "name,artist,bpm\n";
+  const csvRows = setlist.songs.map(song =>
+    `"${song.name.replace(/"/g, '""')}","${song.artist.replace(/"/g, '""')}",${song.bpm}`
+  );
+  const csvContent = csvHeader + csvRows.join("\n");
+  
+  if (Platform.OS === 'web') {
+    handleExportWeb(fileName, csvContent);
+  } else {
+    handleExportMobile(fileName, csvContent);
+  }
+}
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+const handleExportWeb = async (fileName: string, csvContent:string) => {
+  try {
+    const blob = new Blob([csvContent], { type: "text/csv" });;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${fileName}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Export error:', error);
+    alert('Export Failed', 'Something went wrong while exporting the file.');
+  }
+};
+
+const handleExportMobile = async (fileName: string, csvContent:string) => {
+  if (!csvContent) return;
+
+  try {
+    const fileUri = FileSystem.documentDirectory + fileName;
+
+    // Save content to file
+    await FileSystem.writeAsStringAsync(fileUri, csvContent, {
+      encoding: FileSystem.EncodingType.UTF8,
+    });
+
+    // Check if sharing is available
+    const canShare = await Sharing.isAvailableAsync();
+    if (!canShare) {
+      alert('Sharing is not supported on this device. The song list has been exported to:' + fileUri);
+      return;
+    }
+
+    // Open share dialog
+    await Sharing.shareAsync(fileUri);
+  } catch (error) {
+    console.error('Export error:', error);
+    alert('Export Failed', 'Something went wrong while exporting the file.');
+  }
+};
+
 const saveSongList = async (songList:SongType[]) => {
   try {
     const customSongs = songList.filter(s => s.isCustom);
@@ -280,6 +340,8 @@ export default function HomeScreen() {
 
         }
       }
+    } else if (type == 'export') {
+      if (selectedSetlist) handleExport(selectedSetlist);
     } else if (type == 'setImportMode') {
       setSongImportMode(v);
     } else if (type == 'importSongs') {

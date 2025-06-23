@@ -4,7 +4,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   FlatList,
   SafeAreaView,
@@ -63,10 +63,22 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
 
   
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
-  const isAllSelected = (songList.length > 0) && (selectedIds.length === songList.length);
+  
+  //   const isAllSelected = (songList.length > 0) && (selectedIds.length === songList.length);
+  const isAllSelected = useCallback(() => {
+    const ids = songList.filter(song => (!song.isLabel || song.isLabel != 1)).map((s) => s.id);
+    let hasAll = true;
+    ids.some(id => {
+      if (selectedIds.indexOf(id) == -1) {
+        hasAll = false;
+        return true;
+      }
+    })
+    console.log('Selected ALL?', hasAll);
+    return hasAll;
+  }, [songList, selectedIds]);
   const isGroupSelected = (label:string) => {
-    const ids = songList.filter(song => song.label == label).map((s) => s.id);
+    const ids = songList.filter(song => (song.label == label)&&(!song.isLabel || song.isLabel != 1)).map((s) => s.id);
     let hasAll = true;
     ids.some(id => {
       if (selectedIds.indexOf(id) == -1) {
@@ -75,9 +87,10 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
       }
     })
     return hasAll;
-  }
+  };
+
   const toggleSelectAll = () => {
-    setSelectedIds(isAllSelected ? [] : songList.map(song => song.id));
+    setSelectedIds(isAllSelected() ? [] : songList.map(song => song.id));
   };
 
   const toggleSong = (item: SongType, flag: boolean) => {
@@ -144,7 +157,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Checkbox
-          value={isAllSelected}
+          value={isAllSelected()}
           onValueChange={toggleSelectAll}
           style={commonStyles.checkbox}
           color={Colors[colorScheme ?? 'light'].checkbox.color}

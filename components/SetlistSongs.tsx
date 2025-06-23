@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import ImportSetlistButton from './ImportSetlistButton';
+import InnerShadow from './InnerShadow';
 
 export default function SetlistSongs({ setlist, onUpdate }: {
   setlist?: SetlistType,
@@ -73,7 +74,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
   );
 
   return (
-    <View style={{gap: 10}}>
+    <View style={{gap: 20}}>
       <View style={{gap: 10}}>
         <View style={{flexDirection: 'row', justifyContent:'space-between'}}>
           <View>
@@ -116,21 +117,25 @@ export default function SetlistSongs({ setlist, onUpdate }: {
         </View>
       </View>
       
-
-      <DraggableFlatList
-        data={data}
-        onDragEnd={({ data }) => setData(data)}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={{ height: 8 }} />} // ← gap between items
-        ListEmptyComponent={() => (
-          <View style={{ padding: 20, alignItems: 'center' }}>
-            <Text style={commonStyles.text}>No songs found in the setlist.</Text>
-          </View>
-        )}
-        contentContainerStyle={{ padding: 10 }}
-        style={{borderWidth: 1, borderColor: '#444', borderRadius: 8, maxHeight: 240 }}
-      />
+      <View>
+        
+        <DraggableFlatList
+          data={data}
+          onDragEnd={({ data }) => setData(data)}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          ItemSeparatorComponent={() => <View style={{ height: 8 }} />} // ← gap between items
+          ListEmptyComponent={() => (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+              <Text style={commonStyles.text}>No songs found in the setlist.</Text>
+            </View>
+          )}
+          contentContainerStyle={{ padding: 10 }}
+          style={[{borderWidth: 1, borderColor: '#444', borderRadius: 8, maxHeight: 240 }]}
+        />
+  
+        <InnerShadow />
+      </View>
       
     </View>
   );

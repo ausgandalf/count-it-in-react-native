@@ -125,6 +125,15 @@ export const getCommonStyles = () => {
     selected: {
       backgroundColor: Colors[colorScheme ?? 'light'].list.selected.background,
       color: Colors[colorScheme ?? 'light'].list.selected.color,
-    }
+    },
+    boxShadow: {
+      // iOS
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 6,
+      // Android
+      elevation: 5,
+    },
   });
 }
