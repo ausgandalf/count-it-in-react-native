@@ -30,13 +30,7 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
     container: {
       gap: 20,
     },
-    buttonGroup: {
-      flexDirection: (windowWidth < 320) ? 'column' : 'row',
-      gap: 10,
-      justifyContent: 'center',
-    },
   });
-
 
   return (
     <View style={styles.container}>
@@ -53,7 +47,7 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
           }}
         />
       </View>
-      <View style={styles.buttonGroup}>
+      <View style={commonStyles.buttonGroup}>
         <TouchableOpacity style={[commonStyles.button, isPlaying ? commonStyles.dangerButton : commonStyles.primaryButton]} onPress={() => {
           setPlaying(!isPlaying);
           onStateUpdated('playing', !isPlaying);

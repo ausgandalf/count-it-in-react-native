@@ -1,7 +1,7 @@
-import { alert } from '@/app/functions/common';
 import { Colors } from '@/constants/Colors';
 import { getCommonStyles } from '@/constants/Styles';
 import { SongType } from '@/constants/Types';
+import { alert } from '@/functions/common';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import React, { useEffect, useState } from 'react';
 import {

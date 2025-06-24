@@ -8,26 +8,30 @@ const tintColorDark = '#ffffff';
 
 export const Colors = {
   light: {
+    danger: '#8f2424',
     text: '#11181C',
     label: '#3b82f6',
-    background: '#ffffff',
-    border: '#eeeeee',
+    background: '#cdd7df',
+    deepBackground: '#abbdcb',
+    subBackground: '#b1c2d1',
+    border: '#8a939b',
+    borderLight: '#afb9c1',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
     checkbox: {
-      color: '#eeeeee',
+      color: '#6c859b',
     },
     input: {
       background: '#ffffff',
-      borderColor: '#dddddd',
+      borderColor: '#a9b6c1',
       color: '#000000',
       placeholder: '#555555',
     },
     button: {
       primary: {
-        background: '#4CAF50',
+        background: '#71c775',
         color: '#ffffff',
       },
       secondary: {
@@ -35,7 +39,7 @@ export const Colors = {
         color: '#ffffff',
       },
       tertiary: {
-        background: '#999',
+        background: '#b1c2d1',
         color: '#111',
       },
       danger: {
@@ -43,26 +47,30 @@ export const Colors = {
         color: '#ffffff',
       },
       disabled: {
-        background: '#666666',
+        background: '#a1a9af',
         color: '#ffffff',
       }
     },
     list: {
       item: {
-        background: '#ccc',
+        background: '#c0cbd4',
         color: '#111',
       },
       selected: {
-        background: '#325934',
+        background: '#82bb85',
         color: '#fff',
       }
     }
   },
   dark: {
+    danger: '#8f2424',
     text: '#ECEDEE',
     label: '#ffff00',
     background: '#222222',
+    deepBackground: '#333333',
+    subBackground: '#333333',
     border: '#333333',
+    borderLight: '#444444',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',

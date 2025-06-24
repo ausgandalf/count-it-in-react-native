@@ -45,7 +45,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
       justifyContent: 'space-between',
       paddingVertical: 10,
       borderBottomWidth: 1,
-      borderColor: Colors[colorScheme ?? 'light'].border,
+      borderColor: Colors[colorScheme ?? 'light'].borderLight,
       paddingInline: 20
     },
     body: {
@@ -57,7 +57,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
       alignItems: 'center',
       paddingVertical: 12,
       borderBottomWidth: 1,
-      borderColor: Colors[colorScheme ?? 'light'].border,
+      borderColor: Colors[colorScheme ?? 'light'].borderLight,
     },
   });
 
@@ -66,6 +66,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   
   //   const isAllSelected = (songList.length > 0) && (selectedIds.length === songList.length);
   const isAllSelected = useCallback(() => {
+    if (songList.length == 0) return false;
     const ids = songList.filter(song => (!song.isLabel || song.isLabel != 1)).map((s) => s.id);
     let hasAll = true;
     ids.some(id => {
@@ -74,7 +75,6 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
         return true;
       }
     })
-    console.log('Selected ALL?', hasAll);
     return hasAll;
   }, [songList, selectedIds]);
   const isGroupSelected = (label:string) => {

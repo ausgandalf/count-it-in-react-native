@@ -11,7 +11,7 @@ export const getCommonStyles = () => {
       backgroundColor: Colors[colorScheme ?? 'light'].background,
     },
     sub: {
-      backgroundColor: Colors[colorScheme ?? 'light'].border,
+      backgroundColor: Colors[colorScheme ?? 'light'].subBackground,
       padding: 20,
       borderRadius: 8,
     },
@@ -27,6 +27,16 @@ export const getCommonStyles = () => {
     },
     full: {
       width: '100%',
+    },
+    roundBordered: {
+      borderColor: Colors[colorScheme ?? 'light'].border,
+      borderWidth: 1,
+      borderRadius: 8,
+    },
+    roundBorderedSm: {
+      borderColor: Colors[colorScheme ?? 'light'].border,
+      borderWidth: 1,
+      borderRadius: 4,
     },
     selectBox: {
       backgroundColor: Colors[colorScheme ?? 'light'].button.tertiary.background,
@@ -58,15 +68,24 @@ export const getCommonStyles = () => {
       borderColor: Colors[colorScheme ?? 'light'].border,
       backgroundColor: Colors[colorScheme ?? 'light'].checkbox.color,
     },
+    buttonGroup: {
+      flexDirection: (windowWidth < 320) ? 'column' : 'row',
+      gap: 10,
+      justifyContent: 'center',
+    },
     button: {
       borderRadius: 8,
       paddingVertical: 12,
       paddingHorizontal: (windowWidth < 380) ? 20 : 24,
+      borderWidth: 1,
+      borderColor: Colors[colorScheme ?? 'light'].input.borderColor, 
     },
     buttonSm: {
       borderRadius: 8,
       paddingVertical: 8,
       paddingHorizontal: (windowWidth < 380) ? 8 : 10,
+      borderWidth: 1,
+      borderColor: Colors[colorScheme ?? 'light'].input.borderColor,
     },
     primaryButton: {
       backgroundColor: Colors[colorScheme ?? 'light'].button.primary.background,
@@ -87,6 +106,7 @@ export const getCommonStyles = () => {
     disabledButton: {
       backgroundColor: Colors[colorScheme ?? 'light'].button.disabled.background,
       color: Colors[colorScheme ?? 'light'].button.disabled.color,
+      opacity: 0.5,
     },
     buttonText: {
       color: Colors[colorScheme ?? 'light'].text,

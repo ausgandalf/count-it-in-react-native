@@ -1,7 +1,7 @@
-import { confirm } from '@/app/functions/common';
 import { Colors } from '@/constants/Colors';
 import { getCommonStyles } from '@/constants/Styles';
 import { SetlistType } from '@/constants/Types';
+import { confirm } from '@/functions/common';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons'; // or use any icon lib
 import Checkbox from 'expo-checkbox';
@@ -67,7 +67,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
             onUpdate('deleteSongFromSetlist', item);
           }}
         >
-          <Ionicons name="trash" size={20} color="red" />
+          <Ionicons name="trash" size={20} color={Colors[colorScheme ?? 'light'].danger} />
         </TouchableOpacity>
       </View>
     </ScaleDecorator>
@@ -131,7 +131,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
             </View>
           )}
           contentContainerStyle={{ padding: 10 }}
-          style={[{borderWidth: 1, borderColor: '#444', borderRadius: 8, maxHeight: 240 }]}
+          style={[commonStyles.roundBordered, {maxHeight: 240 }]}
         />
   
         <InnerShadow />

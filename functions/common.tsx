@@ -1,3 +1,4 @@
+import { SongType } from '@/constants/Types';
 import {
   Alert,
   Platform
@@ -25,4 +26,21 @@ export const confirm = (title:string, message: string, onOkay = () => {}) => {
       { cancelable: true }
     );
   }
+}
+
+export function isSongExists(list:SongType[], song:SongType) {
+  for (let i=0; i<list.length; i++) {
+    if (list[i].name == song.name && list[i].artist == song.artist) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function generateSongID(song: SongType, type: 'core'|'custom') {
+  return `${type}-${song.name}-${song.artist}`
+}
+
+export function delay(ms:number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

@@ -9,12 +9,12 @@ import SetlistSongs from './SetlistSongs';
 
 export default function SetListView({
   viewMode = 'songs',
-  selected = null,
+  selected = undefined,
   setlist = [],
   onUpdate = () => {},
 }: {
   viewMode:'songs'|'setlist';
-  selected: SetlistType | null,
+  selected: SetlistType | undefined,
   setlist: SetlistType[];
   onUpdate: (type:string, v:any) => void;
 }) {

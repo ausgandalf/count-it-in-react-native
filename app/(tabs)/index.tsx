@@ -5,20 +5,16 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Image, Platform, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 
+import SetListView from '@/components/SetListView';
 import { Songs } from '@/constants/Songs';
 import { SetlistType, SongType } from '@/constants/Types';
 
-import SetListView from '@/components/SetListView';
-
 import { getCommonStyles } from '@/constants/Styles';
+import { useSongs } from '@/context/SongsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { alert } from '../functions/common';
-
-function generateSongID(song: SongType, type: 'core'|'custom') {
-  return `${type}-${song.name}-${song.artist}`
-}
+import { alert, generateSongID, isSongExists } from '../../functions/common';
 
 const handleExport = async (setlist:SetlistType) => {
   if (!setlist) return;
@@ -97,6 +93,7 @@ const saveCoreUpdates = async (coreUpdates:any) => {
 };
 
 const setCoreUpdate = (coreUpdates:any, song:SongType) => {
+  if (!song.id) song.id = generateSongID(song, song.isCustom ? 'custom' :  'core');
   if (song.id in coreUpdates) {
     coreUpdates[song.id] = {
       ...coreUpdates[song.id],
@@ -167,15 +164,6 @@ const saveSetlists = async (setlist:SetlistType[]) => {
   }
 };
 
-function isSongExists(list:SongType[], song:SongType) {
-  for (let i=0; i<list.length; i++) {
-    if (list[i].name == song.name && list[i].artist == song.artist) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function arangeSongs(songs:SongType[]) {
   const sortedSongList = songs.sort((a, b) => a.name.localeCompare(b.name));
   const arrangedSongList: SongType[] = [];
@@ -190,6 +178,8 @@ function arangeSongs(songs:SongType[]) {
         name: item.label,
         isLabel: 1,
         label: item.label,
+        artist: '',
+        bpm: 120,
       });
       prevLabel = sortedSongList[i].label;
     }
@@ -205,7 +195,7 @@ export default function HomeScreen() {
 
   const [viewMode, setViewMode] = useState<'songs' | 'setlist'>('songs');
   const [bpm, setBpm] = useState(120);
-  const [songs, setSongs] = useState<SongType[]>([]);
+  const {songs, setSongs} = useSongs();
   const [coreUpdates, setCoreUpdates] = useState({});
   const sortedSongList = useCallback(() => arangeSongs(songs), [songs]);
 
@@ -218,17 +208,6 @@ export default function HomeScreen() {
 
   const [songImportMode, setSongImportMode] = useState(1);
 
-  useEffect(() => {
-    const doInitialLoad = async () => {
-      const loadedInfo = await loadSongs(Songs);
-      setSongs(loadedInfo.songs);
-      setCoreUpdates(loadedInfo.updates);
-
-      const loadedSetlistInfo = await loadSetlist();
-      setSetlists(loadedSetlistInfo.setlists);
-    }
-    doInitialLoad();
-  }, []);
 
   const updateSong = (song: any) => {
     // console.log(song);
@@ -378,12 +357,13 @@ export default function HomeScreen() {
         updateSetlist(selectedSetlist);
       }
     } else if (type == 'deleteSongsFromLibrary') {
-      const newSongs = songs.filter((item) => v.indexOf(item.id) == -1);
+      const newSongs = songs.filter((item:SongType) => v.indexOf(item.id) == -1);
       setSongs(newSongs);
       saveSongList(newSongs);
     }
   }
-
+  
+  const commonStyles = getCommonStyles();
   const colorScheme = useColorScheme();
   const styles = StyleSheet.create({
     container: {
@@ -394,7 +374,7 @@ export default function HomeScreen() {
       margin: 0,
     },
     content: {
-      minHeight: windowHeight - 100,
+      minHeight: windowHeight - 200,
     },
     wrap: {
       alignItems: 'center',
@@ -402,18 +382,10 @@ export default function HomeScreen() {
     },
     body: {
       flex: 1,
-      maxWidth: windowWidth < 768 ? '100%' : 500,
-    },
-    logo: {
+      gap: 20,
+      maxWidth: windowWidth < 768 ? '100%' : 600,
       width: '100%',
-    },
-    top: {
-      alignItems: 'center',
-      gap: 10,
-      height: 85,
-      marginBlockEnd: 20,
-      width: '100%',
-    },
+    },    
     middle: {
       flex: 1,
       // minHeight: viewMode == 'setlist' ? 480 : 100,
@@ -425,20 +397,24 @@ export default function HomeScreen() {
     },
   });
 
-  const commonStyles = getCommonStyles();
+  // Load songs and setlists
+  useEffect(() => {
+    const doInitialLoad = async () => {
+      const loadedInfo = await loadSongs(Songs);
+      setSongs(loadedInfo.songs);
+      setCoreUpdates(loadedInfo.updates);
+
+      const loadedSetlistInfo = await loadSetlist();
+      setSetlists(loadedSetlistInfo.setlists);
+    }
+    doInitialLoad();
+  }, []);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
         <View style={styles.wrap}>
           <View style={styles.body}>
-            <View style={styles.top}>
-              <Image
-                source={require('../../assets/images/logo.png')} // or use a remote URL
-                style={styles.logo}
-                resizeMode="contain"
-              />
-            </View>
 
             <View style={styles.middle}>
 
