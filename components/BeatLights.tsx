@@ -1,3 +1,4 @@
+import { getColors } from '@/functions/common';
 import { AudioPlayer, useAudioPlayer } from 'expo-audio';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
@@ -25,6 +26,7 @@ export function playClick(player: null|AudioPlayer, isMuted:boolean = true) {
 
 const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}) => {
   const fadeAnim = useRef(new Animated.Value(0.3)).current;
+  const themeColors = getColors();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -35,10 +37,10 @@ const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}
   }, [isActive]);
 
   const backgroundColor = isStart
-    ? 'white'
+    ? themeColors.beat.first
     : isActive
-    ? '#90ee90'
-    : '#444';
+    ? themeColors.beat.active
+    : themeColors.beat.inactive;
 
   return (
     <Animated.View

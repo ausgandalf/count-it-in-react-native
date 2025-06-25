@@ -60,6 +60,11 @@ export const Colors = {
         background: '#82bb85',
         color: '#fff',
       }
+    },
+    beat: {
+      first: '#2196f3',
+      active: '#5cbb60',
+      inactive: '#a9b2b9',
     }
   },
   dark: {
@@ -116,5 +121,10 @@ export const Colors = {
         color: '#fff',
       }
     },
+    beat: {
+      first: '#ffffff',
+      active: '#90ee90',
+      inactive: '#444',
+    }
   },
 };

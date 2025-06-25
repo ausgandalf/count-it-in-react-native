@@ -3,7 +3,6 @@ import React from 'react';
 import { Platform, View } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
-import LayoutTop from '@/components/LayoutTop';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { getColors } from '@/functions/common';
@@ -12,7 +11,6 @@ export default function TabLayout() {
   const themeColors = getColors();
   return (
     <View style={{flex: 1, backgroundColor: themeColors.deepBackground,}}>
-      <LayoutTop />
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: themeColors.tint,

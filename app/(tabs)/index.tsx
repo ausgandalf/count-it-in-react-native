@@ -10,6 +10,7 @@ import SetListView from '@/components/SetListView';
 import { Songs } from '@/constants/Songs';
 import { SetlistType, SongType } from '@/constants/Types';
 
+import LayoutTop from '@/components/LayoutTop';
 import { getCommonStyles } from '@/constants/Styles';
 import { useSongs } from '@/context/SongsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -358,7 +359,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={commonStyles.container} contentContainerStyle={styles.content}>
-
+        <LayoutTop />
         <View style={commonStyles.wrap}>
           <View style={commonStyles.body}>
 

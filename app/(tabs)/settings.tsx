@@ -1,3 +1,4 @@
+import LayoutTop from '@/components/LayoutTop';
 import { ThemedText } from '@/components/ThemedText';
 import { Settings } from '@/constants/Settings';
 import { getCommonStyles } from '@/constants/Styles';
@@ -65,6 +66,7 @@ export default function SettingsScreen() {
   return (
     <>
       <ScrollView style={commonStyles.container} contentContainerStyle={styles.content}>
+        <LayoutTop />
         <View style={commonStyles.wrap}>
           <View style={commonStyles.body}>
 
