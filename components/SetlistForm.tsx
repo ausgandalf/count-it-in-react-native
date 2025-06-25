@@ -1,8 +1,6 @@
-import { Colors } from '@/constants/Colors';
 import { getCommonStyles } from '@/constants/Styles';
 import { SetlistType } from '@/constants/Types';
-import { alert } from '@/functions/common';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { alert, getColors } from '@/functions/common';
 import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
@@ -20,6 +18,7 @@ type SetlistFormProps = {
 };
 
 export default function SetlistForm({ inputRef, setlist, onSubmit, onCancel }: SetlistFormProps) {
+  
   const [title, setTitle] = useState(setlist?.name || '');
   const [setlistId, setSetlistId] = useState(setlist?.id || '');
 
@@ -37,10 +36,9 @@ export default function SetlistForm({ inputRef, setlist, onSubmit, onCancel }: S
     onSubmit({ id:setlistId, name: title.trim() });
   };
 
-  const colorScheme = useColorScheme();
-  const placeholderTextColor = Colors[colorScheme ?? 'light'].input.placeholder;
+  const themeColors = getColors();
+  const placeholderTextColor = themeColors.input.placeholder;
   const commonStyles = getCommonStyles();
-
   return (
     <View style={[styles.container, commonStyles.bg]}>
       <View style={styles.row}>

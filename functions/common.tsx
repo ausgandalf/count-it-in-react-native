@@ -1,7 +1,8 @@
-import { SongType } from '@/constants/Types';
+import { Colors } from '@/constants/Colors';
 import {
   Alert,
-  Platform
+  Platform,
+  useColorScheme
 } from 'react-native';
 
 export const alert = (title:string, message: string = '') => {
@@ -28,19 +29,14 @@ export const confirm = (title:string, message: string, onOkay = () => {}) => {
   }
 }
 
-export function isSongExists(list:SongType[], song:SongType) {
-  for (let i=0; i<list.length; i++) {
-    if (list[i].name == song.name && list[i].artist == song.artist) {
-      return true;
-    }
-  }
-  return false;
-}
-
-export function generateSongID(song: SongType, type: 'core'|'custom') {
-  return `${type}-${song.name}-${song.artist}`
-}
-
 export function delay(ms:number) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function getColors(forcedTheme: 'light' | 'dark' | null = null) {
+  return Colors[forcedTheme ?? useColorScheme() ?? 'light'];
+}
+
+export function getLogo(forcedTheme: 'light' | 'dark' | null = null) {
+  return (forcedTheme ?? useColorScheme() ?? 'light') === 'dark' ? require('../assets/images/logo.png') : require('../assets/images/logo--blue.png');
 }

@@ -1,7 +1,5 @@
-import { Colors } from '@/constants/Colors';
 import { getCommonStyles } from '@/constants/Styles';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
+import { getColors } from '@/functions/common';
 import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -11,8 +9,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useWindowDimensions,
-  View
+  View,
+  useWindowDimensions
 } from 'react-native';
 
 import { SongType } from '@/constants/Types';
@@ -24,7 +22,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   onDelete: (songId: string[]) => void,
   openForm?: (isCreate:boolean, song:null|SongType) => void,
 }) {
-
+  
   const [songList, setSongList] = useState(songs);
   useEffect(() => {
     setSongList(songs);
@@ -33,8 +31,8 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   const { height: windowHeight } = useWindowDimensions();
   const eightyVh = windowHeight - 185;
 
+  const themeColors = getColors();
   const commonStyles = getCommonStyles();
-  const colorScheme = useColorScheme();
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -45,7 +43,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
       justifyContent: 'space-between',
       paddingVertical: 10,
       borderBottomWidth: 1,
-      borderColor: Colors[colorScheme ?? 'light'].borderLight,
+      borderColor: themeColors.borderLight,
       paddingInline: 20
     },
     body: {
@@ -57,7 +55,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
       alignItems: 'center',
       paddingVertical: 12,
       borderBottomWidth: 1,
-      borderColor: Colors[colorScheme ?? 'light'].borderLight,
+      borderColor: themeColors.borderLight,
     },
   });
 
@@ -124,11 +122,11 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
             toggleSong(item, v);
           }}
           style={commonStyles.checkbox}
-          color={Colors[colorScheme ?? 'light'].checkbox.color}
+          color={themeColors.checkbox.color}
         />
         
         {(item.isLabel && item.isLabel == 1) ? (
-          <Text style={[commonStyles.text, {fontSize: 20, color: Colors[colorScheme ?? 'light'].label}]}>{item.name}</Text>
+          <Text style={[commonStyles.text, {fontSize: 20, color: themeColors.label}]}>{item.name}</Text>
         ) : (
           <TouchableOpacity 
             onPress={() => onSelect(item)} 
@@ -160,7 +158,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
           value={isAllSelected()}
           onValueChange={toggleSelectAll}
           style={commonStyles.checkbox}
-          color={Colors[colorScheme ?? 'light'].checkbox.color}
+          color={themeColors.checkbox.color}
         />
         <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton]} onPress={() => openForm(true, null)}>
           <Text style={commonStyles.buttonText}>Create Song</Text>
@@ -173,7 +171,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
       <View style={styles.body}>
         <FlatList
           data={songList}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id ?? ''}
           renderItem={renderItem}
           contentContainerStyle={{ paddingInline: 20, minHeight: 100 }}
           ListEmptyComponent={() => (

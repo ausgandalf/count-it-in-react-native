@@ -1,17 +1,33 @@
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { getColors } from '@/functions/common';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 
 export const getCommonStyles = () => {
-  const colorScheme = useColorScheme();
   const { width: windowWidth } = useWindowDimensions();
-  
+  const themeColors = getColors();
   return StyleSheet.create({
+    container: {
+      backgroundColor: themeColors.background,
+      flex: 1,
+      gap: 20,
+      padding: 20,
+      margin: 0,
+    },
+    wrap: {
+      alignItems: 'center',
+      flex: 1,
+    },
+    body: {
+      flex: 1,
+      gap: 20,
+      // maxWidth: windowWidth < 768 ? '100%' : 600,
+      maxWidth: 600,
+      width: '100%',
+    },
     bg: {
-      backgroundColor: Colors[colorScheme ?? 'light'].background,
+      backgroundColor: themeColors.background,
     },
     sub: {
-      backgroundColor: Colors[colorScheme ?? 'light'].subBackground,
+      backgroundColor: themeColors.subBackground,
       padding: 20,
       borderRadius: 8,
     },
@@ -20,7 +36,7 @@ export const getCommonStyles = () => {
       width: 16,
     },
     text: {
-      color: Colors[colorScheme ?? 'light'].text,
+      color: themeColors.text,
       flex: 1,
       marginLeft: 10,
       fontSize: 16,
@@ -29,34 +45,34 @@ export const getCommonStyles = () => {
       width: '100%',
     },
     roundBordered: {
-      borderColor: Colors[colorScheme ?? 'light'].border,
+      borderColor: themeColors.border,
       borderWidth: 1,
       borderRadius: 8,
     },
     roundBorderedSm: {
-      borderColor: Colors[colorScheme ?? 'light'].border,
+      borderColor: themeColors.border,
       borderWidth: 1,
       borderRadius: 4,
     },
     selectBox: {
-      backgroundColor: Colors[colorScheme ?? 'light'].button.tertiary.background,
-      borderColor: Colors[colorScheme ?? 'light'].input.borderColor,
+      backgroundColor: themeColors.button.tertiary.background,
+      borderColor: themeColors.input.borderColor,
       borderWidth: 1,
       borderRadius: 8,
-      color: Colors[colorScheme ?? 'light'].input.color,
+      color: themeColors.input.color,
     },
     selectItem: {
-      backgroundColor: Colors[colorScheme ?? 'light'].input.background,
-      borderColor: Colors[colorScheme ?? 'light'].input.borderColor,
+      backgroundColor: themeColors.input.background,
+      borderColor: themeColors.input.borderColor,
       borderWidth: 1,
       borderRadius: 8,
-      color: Colors[colorScheme ?? 'light'].input.color,
+      color: themeColors.input.color,
     },
     inputText: {
       borderWidth: 1,
-      borderColor: Colors[colorScheme ?? 'light'].input.borderColor,
-      backgroundColor: Colors[colorScheme ?? 'light'].input.background,
-      color: Colors[colorScheme ?? 'light'].input.color,
+      borderColor: themeColors.input.borderColor,
+      backgroundColor: themeColors.input.background,
+      color: themeColors.input.color,
       borderRadius: 8,
       padding: 10,
       marginTop: 5,
@@ -65,8 +81,8 @@ export const getCommonStyles = () => {
       width: 20,
       height: 20,
       marginRight: 6,
-      borderColor: Colors[colorScheme ?? 'light'].border,
-      backgroundColor: Colors[colorScheme ?? 'light'].checkbox.color,
+      borderColor: themeColors.border,
+      backgroundColor: themeColors.checkbox.color,
     },
     buttonGroup: {
       flexDirection: (windowWidth < 320) ? 'column' : 'row',
@@ -78,38 +94,38 @@ export const getCommonStyles = () => {
       paddingVertical: 12,
       paddingHorizontal: (windowWidth < 380) ? 20 : 24,
       borderWidth: 1,
-      borderColor: Colors[colorScheme ?? 'light'].input.borderColor, 
+      borderColor: themeColors.input.borderColor, 
     },
     buttonSm: {
       borderRadius: 8,
       paddingVertical: 8,
       paddingHorizontal: (windowWidth < 380) ? 8 : 10,
       borderWidth: 1,
-      borderColor: Colors[colorScheme ?? 'light'].input.borderColor,
+      borderColor: themeColors.input.borderColor,
     },
     primaryButton: {
-      backgroundColor: Colors[colorScheme ?? 'light'].button.primary.background,
-      color: Colors[colorScheme ?? 'light'].button.primary.color,
+      backgroundColor: themeColors.button.primary.background,
+      color: themeColors.button.primary.color,
     },
     secondaryButton: {
-      backgroundColor: Colors[colorScheme ?? 'light'].button.secondary.background,
-      color: Colors[colorScheme ?? 'light'].button.secondary.color,
+      backgroundColor: themeColors.button.secondary.background,
+      color: themeColors.button.secondary.color,
     },
     tertiaryButton: {
-      backgroundColor: Colors[colorScheme ?? 'light'].button.tertiary.background,
-      color: Colors[colorScheme ?? 'light'].button.tertiary.color,
+      backgroundColor: themeColors.button.tertiary.background,
+      color: themeColors.button.tertiary.color,
     },
     dangerButton: {
-      backgroundColor: Colors[colorScheme ?? 'light'].button.danger.background,
-      color: Colors[colorScheme ?? 'light'].button.danger.color,
+      backgroundColor: themeColors.button.danger.background,
+      color: themeColors.button.danger.color,
     },
     disabledButton: {
-      backgroundColor: Colors[colorScheme ?? 'light'].button.disabled.background,
-      color: Colors[colorScheme ?? 'light'].button.disabled.color,
+      backgroundColor: themeColors.button.disabled.background,
+      color: themeColors.button.disabled.color,
       opacity: 0.5,
     },
     buttonText: {
-      color: Colors[colorScheme ?? 'light'].text,
+      color: themeColors.text,
       fontSize: 16,
       textAlign: 'center',
     },
@@ -118,11 +134,11 @@ export const getCommonStyles = () => {
       right: 16,
       top: '50%',
       transform: [{ translateY: -8 }],
-      color: Colors[colorScheme ?? 'light'].text,
+      color: themeColors.text,
       fontSize: 14,
     },
     modal: {
-      margin: 0
+      margin: 0,
     },
     overlay: {
       flex: 1,
@@ -133,25 +149,30 @@ export const getCommonStyles = () => {
       width: '100%',
     },
     modalBox: {
-      backgroundColor: Colors[colorScheme ?? 'light'].background,
+      backgroundColor: themeColors.background,
       borderTopLeftRadius: 10,
       borderTopRightRadius: 10,
       width: '100%',
+      maxWidth: 600,
     },
     item: {
-      backgroundColor: Colors[colorScheme ?? 'light'].list.item.background,
-      color: Colors[colorScheme ?? 'light'].list.item.color,
+      backgroundColor: themeColors.list.item.background,
+      color: themeColors.list.item.color,
     },
     selected: {
-      backgroundColor: Colors[colorScheme ?? 'light'].list.selected.background,
-      color: Colors[colorScheme ?? 'light'].list.selected.color,
+      backgroundColor: themeColors.list.selected.background,
+      color: themeColors.list.selected.color,
     },
     boxShadow: {
       // iOS
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 6,
+      boxShadow: [
+        {
+          offsetX: 0,
+          offsetY: 4,
+          blurRadius: 6,
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
+      ],
       // Android
       elevation: 5,
     },

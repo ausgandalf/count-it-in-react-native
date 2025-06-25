@@ -1,6 +1,4 @@
 import { getCommonStyles } from '@/constants/Styles';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
 import { SongType } from '@/constants/Types';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -47,7 +45,6 @@ export default function SongListOwner({ type = 'select', viewMode = 'songs', isS
   const [editingSong, setEditingSong] = useState<null|SongType>();
 
   const commonStyles = getCommonStyles();
-  const colorScheme = useColorScheme();
   const styles = StyleSheet.create({
     container: {
       flex: 1,

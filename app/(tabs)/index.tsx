@@ -1,6 +1,5 @@
 import BpmControls from '@/components/BpmControls';
 import SongListOwner from '@/components/SongListOwner';
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -14,7 +13,8 @@ import { SetlistType, SongType } from '@/constants/Types';
 import { getCommonStyles } from '@/constants/Styles';
 import { useSongs } from '@/context/SongsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { alert, generateSongID, isSongExists } from '../../functions/common';
+import { alert } from '../../functions/common';
+import { generateSongID, isSongExists, loadSongs } from '../../functions/resources';
 
 const handleExport = async (setlist:SetlistType) => {
   if (!setlist) return;
@@ -111,43 +111,6 @@ const setCoreUpdate = (coreUpdates:any, song:SongType) => {
 
   return coreUpdates;
 };
-
-async function loadSongs(songs: any[]):Promise<{songs: SongType[], updates:{}}> {
-  const songList:SongType[] = [];
-  
-  const coreUpdates = await AsyncStorage.getItem('coreUpdates');
-  const overrideList = coreUpdates ? JSON.parse(coreUpdates) : {};
-
-  songs.forEach((song: SongType) => {
-    // Use saved BPM if it exists, otherwise use original BPM
-    const songId = generateSongID(song, 'core');
-    const savedBpm = overrideList[songId] ? overrideList[songId]['bpm'] : undefined;
-    if (overrideList[songId] && overrideList[songId]['name']) song.name = overrideList[songId]['name'];
-    if (overrideList[songId] && overrideList[songId]['artist']) song.artist = overrideList[songId]['artist'];
-
-    songList.push({ 
-      ...song, 
-      bpm: savedBpm !== undefined ? savedBpm : song.bpm,
-      id: songId 
-    });
-  });
-
-  const customSongs = await AsyncStorage.getItem('customSongs');
-  const customList:SongType[] = customSongs ? JSON.parse(customSongs) : [];
-
-  customList.forEach(song => {
-    if (!isSongExists(songList, song)) {
-      if (!song.label) song.label = song.name.charAt(0).toUpperCase();
-      songList.push({ 
-        ...song, 
-        id: generateSongID(song, 'custom'),
-        isCustom: true 
-      });
-    }
-  });
-
-  return {songs: songList, updates: overrideList};
-}
 
 const loadSetlist = async () => {
   const setlistsJson = await AsyncStorage.getItem('setlist');
@@ -366,26 +329,9 @@ export default function HomeScreen() {
   const commonStyles = getCommonStyles();
   const colorScheme = useColorScheme();
   const styles = StyleSheet.create({
-    container: {
-      backgroundColor: Colors[colorScheme ?? 'light'].background,
-      flex: 1,
-      gap: 20,
-      padding: 20,
-      margin: 0,
-    },
     content: {
       minHeight: windowHeight - 200,
     },
-    wrap: {
-      alignItems: 'center',
-      flex: 1,
-    },
-    body: {
-      flex: 1,
-      gap: 20,
-      maxWidth: windowWidth < 768 ? '100%' : 600,
-      width: '100%',
-    },    
     middle: {
       flex: 1,
       // minHeight: viewMode == 'setlist' ? 480 : 100,
@@ -411,10 +357,10 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={commonStyles.container} contentContainerStyle={styles.content}>
 
-        <View style={styles.wrap}>
-          <View style={styles.body}>
+        <View style={commonStyles.wrap}>
+          <View style={commonStyles.body}>
 
             <View style={styles.middle}>
 

@@ -1,13 +1,12 @@
+import { getLogo } from '@/functions/common';
 import React from 'react';
-import { Image, StyleSheet, useColorScheme, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 export default function LayoutTop() {
-  const colorScheme = useColorScheme();
-  const logo = colorScheme === 'dark' ? require('../assets/images/logo.png') : require('../assets/images/logo--blue.png');
   return (
     <View style={styles.top}>
       <Image
-        source={logo} // or use a remote URL
+        source={getLogo()} // or use a remote URL
         style={styles.logo}
         resizeMode="contain"
       />

@@ -1,8 +1,6 @@
-import { Colors } from '@/constants/Colors';
 import { getCommonStyles } from '@/constants/Styles';
 import { SongType } from '@/constants/Types';
-import { alert } from '@/functions/common';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { alert, getColors } from '@/functions/common';
 import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
@@ -45,9 +43,9 @@ export default function SongForm({ inputRef, song, onSubmit, onCancel }: SongFor
 
     onSubmit({ id:songId, name: title.trim(), artist: artist.trim(), bpm: isNaN(Number(bpm)) ? 120 : Number(bpm) });
   };
-
-  const colorScheme = useColorScheme();
-  const placeholderTextColor = Colors[colorScheme ?? 'light'].input.placeholder;
+  
+  const themeColors = getColors();
+  const placeholderTextColor = themeColors.input.placeholder;
   const commonStyles = getCommonStyles();
 
   return (

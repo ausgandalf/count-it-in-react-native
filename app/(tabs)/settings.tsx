@@ -1,121 +1,51 @@
 import { ThemedText } from '@/components/ThemedText';
-import { Colors } from '@/constants/Colors';
 import { Settings } from '@/constants/Settings';
 import { getCommonStyles } from '@/constants/Styles';
-import { SongType } from '@/constants/Types';
 import { useSettings } from '@/context/SettingsContext';
 import { useSongs } from '@/context/SongsContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, useWindowDimensions, View } from 'react-native';
 import Modal from 'react-native-modal';
 import * as Progress from 'react-native-progress';
-import { alert, delay, generateSongID, isSongExists } from '../../functions/common';
-
-const saveSettings = async (settings:{}) => {
-  try {
-    await AsyncStorage.setItem('settings', JSON.stringify(settings));
-  } catch (e) {
-    console.error('Failed to save settings:', e);
-  }
-};
-
-async function loadSettings():Promise<{settings:{}}> {
-  
-  const settingsStored = await AsyncStorage.getItem('settings');
-  const settings = settingsStored ? JSON.parse(settingsStored) : Settings;
-
-  return {settings};
-}
-
+import { importSongs, saveSettings } from '../../functions/resources';
 
 export default function SettingsScreen() {
   
   const {settings, setSettings} = useSettings();
   const {songs, setSongs} = useSongs();
-  const [savedSettings, setSavedSettings] = useState(Settings);
+  const [savedSettings, setSavedSettings] = useState(settings);
   const isSettingsChanged = JSON.stringify(settings) !== JSON.stringify(savedSettings);
   const isSettingsDefault = JSON.stringify(settings) === JSON.stringify(Settings);
 
+  const [isImporting, setIsImporting] = useState(false);
   const [isProgressVisible, setProgressVisible] = useState(false);
   const toggleProgressModal = () => setProgressVisible(!isProgressVisible);
   const [progress, setProgress] = useState(0);
   const [progressText, setProgressText] = useState('');
-  useEffect(() => {
-    const doInitialLoad = async () => {
-      const loadedInfo = await loadSettings();
-      setSettings(loadedInfo.settings);
-    }
-    doInitialLoad();
-  }, []);
 
-  const loadSongs = async () => {
-    if (!settings.url) {
-      alert('Error', 'Please enter a URL');
-      return;
-    }
-    setProgressVisible(true);
-    setProgress(0);
-    setProgressText('Accessing URL...');
-    fetch(settings.url) // Replace with your actual URL
-    .then((res) => {
-      if (!res.ok) {
-        setProgressText('Failed to load songs from ' + settings.url);
-        return;
+  const doImportSongs = async () => {
+    importSongs(songs, (statusCode: number, progress: number, text: string, result?: any) => {
+      if (statusCode == 1) {
+        setIsImporting(true);
+        setProgressVisible(true);
+      } else if (statusCode != 2) {
+        setIsImporting(false);
       }
-      return res.json(); // Auto-parses JSON
-    })
-    .then(async (json) => {
-      // Clone the existing songs and add the new songs
-      let newSongs:SongType[] = [];
-      let newlyAddedSongsCount = 0;
-      newSongs = structuredClone(songs);
-      for (let i=0; i<json.length; i++) {
-        await delay(10);
-        setProgress((i + 1) / json.length);
-        setProgressText('Loading songs... ' + i + ' of ' + json.length);
-        const song = json[i];
-        if (!song.label) song.label = song.name.charAt(0).toUpperCase();
-        song.id = generateSongID(song, 'custom');
-        if (!isSongExists(songs, song)) {
-          newSongs.push(song);
-          newlyAddedSongsCount++;
-        }
+      setProgress(progress);
+      setProgressText(text);
+      if (statusCode == 3) {
+        setSongs(result);
       }
-      setSongs(newSongs);
-      // alert('Found ' + json.length + ' song(s). Imported ' + newlyAddedSongsCount + ', skipping duplicates.');
-      setProgressText('Found ' + json.length + ' song(s). Imported ' + newlyAddedSongsCount + ', skipping duplicates.');
-    })
-    .catch((error) => {
-      setProgressText('Failed to load songs from ' + settings.url);
-      console.error('Error fetching JSON:', error);
-    });
+    }, settings);
   }
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const colorScheme = useColorScheme();
   const commonStyles = getCommonStyles();
   const styles = StyleSheet.create({
-    container: {
-      backgroundColor: Colors[colorScheme ?? 'light'].background,
-      flex: 1,
-      gap: 20,
-      padding: 20,
-      margin: 0,
-    },
     content: {
       minHeight: windowHeight - 200,
     },
-    wrap: {
-      alignItems: 'center',
-      flex: 1,
-    },
-    body: {
-      flex: 1,
-      gap: 20,
-      maxWidth: windowWidth < 768 ? '100%' : 600,
-      width: '100%',
-    },    
     middle: {
       flex: 1,
       // minHeight: viewMode == 'setlist' ? 480 : 100,
@@ -134,9 +64,9 @@ export default function SettingsScreen() {
   
   return (
     <>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <View style={styles.wrap}>
-          <View style={styles.body}>
+      <ScrollView style={commonStyles.container} contentContainerStyle={styles.content}>
+        <View style={commonStyles.wrap}>
+          <View style={commonStyles.body}>
 
             <View style={styles.middle}>
               <View style={[commonStyles.sub, {gap: 10}]}>
@@ -148,11 +78,8 @@ export default function SettingsScreen() {
                   placeholder="https://default-song-list.com"
                 />
                 <View style={[commonStyles.buttonGroup, {justifyContent: 'flex-end'}]}>
-                  <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton]} onPress={() => {
-                    // TO DO -- import songs
-                    loadSongs();
-                  }}>
-                    <Text style={commonStyles.buttonText}>Import Songs</Text>
+                  <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton, isImporting ? commonStyles.disabledButton : {}]} onPress={doImportSongs} disabled={isImporting}>
+                    <Text style={commonStyles.buttonText}>{isImporting ? 'Importing...' : 'Start'}</Text>
                   </TouchableOpacity>
                 </View>
               </View>

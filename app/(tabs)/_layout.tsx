@@ -6,18 +6,16 @@ import { HapticTab } from '@/components/HapticTab';
 import LayoutTop from '@/components/LayoutTop';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { getColors } from '@/functions/common';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+  const themeColors = getColors();
   return (
-    <View style={{flex: 1, backgroundColor: Colors[colorScheme ?? 'light'].deepBackground,}}>
+    <View style={{flex: 1, backgroundColor: themeColors.deepBackground,}}>
       <LayoutTop />
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: themeColors.tint,
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,

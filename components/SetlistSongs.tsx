@@ -1,8 +1,6 @@
-import { Colors } from '@/constants/Colors';
 import { getCommonStyles } from '@/constants/Styles';
 import { SetlistType } from '@/constants/Types';
-import { confirm } from '@/functions/common';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { confirm, getColors } from '@/functions/common';
 import { Ionicons } from '@expo/vector-icons'; // or use any icon lib
 import Checkbox from 'expo-checkbox';
 import React, { useEffect, useState } from 'react';
@@ -36,8 +34,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
   }, [setlist])
 
   const commonStyles = getCommonStyles();
-  const colorScheme = useColorScheme();
-
+  const themeColors = getColors();
   const renderItem = ({ item, drag, isActive }) => (
     <ScaleDecorator>
       <View
@@ -67,7 +64,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
             onUpdate('deleteSongFromSetlist', item);
           }}
         >
-          <Ionicons name="trash" size={20} color={Colors[colorScheme ?? 'light'].danger} />
+          <Ionicons name="trash" size={20} color={themeColors.danger} />
         </TouchableOpacity>
       </View>
     </ScaleDecorator>
@@ -107,7 +104,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
           <Checkbox
             value={isAddMode}
             style={commonStyles.checkbox}
-            color={Colors[colorScheme ?? 'light'].checkbox.color}
+            color={themeColors.checkbox.color}
             onValueChange={(v) => {
               setAddMode(v);
               onUpdate('setImportMode', v ? 1 : 0);

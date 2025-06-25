@@ -1,5 +1,4 @@
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { getColors } from '@/functions/common';
 import React, { useCallback, useEffect, useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Svg, { Text as SvgText } from 'react-native-svg';
@@ -58,9 +57,7 @@ const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) 
     }
     onChange(v);
   };
-
-  const colorScheme = useColorScheme();
-
+  const themeColors = getColors();
   return (
     <DropDownPicker
       open={open}
@@ -80,7 +77,7 @@ const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) 
             x="10"
             y="15"
             fontSize="16"
-            fill={Colors[colorScheme ?? 'light'].text}
+            fill={themeColors.text}
             textAnchor="middle"
           >
             ▼
@@ -94,7 +91,7 @@ const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) 
             x="10"
             y="15"
             fontSize="16"
-            fill={Colors[colorScheme ?? 'light'].text}
+            fill={themeColors.text}
             textAnchor="middle"
           >
             ▲

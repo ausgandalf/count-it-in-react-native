@@ -67,7 +67,7 @@ export const Colors = {
     text: '#ECEDEE',
     label: '#ffff00',
     background: '#222222',
-    deepBackground: '#333333',
+    deepBackground: '#121212',
     subBackground: '#333333',
     border: '#333333',
     borderLight: '#444444',

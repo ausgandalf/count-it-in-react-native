@@ -1,37 +1,47 @@
-import LayoutTop from '@/components/LayoutTop';
-import { ThemedText } from '@/components/ThemedText';
-import { getCommonStyles } from '@/constants/Styles';
 import { SettingsProvider } from '@/context/SettingsContext';
 import { SongsProvider } from '@/context/SongsContext';
+import { delay } from '@/functions/common';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
+import LoadingScreen from './loading';
+
+// Prevent the native splash screen from auto-hiding
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [appReady, setAppReady] = useState(false);
   const colorScheme = useColorScheme();
-  const commonStyles = getCommonStyles();
+
+  useEffect(() => {
+    async function prepareApp() {
+      try {
+        await delay(2000);
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppReady(true);
+        await SplashScreen.hideAsync();
+      }
+    }
+    prepareApp();
+  }, []);
+  
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
   const [loading, setLoading] = useState(true);
 
-  if (!loaded) {
+  if (!loaded || !appReady) {
     // Async font loading only occurs in development.
     return null;
   }
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <GestureHandlerRootView>
@@ -39,15 +49,7 @@ export default function RootLayout() {
         <SettingsProvider>
           <SongsProvider>
             {loading ? (
-              <View style={[{flex: 1, justifyContent: 'center', alignItems: 'center', gap: 40,}, commonStyles.bg]}>
-                <View style={{width: '100%', gap: 20}}>
-                  <LayoutTop />
-                </View>
-                <View style={{gap: 20}}>
-                  <ActivityIndicator size="large" color="#0000ff" />
-                  <ThemedText style={{ marginTop: 10 }}>Loading...</ThemedText>
-                </View>
-              </View>
+              <LoadingScreen onLoad={() => setLoading(false)} />
             ) : (
               <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
