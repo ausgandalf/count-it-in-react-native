@@ -19,7 +19,7 @@ const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) 
 
   useEffect(() => {
     console.log('SetlistPicker, viewMode:', viewMode, setlist);
-    const dropdownData = setlist.map((item:any) => ({value: item.id, label: item.name})).slice(0, 5);
+    const dropdownData = setlist.map((item:any) => ({value: item.id, label: item.name + `  ( ${item.songs.length} )`})).slice(0, 5);
     if (dropdownData.length < 5) dropdownData.unshift({value: 'create', label: '➕ Create Setlist'});
     dropdownData.unshift(getFirstItem());
     setItems(dropdownData);

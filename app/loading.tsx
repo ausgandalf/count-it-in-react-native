@@ -66,7 +66,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
           </View>
           <View style={{gap: 20, width: '100%'}}>
             <Progress.Bar progress={progress} width={null} height={10} color={themeColors.button.primary.background} />
-            <ThemedText style={{ marginTop: 10 }}>{loadingText}</ThemedText>
+            <ThemedText textAlign='center' style={{ marginTop: 10 }}>{loadingText}</ThemedText>
           </View>
         </View>
       </View>

@@ -41,6 +41,11 @@ export const getCommonStyles = () => {
       marginLeft: 10,
       fontSize: 16,
     },
+    link: {
+      lineHeight: 30,
+      fontSize: 16,
+      color: themeColors.link,
+    },
     full: {
       width: '100%',
     },
@@ -80,7 +85,6 @@ export const getCommonStyles = () => {
     checkbox: {
       width: 20,
       height: 20,
-      marginRight: 6,
       borderColor: themeColors.border,
       backgroundColor: themeColors.checkbox.color,
     },
@@ -98,7 +102,7 @@ export const getCommonStyles = () => {
     },
     buttonSm: {
       borderRadius: 8,
-      paddingVertical: 8,
+      paddingVertical: 6,
       paddingHorizontal: (windowWidth < 380) ? 8 : 10,
       borderWidth: 1,
       borderColor: themeColors.input.borderColor,

@@ -1,16 +1,18 @@
 import BpmControls from '@/components/BpmControls';
+import LayoutTop from '@/components/LayoutTop';
 import SongListOwner from '@/components/SongListOwner';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import SetListView from '@/components/SetListView';
 import { Songs } from '@/constants/Songs';
 import { SetlistType, SongType } from '@/constants/Types';
 
-import LayoutTop from '@/components/LayoutTop';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { Colors } from '@/constants/Colors';
 import { getCommonStyles } from '@/constants/Styles';
 import { useSongs } from '@/context/SongsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -326,21 +328,22 @@ export default function HomeScreen() {
       saveSongList(newSongs);
     }
   }
-  
+  console.log(windowHeight);
   const commonStyles = getCommonStyles();
   const colorScheme = useColorScheme();
   const styles = StyleSheet.create({
     content: {
-      minHeight: windowHeight - 200,
+      // flex: 1,
+      minHeight: windowHeight - 50,
     },
     middle: {
       flex: 1,
-      // minHeight: viewMode == 'setlist' ? 480 : 100,
+      // minHeight: viewMode == 'setlist' ? 440 : 100,
       width: '100%',
       zIndex: 1000,
     },
     bottom: {
-      
+      // paddingBlockEnd: 20
     },
   });
 
@@ -358,10 +361,14 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <ScrollView style={commonStyles.container} contentContainerStyle={styles.content}>
-        <LayoutTop />
+    <ParallaxScrollView 
+      headerBackgroundColor={{dark: Colors.dark.background, light: Colors.light.background}} 
+      headerImage={<LayoutTop />}
+      contentStyle={styles.content}
+    >
+        {/* <LayoutTop /> */}
         <View style={commonStyles.wrap}>
-          <View style={commonStyles.body}>
+          <View style={[commonStyles.body, {gap: 10}]}>
 
             <View style={styles.middle}>
 
@@ -411,6 +418,6 @@ export default function HomeScreen() {
           </View>
         </View>
       
-    </ScrollView>
+    </ParallaxScrollView>
   );
 }

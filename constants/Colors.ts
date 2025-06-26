@@ -10,6 +10,7 @@ export const Colors = {
   light: {
     danger: '#8f2424',
     text: '#11181C',
+    link: '#2b8b00',
     label: '#3b82f6',
     background: '#cdd7df',
     deepBackground: '#abbdcb',
@@ -70,6 +71,7 @@ export const Colors = {
   dark: {
     danger: '#8f2424',
     text: '#ECEDEE',
+    link: '#40cf00',
     label: '#ffff00',
     background: '#222222',
     deepBackground: '#121212',

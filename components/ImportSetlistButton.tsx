@@ -6,7 +6,8 @@ import * as FileSystem from 'expo-file-system';
 import React from 'react';
 import { Platform, Text, TouchableOpacity } from 'react-native';
 
-export default function ImportSetlistButton({ onSuccess }:{
+export default function ImportSetlistButton({ buttonText='Import', onSuccess }:{
+  buttonText?: string,
   onSuccess: (type:string, v:any) => void,
 }) {
   
@@ -53,7 +54,7 @@ export default function ImportSetlistButton({ onSuccess }:{
 
   return (
     <TouchableOpacity style={[commonStyles.buttonSm, commonStyles.secondaryButton]} onPress={handleImport}>
-      <Text style={commonStyles.buttonText}>Import</Text>
+      <Text style={commonStyles.buttonText}>{buttonText}</Text>
     </TouchableOpacity>
   );
 }

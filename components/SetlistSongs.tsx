@@ -4,7 +4,7 @@ import { confirm, getColors } from '@/functions/common';
 import { Ionicons } from '@expo/vector-icons'; // or use any icon lib
 import Checkbox from 'expo-checkbox';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import ImportSetlistButton from './ImportSetlistButton';
 import InnerShadow from './InnerShadow';
@@ -32,6 +32,9 @@ export default function SetlistSongs({ setlist, onUpdate }: {
       }
     }
   }, [setlist])
+
+  const { height: windowHeight } = useWindowDimensions();
+  const songlistMaxHeight = Math.max(240, windowHeight - 580);
 
   const commonStyles = getCommonStyles();
   const themeColors = getColors();
@@ -79,17 +82,17 @@ export default function SetlistSongs({ setlist, onUpdate }: {
               // TODO - Open Add Song Modal
               onUpdate('setSongListModalVisible', true);
             }}>
-              <Text style={commonStyles.buttonText}>Add Songs</Text>
+              <Text style={commonStyles.buttonText}>Add ♫</Text>
             </TouchableOpacity>
           </View>
           <View style={{flexDirection: 'row', gap: 6}}>
-            <ImportSetlistButton onSuccess={onUpdate} />
+            <ImportSetlistButton buttonText='📥' onSuccess={onUpdate} />
 
             <TouchableOpacity style={[commonStyles.buttonSm, commonStyles.secondaryButton]} onPress={() => {
               // TODO - Export
               onUpdate('export', '');
             }}>
-              <Text style={commonStyles.buttonText}>Export</Text>
+              <Text style={commonStyles.buttonText}>📤</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={[commonStyles.buttonSm, commonStyles.dangerButton]} onPress={() => {
@@ -100,7 +103,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
             </TouchableOpacity>
           </View>
         </View>
-        <View style={{flexDirection: 'row', justifyContent:'flex-end'}}>
+        <View style={{flexDirection: 'row'}}>
           <Checkbox
             value={isAddMode}
             style={commonStyles.checkbox}
@@ -110,7 +113,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
               onUpdate('setImportMode', v ? 1 : 0);
             }}
           />
-          <Text style={commonStyles.buttonText}>Add new songs to the library on import.</Text>
+          <Text style={commonStyles.text}>Add new songs to the library on import.</Text>
         </View>
       </View>
       
@@ -128,7 +131,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
             </View>
           )}
           contentContainerStyle={{ padding: 10 }}
-          style={[commonStyles.roundBordered, {maxHeight: 240 }]}
+          style={[commonStyles.roundBordered, {maxHeight: songlistMaxHeight }]}
         />
   
         <InnerShadow />

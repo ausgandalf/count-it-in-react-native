@@ -1,11 +1,14 @@
+import { ExternalLink } from '@/components/ExternalLink';
 import LayoutTop from '@/components/LayoutTop';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
+import { Colors } from '@/constants/Colors';
 import { Settings } from '@/constants/Settings';
 import { getCommonStyles } from '@/constants/Styles';
 import { useSettings } from '@/context/SettingsContext';
 import { useSongs } from '@/context/SongsContext';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, useWindowDimensions, View } from 'react-native';
 import Modal from 'react-native-modal';
 import * as Progress from 'react-native-progress';
 import { importSongs, saveSettings } from '../../functions/resources';
@@ -45,11 +48,11 @@ export default function SettingsScreen() {
   const commonStyles = getCommonStyles();
   const styles = StyleSheet.create({
     content: {
-      minHeight: windowHeight - 200,
+      minHeight: windowHeight - 50,
     },
     middle: {
       flex: 1,
-      // minHeight: viewMode == 'setlist' ? 480 : 100,
+      minHeight: windowHeight - 280,
       width: '100%',
       zIndex: 1000,
     },
@@ -65,25 +68,42 @@ export default function SettingsScreen() {
   
   return (
     <>
-      <ScrollView style={commonStyles.container} contentContainerStyle={styles.content}>
-        <LayoutTop />
+      <ParallaxScrollView 
+        headerBackgroundColor={{dark: Colors.dark.background, light: Colors.light.background}} 
+        headerImage={<LayoutTop />}
+        contentStyle={styles.content}
+      >
         <View style={commonStyles.wrap}>
           <View style={commonStyles.body}>
 
-            <View style={styles.middle}>
+            <View style={[styles.middle, {gap: 20}]}>
               <View style={[commonStyles.sub, {gap: 10}]}>
-                <ThemedText type="default" textAlign="left">Import Songs from Library</ThemedText>
+                <View style={{flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-start', gap: 10}}>
+                  <ThemedText type="title" textAlign="left">About</ThemedText>
+                  <ThemedText type="default" textAlign="left">v1.0.0</ThemedText>
+                </View>
+                <ThemedText type="default" textAlign="left">
+                  This app does not collect, store, or transmit any personal data. It only fetches public music metadata from a remote source for display.
+                </ThemedText>
+                <ExternalLink href="https://github.com/jason-c-lee/setlist-maker">
+                  <ThemedText type="link" textAlign="left">Terms of Service</ThemedText>
+                </ExternalLink>
+                <ThemedText type="default" textAlign="left">© 2025, All rights reserved</ThemedText>
+              </View>
+
+              <View style={[commonStyles.sub, {gap: 10}]}>
+                <View style={{flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10}}>
+                  <ThemedText type="default" textAlign="left">Import</ThemedText>
+                  <TouchableOpacity style={[commonStyles.buttonSm, commonStyles.primaryButton, isImporting ? commonStyles.disabledButton : {}]} onPress={doImportSongs} disabled={isImporting}>
+                    <Text style={commonStyles.buttonText}>{isImporting ? 'Importing...' : 'Start'}</Text>
+                  </TouchableOpacity>
+                </View>
                 <TextInput
                   style={commonStyles.inputText}
                   value={settings.url}
                   onChangeText={(v) => setSettings({...settings, url: v})}
                   placeholder="https://default-song-list.com"
                 />
-                <View style={[commonStyles.buttonGroup, {justifyContent: 'flex-end'}]}>
-                  <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton, isImporting ? commonStyles.disabledButton : {}]} onPress={doImportSongs} disabled={isImporting}>
-                    <Text style={commonStyles.buttonText}>{isImporting ? 'Importing...' : 'Start'}</Text>
-                  </TouchableOpacity>
-                </View>
               </View>
               
             </View>
@@ -116,7 +136,7 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-      </ScrollView>
+      </ParallaxScrollView>
       
       <Modal 
         isVisible={isProgressVisible} 
