@@ -30,7 +30,7 @@ export default function ImportSetlistButton({ buttonText='Import', onSuccess }:{
 
     // Pick the file
     const result:DocumentPicker.DocumentPickerResult = await DocumentPicker.getDocumentAsync({ type: 'text/csv' });
-    console.log(result);
+    
     if (result.assets && result.assets.length > 0) {
       try {
         let content = '';
@@ -42,7 +42,7 @@ export default function ImportSetlistButton({ buttonText='Import', onSuccess }:{
         }
         const setlists = parseSetlistCSV(content);
         const importedSongs = setlists && setlists['imported'] ? setlists['imported'].songs : [];
-        console.log(importedSongs);
+        
         onSuccess('importSongs', importedSongs);
 
       } catch (err) {

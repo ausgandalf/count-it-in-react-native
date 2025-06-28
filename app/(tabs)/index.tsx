@@ -201,7 +201,7 @@ export default function HomeScreen() {
           break;
         } else {
           // TODO : This should not be happening, so what logic should be here???
-          console.log(`The song is not found: ${song}`);
+          // console.log(`The song is not found: ${song}`);
         }
       }
     }
@@ -328,7 +328,7 @@ export default function HomeScreen() {
       saveSongList(newSongs);
     }
   }
-  console.log(windowHeight);
+  
   const commonStyles = getCommonStyles();
   const colorScheme = useColorScheme();
   const styles = StyleSheet.create({

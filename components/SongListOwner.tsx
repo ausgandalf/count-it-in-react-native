@@ -19,7 +19,7 @@ export default function SongListOwner({ type = 'select', viewMode = 'songs', isS
   useEffect(() => setViewMode(viewMode), [viewMode]);
 
   const [isSongListModalVisible, setSongListModalVisible] = useState(false);
-  useEffect(() => {setSongListModalVisible(isSongModalOpen); console.log(isSongListModalVisible);}, [isSongModalOpen]);
+  useEffect(() => setSongListModalVisible(isSongModalOpen), [isSongModalOpen]);
   
   const toggleSongListModal = () => onUpdate('setSongListModalVisible', !isSongListModalVisible);
 

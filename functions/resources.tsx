@@ -103,6 +103,5 @@ export async function loadSettings():Promise<{settings:{}}> {
   
   const settingsStored = await AsyncStorage.getItem('settings');
   const settings = settingsStored ? JSON.parse(settingsStored) : {};
-  console.log(settings);
   return {settings: {...Settings, ...settings}};
 }
