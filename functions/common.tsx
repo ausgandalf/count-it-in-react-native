@@ -34,9 +34,9 @@ export function delay(ms:number) {
 }
 
 export function getColors(forcedTheme: 'light' | 'dark' | null = null) {
-  return Colors[forcedTheme ?? useColorScheme() ?? 'light'];
+  return Colors[forcedTheme ?? useColorScheme() ?? 'dark'];
 }
 
 export function getLogo(forcedTheme: 'light' | 'dark' | null = null) {
-  return (forcedTheme ?? useColorScheme() ?? 'light') === 'dark' ? require('../assets/images/logo.png') : require('../assets/images/logo--blue.png');
+  return (forcedTheme ?? useColorScheme() ?? 'dark') === 'dark' ? require('../assets/images/logo.png') : require('../assets/images/logo--blue.png');
 }

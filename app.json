@@ -10,6 +10,24 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.jessee-beecham-320.countitin",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSExceptionDomains": {
+            "idealiumweb.com": {
+              "NSExceptionAllowsInsecureHTTPLoads": false,
+              "NSExceptionMinimumTLSVersion": "1.2",
+              "NSExceptionRequiresForwardSecrecy": true,
+              "NSIncludesSubdomains": true
+            }
+          }
+        },
+        "UIBackgroundModes": [
+          "audio"
+        ],
+        "NSMicrophoneUsageDescription": "This app uses the microphone for audio input and tempo detection.",
+        "NSCameraUsageDescription": "This app may access the camera for scanning QR codes or barcodes."
+      },
       "splash": {
         "image": "./assets/images/splash-icon.png",
         "imageWidth": 200,
@@ -29,6 +47,13 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
+      "package": "com.jessee_beecham_320.countitin",
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ],
       "splash": {
         "image": "./assets/images/splash-icon.png",
         "imageWidth": 200,
@@ -40,8 +65,7 @@
           "resizeMode": "contain",
           "backgroundColor": "#222222"
         }
-      },
-      "package": "com.jessee_beecham_320.countitin"
+      }
     },
     "web": {
       "bundler": "metro",

@@ -1,3 +1,4 @@
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { SettingsProvider } from '@/context/SettingsContext';
 import { SongsProvider } from '@/context/SongsContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -25,22 +26,24 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView>
-      <ThemeProvider value={true || colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <SettingsProvider>
-          <SongsProvider>
-            {loading ? (
-              <LoadingScreen onLoad={() => setLoading(false)} />
-            ) : (
-              <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="+not-found" />
-              </Stack>
-            )}
-          </SongsProvider>
-          <StatusBar style="auto" />
-        </SettingsProvider>
-      </ThemeProvider>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView>
+        <ThemeProvider value={true || colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <SettingsProvider>
+            <SongsProvider>
+              {loading ? (
+                <LoadingScreen onLoad={() => setLoading(false)} />
+              ) : (
+                <Stack>
+                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                  <Stack.Screen name="+not-found" />
+                </Stack>
+              )}
+            </SongsProvider>
+            <StatusBar style="auto" />
+          </SettingsProvider>
+        </ThemeProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }

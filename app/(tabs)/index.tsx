@@ -206,7 +206,7 @@ export default function HomeScreen() {
       }
     }
     
-    const newSongs = structuredClone(songs);
+    const newSongs = JSON.parse(JSON.stringify(songs)); // React Native compatible deep clone
     setSongs(newSongs);
     saveSongList(newSongs);
   }
@@ -232,7 +232,7 @@ export default function HomeScreen() {
       }
     }
     
-    const newSetlists = structuredClone(setlists);
+    const newSetlists = JSON.parse(JSON.stringify(setlists)); // React Native compatible deep clone
     setSetlists(newSetlists);
     saveSetlists(newSetlists);
   }
@@ -291,7 +291,7 @@ export default function HomeScreen() {
       setSongImportMode(v);
     } else if (type == 'importSongs') {
 
-      let newSongs = structuredClone(songs);
+      let newSongs = JSON.parse(JSON.stringify(songs)); // React Native compatible deep clone
       let isSongsLibraryUpdated = false;
 
       const songsToSetlist = [];

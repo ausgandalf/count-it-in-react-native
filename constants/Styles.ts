@@ -95,8 +95,8 @@ export const getCommonStyles = () => {
     },
     button: {
       borderRadius: 8,
-      paddingVertical: 12,
-      paddingHorizontal: (windowWidth < 380) ? 20 : 24,
+      paddingVertical: 10,
+      paddingHorizontal: (windowWidth < 380) ? 16 : 20,
       borderWidth: 1,
       borderColor: themeColors.input.borderColor, 
     },
