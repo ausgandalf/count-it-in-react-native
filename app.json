@@ -3,7 +3,7 @@
     "name": "Count It In",
     "slug": "count-it-in",
     "version": "1.0.0",
-    "orientation": "default",
+    "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "esb-count-it-in",
     "userInterfaceStyle": "automatic",

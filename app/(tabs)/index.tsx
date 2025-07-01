@@ -3,7 +3,7 @@ import LayoutTop from '@/components/LayoutTop';
 import SongListOwner from '@/components/SongListOwner';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View, useWindowDimensions } from 'react-native';
 import Modal from 'react-native-modal';
 
 import SetListView from '@/components/SetListView';
@@ -318,98 +318,112 @@ export default function HomeScreen() {
         </View>
       {/* </ParallaxScrollView> */}
       </View>
-
-      <Modal 
-        isVisible={isSetlistFormModalVisible} 
-        onBackButtonPress={() => onUpdate('openSetlistFormModal', false)}
-        onBackdropPress={() => onUpdate('openSetlistFormModal', false)}
-        animationIn="fadeIn"
-        animationOut="fadeOut"
-        backdropOpacity={0.5}
-        useNativeDriver={true}
-        hideModalContentWhileAnimating={true}
-        style={[commonStyles.modal, {padding: 0}]}
-      >
-        <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
-          <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
-            <SetlistForm 
-              inputRef={setlistFormInputRef}
-              onSubmit={(setlist: { id: string, name: string; }) =>{
-                // TODO - Setlist list update
-                onUpdate('openSetlistFormModal', false)
-                onUpdate('updateSetlist', setlist);
-              }}
-              onCancel={() =>{
-                onUpdate('openSetlistFormModal', false)
-              }}
-            />
-          </View>
-        </View>
-      </Modal>
       
-      <Modal
-        isVisible={isSongListModalVisible}
-        onBackdropPress={() => onUpdate('openSongListModal', false)}
-        onBackButtonPress={() => onUpdate('openSongListModal', false)}
-        backdropOpacity={0.5}
-        animationIn="slideInUp"
-        animationOut="slideOutDown"
-        useNativeDriver={true}
-        hideModalContentWhileAnimating={true}
-        style={[commonStyles.modal]}
-      >
-        <View style={[commonStyles.overlay, {padding: 0}]}>
-          <View style={[commonStyles.modalBox, { zIndex: 1 }]}>
-            <SongList 
-              songs={sortedSongList()} 
-              onSelect={(song) => {
-                onUpdate('openSongListModal', false);
-                if (viewMode == 'songs') {
-                  setSelectedSong(song);
-                } else {
-                  // let's add it to selected setlist
-                  if (!selectedSetlist) return;
-                  song.id = song.id + '--' + Date.now().toString();
-                  selectedSetlist.songs.push(song)
-                  updateSetlist(selectedSetlist);
-                }
-                setBpm(song.bpm??120);
-              }} 
-              openForm={openSongForm}
-              onDelete={(ids:string[]) => onUpdate('deleteSongsFromLibrary', ids)}
-            />
+      <View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{ flex: 1 }}>
+            <Modal 
+              isVisible={isSetlistFormModalVisible} 
+              onBackButtonPress={() => onUpdate('openSetlistFormModal', false)}
+              onBackdropPress={() => onUpdate('openSetlistFormModal', false)}
+              animationIn="fadeIn"
+              animationOut="fadeOut"
+              backdropOpacity={0.5}
+              useNativeDriver={true}
+              hideModalContentWhileAnimating={true}
+              style={[commonStyles.modal, {padding: 0}]}
+            >
+              <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
+                <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
+                  <SetlistForm 
+                    inputRef={setlistFormInputRef}
+                    onSubmit={(setlist: { id: string, name: string; }) =>{
+                      // TODO - Setlist list update
+                      onUpdate('openSetlistFormModal', false)
+                      onUpdate('updateSetlist', setlist);
+                    }}
+                    onCancel={() =>{
+                      onUpdate('openSetlistFormModal', false)
+                    }}
+                  />
+                </View>
+              </View>
+            </Modal>
           </View>
-        </View>
-      </Modal>
+        </TouchableWithoutFeedback>
 
-      <Modal 
-        isVisible={isSongFormModalVisible} 
-        onBackButtonPress={() => onUpdate('openSongFormModal', false)}
-        onBackdropPress={() => onUpdate('openSongFormModal', false)}
-        animationIn="fadeIn"
-        animationOut="fadeOut"
-        backdropOpacity={0.5}
-        useNativeDriver={true}
-        hideModalContentWhileAnimating={true}
-        style={[commonStyles.modal, {padding: 0}]}
-      >
-        <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
-          <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
-            <SongForm 
-              inputRef={songFormInputRef}
-              song={editingSong}
-              onSubmit={(song: { id: string, name: string; artist: string; bpm: number }) =>{
-                // TODO - Song list update
-                onUpdate('openSongFormModal', false);
-                onUpdate('song', song);
-              }}
-              onCancel={() =>{
-                onUpdate('openSongFormModal', false);
-              }}
-            />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{ flex: 1 }}>
+            <Modal
+              isVisible={isSongListModalVisible}
+              onBackdropPress={() => onUpdate('openSongListModal', false)}
+              onBackButtonPress={() => onUpdate('openSongListModal', false)}
+              backdropOpacity={0.5}
+              animationIn="slideInUp"
+              animationOut="slideOutDown"
+              useNativeDriver={true}
+              hideModalContentWhileAnimating={true}
+              style={[commonStyles.modal]}
+            >
+              <View style={[commonStyles.overlay, {padding: 0}]}>
+                <View style={[commonStyles.modalBox, { zIndex: 1 }]}>
+                  <SongList 
+                    songs={sortedSongList()} 
+                    onSelect={(song) => {
+                      onUpdate('openSongListModal', false);
+                      if (viewMode == 'songs') {
+                        setSelectedSong(song);
+                      } else {
+                        // let's add it to selected setlist
+                        if (!selectedSetlist) return;
+                        song.id = song.id + '--' + Date.now().toString();
+                        selectedSetlist.songs.push(song)
+                        updateSetlist(selectedSetlist);
+                      }
+                      setBpm(song.bpm??120);
+                    }} 
+                    openForm={openSongForm}
+                    onDelete={(ids:string[]) => onUpdate('deleteSongsFromLibrary', ids)}
+                  />
+                </View>
+              </View>
+            </Modal>
           </View>
-        </View>
-      </Modal>
+        </TouchableWithoutFeedback>
+
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{ flex: 1 }}>
+            <Modal 
+              isVisible={isSongFormModalVisible} 
+              onBackButtonPress={() => onUpdate('openSongFormModal', false)}
+              onBackdropPress={() => onUpdate('openSongFormModal', false)}
+              animationIn="fadeIn"
+              animationOut="fadeOut"
+              backdropOpacity={0.5}
+              useNativeDriver={true}
+              hideModalContentWhileAnimating={true}
+              style={[commonStyles.modal, {padding: 0}]}
+            >
+              <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
+                <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
+                  <SongForm 
+                    inputRef={songFormInputRef}
+                    song={editingSong}
+                    onSubmit={(song: { id: string, name: string; artist: string; bpm: number }) =>{
+                      // TODO - Song list update
+                      onUpdate('openSongFormModal', false);
+                      onUpdate('song', song);
+                    }}
+                    onCancel={() =>{
+                      onUpdate('openSongFormModal', false);
+                    }}
+                  />
+                </View>
+              </View>
+            </Modal>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
       
     </View>
   );

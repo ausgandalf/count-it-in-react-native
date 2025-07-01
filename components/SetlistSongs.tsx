@@ -16,6 +16,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
 }) {
 
   const [isAddMode, setAddMode] = useState(true);
+  const [currentSetlist, setCurrentSetlist] = useState<SetlistType | null>(null);
   const [data, setData] = useState<any[]>([]);
   const [selectedSongId, setSelectedSongId] = useState();
   const [scrollEnabled, setScrollEnabled] = useState(scrollable);
@@ -25,6 +26,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   }, [scrollable]);
 
   useEffect(() => {
+    setCurrentSetlist(setlist || null);
     setData(setlist ? setlist.songs : []);
     let selectFirstItem = true;
     if ( setlist && setlist.songs.length > 0) {
@@ -40,7 +42,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   }, [setlist])
 
   const { height: windowHeight } = useWindowDimensions();
-  const songlistMaxHeight = Math.max(240, windowHeight - 580);
+  const songlistMaxHeight = Math.max(240, windowHeight - 640);
 
   const commonStyles = getCommonStyles();
   const themeColors = getColors();
@@ -126,10 +128,17 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
       <View style={{zIndex: 1}}>
         
         <DraggableFlatList
-        activationDistance={scrollEnabled ? 10 : 1000}
+          nestedScrollEnabled={true}
+          activationDistance={scrollEnabled ? 10 : 1000}
           scrollEnabled={scrollEnabled}
           data={data}
-          onDragEnd={({ data }) => setData(data)}
+          onDragEnd={({ data }) => {
+            setData(data);
+            onUpdate('updateSetlist', {
+              ...currentSetlist,
+              songs: data
+            });
+          }}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           ItemSeparatorComponent={() => <View style={{ height: 8 }} />} // ← gap between items
