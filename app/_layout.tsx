@@ -13,6 +13,12 @@ import 'react-native-reanimated';
 import LoadingScreen from './loading';
 
 export default function RootLayout() {
+  const [orientation, setOrientation] = useState<ScreenOrientation.OrientationLock>(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+  const [isPortrait, setIsPortrait] = useState(true);
+  useEffect(() => {
+    ScreenOrientation.lockAsync(orientation);
+  }, [orientation]);
+
   const colorScheme = useColorScheme();
 
   const [loaded] = useFonts({
@@ -24,10 +30,6 @@ export default function RootLayout() {
     // Async font loading only occurs in development.
     return null;
   }
-
-  useEffect(() => {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-  }, []);
 
   return (
     <ErrorBoundary>
