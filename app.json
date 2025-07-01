@@ -13,8 +13,9 @@
       "bundleIdentifier": "com.jessee-beecham-320.countitin",
       "infoPlist": {
         "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
           "NSExceptionDomains": {
-            "idealiumweb.com": {
+            "*": {
               "NSExceptionAllowsInsecureHTTPLoads": false,
               "NSExceptionMinimumTLSVersion": "1.2",
               "NSExceptionRequiresForwardSecrecy": true,
@@ -32,7 +33,7 @@
         "image": "./assets/images/splash-icon.png",
         "imageWidth": 200,
         "resizeMode": "contain",
-        "backgroundColor": "#ffffff",
+        "backgroundColor": "#cdd7df",
         "dark": {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
@@ -44,7 +45,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#cdd7df"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.jessee_beecham_320.countitin",
@@ -58,7 +59,7 @@
         "image": "./assets/images/splash-icon.png",
         "imageWidth": 200,
         "resizeMode": "contain",
-        "backgroundColor": "#ffffff",
+        "backgroundColor": "#cdd7df",
         "dark": {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
@@ -80,7 +81,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#cdd7df",
           "dark": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 200,

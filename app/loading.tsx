@@ -3,7 +3,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { getCommonStyles } from '@/constants/Styles';
 import { useSettings } from '@/context/SettingsContext';
 import { useSongs } from '@/context/SongsContext';
-import { delay, getColors } from '@/functions/common';
+import { getColors } from '@/functions/common';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import * as Progress from 'react-native-progress';
@@ -18,10 +18,8 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   const [progress, setProgress] = useState(0);
 
   const finalizing = async () => {
-    await delay(100);
     setLoadingText('Setting up songs library...');
     setProgress(1);
-    await delay(500);
     onLoad();
   }
 
@@ -32,7 +30,6 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
       const loadedSettings = await loadSettings();
       setSettings(loadedSettings.settings);
       setProgress(0.2);
-      await delay(100);
 
       importSongs(songs, async (statusCode: number, progress: number, text: string, result?: any) => {
         if (statusCode == 1) {

@@ -143,6 +143,7 @@ export const getCommonStyles = () => {
     },
     modal: {
       margin: 0,
+      zIndex: 1000,
     },
     overlay: {
       flex: 1,
@@ -151,6 +152,7 @@ export const getCommonStyles = () => {
       alignItems: 'center',
       pointerEvents: 'box-none',
       width: '100%',
+      padding: 20,
     },
     modalBox: {
       backgroundColor: themeColors.background,

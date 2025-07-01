@@ -1,10 +1,8 @@
 import SetlistPicker from '@/components/SetlistPicker';
 import { getCommonStyles } from '@/constants/Styles';
 import { SetlistType } from '@/constants/Types';
-import React, { useEffect, useRef, useState } from 'react';
-import { TextInput, View } from 'react-native';
-import Modal from 'react-native-modal';
-import SetlistForm from './SetlistForm';
+import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import SetlistSongs from './SetlistSongs';
 
 export default function SetListView({
@@ -12,32 +10,25 @@ export default function SetListView({
   selected = undefined,
   setlist = [],
   onUpdate = () => {},
+  modalOpen = false,
 }: {
   viewMode:'songs'|'setlist';
   selected: SetlistType | undefined,
   setlist: SetlistType[];
   onUpdate: (type:string, v:any) => void;
+  modalOpen: boolean;
 }) {
   
   const [currentViewMode, setCurrentViewMode] = useState(viewMode);
   const [selectedSetlist, setSelectedSetlist] = useState<SetlistType>();
-  const [editingSetlist, setEditingSetlist] = useState<null|SetlistType>();
-  const [isSetlistFormModalVisible, setSetlistFormModalVisible] = useState(false);
-  const toggleSetlistFormModal = () => setSetlistFormModalVisible(!isSetlistFormModalVisible);
+  const [isModalOpen, setIsModalOpen] = useState(modalOpen);
 
-  const inputRef = useRef<TextInput>(null);
   useEffect(() => {
-    if (isSetlistFormModalVisible) {
-      const timeout = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
-      return () => clearTimeout(timeout);
-    }
-  }, [isSetlistFormModalVisible]);
+    setIsModalOpen(modalOpen);
+  }, [modalOpen]);
 
   useEffect(() => {
     if (selected) {
-      // console.log('SetListView: ', selected);
       setSelectedSetlist(selected);
     }
   }, [selected]);
@@ -49,9 +40,10 @@ export default function SetListView({
   const onSetlistSelected = (setlistId:string) => {
     if (setlistId == 'create') {
       //
-      setSetlistFormModalVisible(true);
+      onUpdate('openSetlistFormModal', true);
     } else if (setlistId == '') {
-      onUpdate('setViewMode', 'songs');
+      // onUpdate('setViewMode', 'songs');
+      onUpdate('selectSetlist', undefined);
     } else {
       onUpdate('selectSetlist', setlist.find((item) => item.id == setlistId ));
     }
@@ -72,34 +64,9 @@ export default function SetListView({
 
       {viewMode == 'setlist' && (
         <View style={commonStyles.sub}>
-          <SetlistSongs setlist={selectedSetlist} onUpdate={onUpdate} />
+          <SetlistSongs setlist={selectedSetlist} onUpdate={onUpdate} scrollable={!isModalOpen} />
         </View>
       )}
-
-      <Modal 
-        isVisible={isSetlistFormModalVisible} 
-        onBackButtonPress={toggleSetlistFormModal}
-        animationIn="fadeIn"
-        animationOut="fadeOut"
-        style={[commonStyles.modal, {padding: 20}]}
-      >
-        <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
-          <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
-            <SetlistForm 
-              inputRef={inputRef}
-              setlist={editingSetlist}
-              onSubmit={(setlist: { id: string, name: string; }) =>{
-                // TODO - Setlist list update
-                setSetlistFormModalVisible(false);
-                onUpdate('updateSetlist', setlist);
-              }}
-              onCancel={() =>{
-                setSetlistFormModalVisible(false);
-              }}
-            />
-          </View>
-        </View>
-      </Modal>
       
     </View>
   );

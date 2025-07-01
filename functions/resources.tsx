@@ -1,8 +1,150 @@
 import { Settings } from "@/constants/Settings";
-import { SongType } from "@/constants/Types";
+import { SetlistType, SongType } from "@/constants/Types";
+import { alert } from "@/functions/common";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from '@react-native-community/netinfo';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import { Platform } from "react-native";
 import { delay } from "./common";
+
+
+export const handleExport = async (setlist:SetlistType) => {
+  if (!setlist) return;
+  const fileName = setlist.name + '-' + setlist.id + '.csv';
+  const csvHeader = "name,artist,bpm\n";
+  const csvRows = setlist.songs.map(song =>
+    `"${song.name.replace(/"/g, '""')}","${song.artist.replace(/"/g, '""')}",${song.bpm}`
+  );
+  const csvContent = csvHeader + csvRows.join("\n");
+  
+  if (Platform.OS === 'web') {
+    handleExportWeb(fileName, csvContent);
+  } else {
+    handleExportMobile(fileName, csvContent);
+  }
+}
+
+export const handleExportWeb = async (fileName: string, csvContent:string) => {
+  try {
+    const blob = new Blob([csvContent], { type: "text/csv" });;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${fileName}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Export error:', error);
+    alert('Export Failed', 'Something went wrong while exporting the file.');
+  }
+};
+
+export const handleExportMobile = async (fileName: string, csvContent:string) => {
+  if (!csvContent) return;
+
+  try {
+    const fileUri = FileSystem.documentDirectory + fileName;
+
+    // Save content to file
+    await FileSystem.writeAsStringAsync(fileUri, csvContent, {
+      encoding: FileSystem.EncodingType.UTF8,
+    });
+
+    // Check if sharing is available
+    const canShare = await Sharing.isAvailableAsync();
+    if (!canShare) {
+      alert('Sharing is not supported on this device. The song list has been exported to:' + fileUri);
+      return;
+    }
+
+    // Open share dialog
+    await Sharing.shareAsync(fileUri);
+  } catch (error) {
+    console.error('Export error:', error);
+    alert('Export Failed', 'Something went wrong while exporting the file.');
+  }
+};
+
+export const saveSongList = async (songList:SongType[]) => {
+  try {
+    const customSongs = songList.filter(s => s.isCustom);
+    await AsyncStorage.setItem('customSongs', JSON.stringify(customSongs));
+  } catch (e) {
+    console.error('Failed to save custom song list:', e);
+  }
+};
+
+export const saveCoreUpdates = async (coreUpdates:any) => {
+  try {
+    await AsyncStorage.setItem('coreUpdates', JSON.stringify(coreUpdates));
+  } catch (e) {
+    console.error('Failed to save core updates list:', e);
+  }
+};
+
+export const setCoreUpdate = (coreUpdates:any, song:SongType) => {
+  if (!song.id) song.id = generateSongID(song, song.isCustom ? 'custom' :  'core');
+  if (song.id in coreUpdates) {
+    coreUpdates[song.id] = {
+      ...coreUpdates[song.id],
+      bpm: song.bpm,
+      name: song.name,
+      artist: song.artist,
+    };
+  } else {
+    coreUpdates[song.id] = {
+      bpm: song.bpm,
+      name: song.name,
+      artist: song.artist,
+    };
+  }
+
+  return coreUpdates;
+};
+
+export const loadSetlist = async () => {
+  const setlistsJson = await AsyncStorage.getItem('setlist');
+  const setlists = setlistsJson ? JSON.parse(setlistsJson) : [];
+  
+  return {setlists: setlists.slice(0, 5)};
+}
+
+export const saveSetlists = async (setlist:SetlistType[]) => {
+  try {
+    await AsyncStorage.setItem('setlist', JSON.stringify(setlist));
+  } catch (e) {
+    console.error('Failed to save setlist:', e);
+  }
+};
+
+export function arangeSongs(songs:SongType[]) {
+  const sortedSongList = songs.sort((a, b) => a.name.localeCompare(b.name));
+  const arrangedSongList: SongType[] = [];
+
+  let prevLabel:false|string = false;
+  for (let i=0; i<sortedSongList.length; i++) {
+    const item = sortedSongList[i];
+
+    if (sortedSongList[i].label !== prevLabel) {
+      arrangedSongList.push({
+        id: `label-${item.label}`,
+        name: item.label,
+        isLabel: 1,
+        label: item.label,
+        artist: '',
+        bpm: 120,
+      });
+      prevLabel = sortedSongList[i].label;
+    }
+    arrangedSongList.push(item);
+  }
+
+  return arrangedSongList;
+}
+
 
 export function isSongExists(list:SongType[], song:SongType) {
   for (let i=0; i<list.length; i++) {

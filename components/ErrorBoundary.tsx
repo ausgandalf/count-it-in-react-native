@@ -1,4 +1,3 @@
-import { getColors } from '@/functions/common';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
@@ -12,6 +11,7 @@ interface State {
 }
 
 export class ErrorBoundary extends React.Component<Props, State> {
+  
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
@@ -32,7 +32,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
           <Text style={{ fontSize: 18, marginBottom: 20 }}>Something went wrong</Text>
           <TouchableOpacity 
             onPress={() => this.setState({ hasError: false })}
-            style={{ padding: 10, backgroundColor: getColors().background, borderRadius: 5 }}
+            style={{ padding: 10, backgroundColor: '#d11a2a', borderRadius: 5 }}
           >
             <Text style={{ color: 'white' }}>Try Again</Text>
           </TouchableOpacity>

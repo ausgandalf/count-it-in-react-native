@@ -1,3 +1,4 @@
+import { SetlistType } from '@/constants/Types';
 import { getColors } from '@/functions/common';
 import React, { useCallback, useEffect, useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -11,45 +12,44 @@ const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) 
   const [value, setValue] = useState<string>('');
   // Items for dropdown picker
   const [items, setItems] = useState([]);
+  const [selectedSetlist, setSelectedSetlist] = useState<SetlistType | undefined>(selected);
 
   const getFirstItem = useCallback(
-    () => ((viewMode == 'songs') ? {value: '', label: '— Select a Setlist —'} : {value: '', label: '⮐ Back to Home'}), 
+    () => ((viewMode == 'songs') ? {value: '', label: '— Select a Setlist —'} : {value: '', label: '↵ Back to Home'}), 
     [viewMode]
   );
+
+  const restoreSelectedSetlist = useCallback((selected:SetlistType | undefined) => {
+    if (selected) {
+      // console.log('SetListPicker: ', selected);
+      const foundSetlist = setlist.find((item:any) => item.id == selected.id)
+      if (foundSetlist) {
+        if (value != selected.id) setValue(selected.id);
+      } else {
+        setValue('');
+      }
+      setSelectedSetlist(foundSetlist);
+    } else {
+      setValue('');
+      setSelectedSetlist(undefined);
+    }
+  }, [selected]);
 
   useEffect(() => {
     const dropdownData = setlist.map((item:any) => ({value: item.id, label: item.name + `  ( ${item.songs.length} )`})).slice(0, 5);
     if (dropdownData.length < 5) dropdownData.unshift({value: 'create', label: '➕ Create Setlist'});
     dropdownData.unshift(getFirstItem());
     setItems(dropdownData);
-
-    if (!selected) {
-      setValue('');
-    } else {
-      const selectedSetlist = setlist.find((item:any) => item.id == selected.id)
-      if (!selectedSetlist) setValue('');
-    }
-
-  }, [viewMode, setlist])
+    restoreSelectedSetlist(selected);
+  }, [setlist, viewMode])
 
   useEffect(() => {
-    if (selected) {
-      // console.log('SetListPicker: ', selected);
-      const selectedSetlist = setlist.find((item:any) => item.id == selected.id)
-      if (selectedSetlist) {
-        if (value != selected.id) setValue(selected.id);
-      } else {
-        setValue('');
-      }
-    } else {
-      setValue('');
-    }
+    restoreSelectedSetlist(selected);
   }, [selected]);
   
   // On change handler
   const onChangeValue = (v: any) => {
     // TODO
-    // console.log('SetlistPicker value changed to : ', v);
     if (v == 'create') {
       // TODO
       setValue('');
@@ -66,6 +66,7 @@ const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) 
       setValue={setValue}
       onChangeValue={onChangeValue}
       searchable={false} // disable search
+      listMode='SCROLLVIEW'
       style={commonStyles.selectBox}  // container style
       dropDownContainerStyle={[commonStyles.selectItem, {height: items.length * 40 + 10, maxHeight: 'none'}]}  // dropdown container style
       textStyle={[commonStyles.text, { textAlign: 'center' }]} // text inside input

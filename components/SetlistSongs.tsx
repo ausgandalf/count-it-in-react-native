@@ -9,14 +9,20 @@ import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatli
 import ImportSetlistButton from './ImportSetlistButton';
 import InnerShadow from './InnerShadow';
 
-export default function SetlistSongs({ setlist, onUpdate }: {
+export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   setlist?: SetlistType,
+  scrollable: boolean,
   onUpdate: (type:string, v:any) => void,
 }) {
 
   const [isAddMode, setAddMode] = useState(true);
   const [data, setData] = useState<any[]>([]);
   const [selectedSongId, setSelectedSongId] = useState();
+  const [scrollEnabled, setScrollEnabled] = useState(scrollable);
+
+  useEffect(() => {
+    setScrollEnabled(scrollable);
+  }, [scrollable]);
 
   useEffect(() => {
     setData(setlist ? setlist.songs : []);
@@ -80,7 +86,7 @@ export default function SetlistSongs({ setlist, onUpdate }: {
           <View>
             <TouchableOpacity style={[commonStyles.buttonSm, commonStyles.primaryButton]} onPress={() => {
               // TODO - Open Add Song Modal
-              onUpdate('setSongListModalVisible', true);
+              onUpdate('openSongListModal', true);
             }}>
               <Text style={commonStyles.buttonText}>Add ♫</Text>
             </TouchableOpacity>
@@ -117,9 +123,11 @@ export default function SetlistSongs({ setlist, onUpdate }: {
         </View>
       </View>
       
-      <View>
+      <View style={{zIndex: 1}}>
         
         <DraggableFlatList
+        activationDistance={scrollEnabled ? 10 : 1000}
+          scrollEnabled={scrollEnabled}
           data={data}
           onDragEnd={({ data }) => setData(data)}
           keyExtractor={item => item.id}

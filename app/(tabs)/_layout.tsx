@@ -14,6 +14,9 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: themeColors.tint,
+          tabBarActiveBackgroundColor: themeColors.activeTabBackground,
+          tabBarInactiveTintColor: themeColors.text,
+          tabBarInactiveBackgroundColor: themeColors.deepBackground,
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,
@@ -22,7 +25,9 @@ export default function TabLayout() {
               // Use a transparent background on iOS to show the blur effect
               position: 'absolute',
             },
-            default: {},
+            default: {
+              borderTopWidth: 0,
+            },
           }),
         }}>
         <Tabs.Screen

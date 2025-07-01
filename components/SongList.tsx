@@ -5,7 +5,6 @@ import Checkbox from 'expo-checkbox';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   FlatList,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -35,7 +34,8 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   const commonStyles = getCommonStyles();
   const styles = StyleSheet.create({
     container: {
-      flex: 1,
+      // flex: 1,
+      width: '100%',
     },
     header: {
       flexDirection: 'row',
@@ -44,10 +44,11 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
       paddingVertical: 10,
       borderBottomWidth: 1,
       borderColor: themeColors.borderLight,
-      paddingInline: 20
+      paddingInline: 20,
     },
     body: {
-      flex: 1,
+      // flex: 1,
+      width: '100%',
       maxHeight: eightyVh,
     },
     row: {
@@ -136,23 +137,28 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
           </TouchableOpacity>
         )}
 
+        {(!(item.isLabel && item.isLabel == 1) && (item.isCustom)) ? (
+          <TouchableOpacity style={commonStyles.icon} onPress={() => onDelete([item.id])}>
+            <Ionicons name="trash-outline" size={20} color="#d11a2a" />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={commonStyles.icon}>
+            
+          </TouchableOpacity>
+        )}
+
         {!(item.isLabel && item.isLabel == 1) && (
           <TouchableOpacity style={commonStyles.icon} onPress={() => openForm(false, item)}>
             <Ionicons name="create-outline" size={20} color="#777" />
           </TouchableOpacity>
         )}
 
-        {!(item.isLabel && item.isLabel == 1) && (
-          <TouchableOpacity style={commonStyles.icon} onPress={() => onDelete([item.id])}>
-            <Ionicons name="trash-outline" size={20} color="#d11a2a" />
-          </TouchableOpacity>
-        )}
       </View>
     )
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Checkbox
           value={isAllSelected()}
@@ -182,6 +188,6 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
         />
       </View>
      
-    </SafeAreaView>
+    </View>
   );
 }

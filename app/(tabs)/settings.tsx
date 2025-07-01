@@ -1,8 +1,6 @@
 import { ExternalLink } from '@/components/ExternalLink';
 import LayoutTop from '@/components/LayoutTop';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
-import { Colors } from '@/constants/Colors';
 import { Settings } from '@/constants/Settings';
 import { getCommonStyles } from '@/constants/Styles';
 import { useSettings } from '@/context/SettingsContext';
@@ -48,7 +46,7 @@ export default function SettingsScreen() {
   const commonStyles = getCommonStyles();
   const styles = StyleSheet.create({
     content: {
-      minHeight: windowHeight - 50,
+      minHeight: windowHeight - 100,
     },
     middle: {
       flex: 1,
@@ -67,12 +65,14 @@ export default function SettingsScreen() {
   });
   
   return (
-    <>
-      <ParallaxScrollView 
+    <View style={{flex: 1}}>
+      <View style={[commonStyles.container, {gap: 0}]}>
+      {/* <ParallaxScrollView 
         headerBackgroundColor={{dark: Colors.dark.background, light: Colors.light.background}} 
         headerImage={<LayoutTop />}
         contentStyle={styles.content}
-      >
+      > */}
+        <LayoutTop />
         <View style={commonStyles.wrap}>
           <View style={commonStyles.body}>
 
@@ -135,15 +135,18 @@ export default function SettingsScreen() {
             </View>
           </View>
         </View>
-
-      </ParallaxScrollView>
+      {/* </ParallaxScrollView> */}
+      </View>
       
       <Modal 
         isVisible={isProgressVisible} 
         onBackButtonPress={toggleProgressModal}
         animationIn="fadeIn"
         animationOut="fadeOut"
-        style={[commonStyles.modal, {padding: 20}]}
+        backdropOpacity={0.5}
+        useNativeDriver={true}
+        hideModalContentWhileAnimating={true}
+        style={[commonStyles.modal, {padding: 0}]}
       >
         <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
           <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10, gap: 20 }]}>
@@ -160,7 +163,7 @@ export default function SettingsScreen() {
         </View>
       </Modal>
 
-    </>
+    </View>
   );
 }
 

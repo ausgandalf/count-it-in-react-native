@@ -31,8 +31,9 @@ export default function SongForm({ inputRef, song, onSubmit, onCancel }: SongFor
   }, [song]);
 
   const handleSave = () => {
-    if (!title.trim() || !artist.trim()) {
-      alert('Missing info', 'Please fill in all fields.');
+    // if (!title.trim() || !artist.trim()) {
+    if (!title.trim()) {
+      alert('Missing info', 'Please fill in the title.');
       return;
     }
 

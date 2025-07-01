@@ -1,5 +1,5 @@
 import { getCommonStyles } from '@/constants/Styles';
-import Slider from '@react-native-community/slider';
+import { Slider } from '@miblanchard/react-native-slider';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import BeatLights from './BeatLights';
@@ -41,7 +41,8 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
           maximumValue={240}
           step={1}
           value={bpmValue}
-          onValueChange={(v) => {
+          onValueChange={(value: number[]) => {
+            const v = value[0]; // The new slider returns an array
             setBpmValue(v);
             onStateUpdated('setBpm', v);
           }}
