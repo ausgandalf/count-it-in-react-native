@@ -34,7 +34,7 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
 
   return (
     <View style={styles.container}>
-      <View style={{gap: 10}}>
+      <View style={{gap: 0}}>
         <ThemedText type="default" textAlign="center">BPM: {bpmValue}</ThemedText>
         <Slider
           minimumValue={40}

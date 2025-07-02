@@ -1,7 +1,9 @@
 import { ExternalLink } from '@/components/ExternalLink';
 import LayoutTop from '@/components/LayoutTop';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
 import RadioButtonGroup from '@/components/RadioButtonGroup';
 import { ThemedText } from '@/components/ThemedText';
+import { Colors } from '@/constants/Colors';
 import { Settings } from '@/constants/Settings';
 import { getCommonStyles } from '@/constants/Styles';
 import { SongType } from '@/constants/Types';
@@ -48,7 +50,7 @@ export default function SettingsScreen() {
   const commonStyles = getCommonStyles();
   const styles = StyleSheet.create({
     content: {
-      minHeight: windowHeight - 100,
+      // minHeight: windowHeight - 100,
     },
     middle: {
       flex: 1,
@@ -68,13 +70,13 @@ export default function SettingsScreen() {
   
   return (
     <View style={{flex: 1}}>
-      <View style={[commonStyles.container, {gap: 0}]}>
-      {/* <ParallaxScrollView 
+      {/* <View style={[commonStyles.container, {minHeight: '100%', gap: 0}]}> */}
+      <ParallaxScrollView 
         headerBackgroundColor={{dark: Colors.dark.background, light: Colors.light.background}} 
         headerImage={<LayoutTop />}
         contentStyle={styles.content}
-      > */}
-        <LayoutTop />
+      >
+        {/* <LayoutTop /> */}
         <View style={commonStyles.wrap}>
           <View style={commonStyles.body}>
 
@@ -87,10 +89,38 @@ export default function SettingsScreen() {
                 <ThemedText type="default" textAlign="left">
                   This app does not collect, store, or transmit any personal data. It only fetches public music metadata from a remote source for display.
                 </ThemedText>
-                <ExternalLink href="https://github.com/jason-c-lee/setlist-maker">
-                  <ThemedText type="link" textAlign="left">Terms of Service</ThemedText>
-                </ExternalLink>
-                <ThemedText type="default" textAlign="left">© 2025, All rights reserved</ThemedText>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                  <ThemedText type="default" textAlign="left">© 2025 ESB Entertainment</ThemedText>
+                  <ExternalLink href="https://esbentertainment.com/privacy-policy">
+                    <ThemedText type="link" textAlign="left">Privacy Policy</ThemedText>
+                  </ExternalLink>
+                </View>
+              </View>
+
+              <View style={{alignItems: 'flex-end'}}>
+                <View style={commonStyles.buttonGroup}>
+                  <TouchableOpacity 
+                    style={[commonStyles.button, commonStyles.primaryButton, isSettingsChanged ? {} : commonStyles.disabledButton]} 
+                    onPress={() => {
+                      setSettings(settings);
+                      saveSettings(settings);
+                      setSavedSettings(settings);
+                    }}
+                    disabled={!isSettingsChanged}
+                  >
+                    <Text style={commonStyles.buttonText}>Save</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[commonStyles.button, commonStyles.tertiaryButton, isSettingsDefault ? commonStyles.disabledButton : {}]} 
+                    onPress={() => {
+                      setSettings(Settings);
+                    }}
+                    disabled={isSettingsDefault}
+                  >
+                    <Text style={commonStyles.buttonText}>Restore Defaults</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               <View style={[commonStyles.sub, {gap: 10}]}>
@@ -124,34 +154,12 @@ export default function SettingsScreen() {
             </View>
 
             <View style={styles.bottom}>
-              <View style={commonStyles.buttonGroup}>
-                <TouchableOpacity 
-                  style={[commonStyles.button, commonStyles.primaryButton, isSettingsChanged ? {} : commonStyles.disabledButton]} 
-                  onPress={() => {
-                    setSettings(settings);
-                    saveSettings(settings);
-                    setSavedSettings(settings);
-                  }}
-                  disabled={!isSettingsChanged}
-                >
-                  <Text style={commonStyles.buttonText}>Save</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={[commonStyles.button, commonStyles.tertiaryButton, isSettingsDefault ? commonStyles.disabledButton : {}]} 
-                  onPress={() => {
-                    setSettings(Settings);
-                  }}
-                  disabled={isSettingsDefault}
-                >
-                  <Text style={commonStyles.buttonText}>Restore Defaults</Text>
-                </TouchableOpacity>
-              </View>
+              
             </View>
           </View>
         </View>
-      {/* </ParallaxScrollView> */}
-      </View>
+      </ParallaxScrollView>
+      {/* </View> */}
       
       <Modal 
         isVisible={isProgressVisible} 

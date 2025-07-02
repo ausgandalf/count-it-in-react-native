@@ -2,7 +2,7 @@ import { getCommonStyles } from '@/constants/Styles';
 import { getColors } from '@/functions/common';
 import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -16,16 +16,11 @@ import { SongType } from '@/constants/Types';
 
 export default function SongList({ type = 'select', songs = [], onSelect = () => {}, onDelete = () => {}, openForm = () => {} }: {
   type?: 'button' | 'select',
-  songs?: SongType[],
+  songs: SongType[],
   onSelect: (song: SongType) => void,
   onDelete: (songId: string[]) => void,
   openForm?: (isCreate:boolean, song:null|SongType) => void,
 }) {
-  
-  const [songList, setSongList] = useState(songs);
-  useEffect(() => {
-    setSongList(songs);
-  }, [songs])
 
   const { height: windowHeight } = useWindowDimensions();
   const eightyVh = windowHeight - 185;
@@ -63,24 +58,25 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   
-  //   const isAllSelected = (songList.length > 0) && (selectedIds.length === songList.length);
+  //   const isAllSelected = (songs.length > 0) && (selectedIds.length === songs.length);
   const isAllSelected = useCallback(() => {
-    if (songList.length == 0) return false;
-    const ids = songList.filter(song => (!song.isLabel || song.isLabel != 1)).map((s) => s.id);
+    if (!songs || songs.length == 0) return false;
+    const ids = songs.filter(song => (!song.isLabel || song.isLabel != 1)).map((s) => s.id);
     let hasAll = true;
     ids.some(id => {
-      if (selectedIds.indexOf(id) == -1) {
+      if (id && selectedIds.indexOf(id) == -1) {
         hasAll = false;
         return true;
       }
     })
     return hasAll;
-  }, [songList, selectedIds]);
+  }, [songs, selectedIds]);
   const isGroupSelected = (label:string) => {
-    const ids = songList.filter(song => (song.label == label)&&(!song.isLabel || song.isLabel != 1)).map((s) => s.id);
+    if (!songs) return false;
+    const ids = songs.filter(song => (song.label == label)&&(!song.isLabel || song.isLabel != 1)).map((s) => s.id);
     let hasAll = true;
     ids.some(id => {
-      if (selectedIds.indexOf(id) == -1) {
+      if (id && selectedIds.indexOf(id) == -1) {
         hasAll = false;
         return true;
       }
@@ -89,20 +85,24 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   };
 
   const toggleSelectAll = () => {
-    setSelectedIds(isAllSelected() ? [] : songList.map(song => song.id));
+    if (!songs) {
+      setSelectedIds([]);
+      return;
+    }
+    setSelectedIds(isAllSelected() ? [] : songs.map(song => song.id).filter(id => id != undefined));
   };
 
   const toggleSong = (item: SongType, flag: boolean) => {
     const id = item.id;
     const label = item.name;
     if (item.isLabel) {
-      const ids = songList.filter(song => song.label == label).map((s) => s.id);
+      const ids = songs.filter(song => song.label == label).map((s) => s.id).filter(id => id != undefined);
       setSelectedIds(prev =>
-        flag ? [...prev, ...ids] : prev.filter(sid => ids.indexOf(sid) == -1)
+        flag ? [...prev, ...ids].filter(id => id != undefined) : prev.filter(sid => ids.indexOf(sid) == -1)
       );
     } else {
       setSelectedIds(prev =>
-        flag ? [...prev, id] : prev.filter(sid => sid !== id)
+        flag ? [...prev, id].filter(id => id != undefined) : prev.filter(sid => sid !== id)
       );
     }
   };
@@ -114,11 +114,12 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   };
 
   const renderItem = ({ item, index }: { item: SongType, index:number }) => {
-    const isLast = index === songList.length - 1;
+    if (!songs) return null;
+    const isLast = index === songs.length - 1;
     return (
       <View style={[styles.row, isLast ? {borderBottomWidth: 0, paddingBlockEnd: 40} : {}]}>
         <Checkbox
-          value={item.isLabel ? isGroupSelected(item.name) : selectedIds.includes(item.id)}
+          value={item.isLabel ? isGroupSelected(item.name) : selectedIds.includes(item.id ?? '')}
           onValueChange={(v) => {
             toggleSong(item, v);
           }}
@@ -138,7 +139,7 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
         )}
 
         {(!(item.isLabel && item.isLabel == 1) && (item.isCustom)) ? (
-          <TouchableOpacity style={commonStyles.icon} onPress={() => onDelete([item.id])}>
+          <TouchableOpacity style={commonStyles.icon} onPress={() => onDelete([item.id ?? ''])}>
             <Ionicons name="trash-outline" size={20} color="#d11a2a" />
           </TouchableOpacity>
         ) : (
@@ -176,9 +177,9 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
 
       <View style={styles.body}>
         <FlatList
-          data={songList}
+          data={songs ?? []}
           keyExtractor={(item) => item.id ?? ''}
-          renderItem={renderItem}
+          renderItem={renderItem}          
           contentContainerStyle={{ paddingInline: 20, minHeight: 100 }}
           ListEmptyComponent={() => (
             <View style={{ padding: 20, alignItems: 'center' }}>

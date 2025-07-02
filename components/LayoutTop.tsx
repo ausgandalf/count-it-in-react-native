@@ -22,8 +22,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     height: 85,
-    // marginBlockStart: 20,
-    marginBlockEnd: 20,
+    marginBlockStart: 0,
+    marginBlockEnd: 10,
     width: '100%',
   },
 });

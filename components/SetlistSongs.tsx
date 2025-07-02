@@ -1,5 +1,5 @@
 import { getCommonStyles } from '@/constants/Styles';
-import { SetlistType } from '@/constants/Types';
+import { SetlistType, SongType } from '@/constants/Types';
 import { confirm, getColors } from '@/functions/common';
 import { Ionicons } from '@expo/vector-icons'; // or use any icon lib
 import Checkbox from 'expo-checkbox';
@@ -17,8 +17,8 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
 
   const [isAddMode, setAddMode] = useState(true);
   const [currentSetlist, setCurrentSetlist] = useState<SetlistType | null>(null);
-  const [data, setData] = useState<any[]>([]);
-  const [selectedSongId, setSelectedSongId] = useState();
+  const [data, setData] = useState<SongType[]>(setlist ? setlist.songs : []);
+  const [selectedSongId, setSelectedSongId] = useState<string | undefined>(undefined);
   const [scrollEnabled, setScrollEnabled] = useState(scrollable);
 
   useEffect(() => {
@@ -27,26 +27,32 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
 
   useEffect(() => {
     setCurrentSetlist(setlist || null);
-    setData(setlist ? setlist.songs : []);
-    let selectFirstItem = true;
-    if ( setlist && setlist.songs.length > 0) {
-      if (selectedSongId) {
-        const selectedSong = setlist.songs.find((item) => item.id == selectedSongId);
-        if (selectedSong) selectFirstItem = false;
-      }
-      if (selectFirstItem) {
-        setSelectedSongId(setlist.songs[0].id);
-        onUpdate('selectSongOnList', setlist.songs[0]);
-      }
+    if (JSON.stringify(data) != JSON.stringify(setlist?.songs)) {
+      console.log('setlist', setlist);
+      setData(setlist ? [...setlist.songs] : []);
     }
   }, [setlist])
 
+  useEffect(() => {
+    let selectFirstItem = true;
+    if ( currentSetlist && currentSetlist.songs.length > 0) {
+      if (selectedSongId) {
+        const selectedSong = currentSetlist.songs.find((item) => item.id == selectedSongId);
+        if (selectedSong) selectFirstItem = false;
+      }
+      if (selectFirstItem) {
+        setSelectedSongId(currentSetlist.songs[0].id ?? '');
+        onUpdate('selectSongOnList', currentSetlist.songs[0]);
+      }
+    }
+  }, [currentSetlist])
+
   const { height: windowHeight } = useWindowDimensions();
-  const songlistMaxHeight = Math.max(240, windowHeight - 640);
+  const songlistMaxHeight = Math.max(80, windowHeight - 600);
 
   const commonStyles = getCommonStyles();
   const themeColors = getColors();
-  const renderItem = ({ item, drag, isActive }) => (
+  const renderItem = ({ item, drag, isActive }: { item: SongType, drag: () => void, isActive: boolean }) => (
     <ScaleDecorator>
       <View
         style={[
@@ -56,7 +62,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
           selectedSongId == item.id ? commonStyles.selected: {}
         ]}
       >
-        <TouchableOpacity onPressIn={drag} style={styles.handle}>
+        <TouchableOpacity onPressIn={drag} style={[styles.handle, {paddingBlock: 16, paddingInlineStart: 16}]}>
           <Ionicons name="reorder-three" size={24} color="#666" />
         </TouchableOpacity>
         
@@ -65,7 +71,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
             setSelectedSongId(item.id);
             onUpdate('selectSongOnList', item);
           }}
-          style={{flex: 1}}
+          style={{flex: 1, paddingBlock: 16}}
         >
           <Text style={commonStyles.text}>{item.name}{item.artist ? ` - ${item.artist}` : ``}</Text>
         </TouchableOpacity>
@@ -74,6 +80,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
           onPress={() => {
             onUpdate('deleteSongFromSetlist', item);
           }}
+          style={{paddingBlock: 16, paddingInlineEnd: 16}}
         >
           <Ionicons name="trash" size={20} color={themeColors.danger} />
         </TouchableOpacity>
@@ -121,7 +128,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
               onUpdate('setImportMode', v ? 1 : 0);
             }}
           />
-          <Text style={commonStyles.text}>Add new songs to the library on import.</Text>
+          <Text style={commonStyles.text}>Add new songs to library on import.</Text>
         </View>
       </View>
       
@@ -133,13 +140,12 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
           scrollEnabled={scrollEnabled}
           data={data}
           onDragEnd={({ data }) => {
-            setData(data);
             onUpdate('updateSetlist', {
               ...currentSetlist,
               songs: data
             });
           }}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id ?? ''}
           renderItem={renderItem}
           ItemSeparatorComponent={() => <View style={{ height: 8 }} />} // ← gap between items
           ListEmptyComponent={() => (
@@ -164,7 +170,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
   },
   text: {
     fontSize: 16,

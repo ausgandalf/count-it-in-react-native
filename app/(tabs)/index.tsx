@@ -1,14 +1,13 @@
 import BpmControls from '@/components/BpmControls';
 import LayoutTop from '@/components/LayoutTop';
+import SetListView from '@/components/SetListView';
 import SongListOwner from '@/components/SongListOwner';
+import { Songs } from '@/constants/Songs';
+import { SetlistType, SongType } from '@/constants/Types';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View, useWindowDimensions } from 'react-native';
 import Modal from 'react-native-modal';
-
-import SetListView from '@/components/SetListView';
-import { Songs } from '@/constants/Songs';
-import { SetlistType, SongType } from '@/constants/Types';
 
 import SetlistForm from '@/components/SetlistForm';
 import SongForm from '@/components/SongForm';
@@ -38,6 +37,7 @@ export default function HomeScreen() {
 
   const [isSongFormModalVisible, setSongFormModalVisible] = useState(false);
   const songFormInputRef = useRef<TextInput | null>(null);
+
   useEffect(() => {
     if (isSongFormModalVisible) {
       const timeout = setTimeout(() => {
@@ -233,6 +233,10 @@ export default function HomeScreen() {
       setSetlistFormModalVisible(v);
     } else if (type == 'openSongFormModal') {
       setSongFormModalVisible(v);
+    } else if (type == 'setSongListDragBegin') {
+      
+    } else if (type == 'setSongListDragEnd') {
+      
     }
   }
   
@@ -245,12 +249,13 @@ export default function HomeScreen() {
     },
     middle: {
       flex: 1,
-      minHeight: viewMode == 'setlist' ? 240 : 100,
+      minHeight: viewMode == 'setlist' ? 260 : 100,
       width: '100%',
       zIndex: 1000,
     },
     bottom: {
-      // paddingBlockEnd: 20
+      paddingBlockStart: 10,
+      zIndex: 1001,
     },
   });
 
@@ -308,7 +313,7 @@ export default function HomeScreen() {
                 
             </View>
 
-            <View style={styles.bottom}>
+            <View style={[styles.bottom, commonStyles.bg]}>
               <BpmControls
                 bpm={bpm}
                 onUpdate={onUpdate}
@@ -370,7 +375,12 @@ export default function HomeScreen() {
                   <SongList 
                     songs={sortedSongList()} 
                     onSelect={(song) => {
-                      onUpdate('openSongListModal', false);
+                      // Close the modal
+                      setTimeout(() => {
+                        onUpdate('openSongListModal', false);
+                      }, 1);
+
+                      // Update the selected song
                       if (viewMode == 'songs') {
                         setSelectedSong(song);
                       } else {
@@ -380,6 +390,8 @@ export default function HomeScreen() {
                         selectedSetlist.songs.push(song)
                         updateSetlist(selectedSetlist);
                       }
+
+                      // Update the bpm
                       setBpm(song.bpm??120);
                     }} 
                     openForm={openSongForm}
