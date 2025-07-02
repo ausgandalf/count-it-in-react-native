@@ -1,4 +1,6 @@
 import { Colors } from '@/constants/Colors';
+import { SettingsType } from '@/constants/Settings';
+import { useSettings } from '@/context/SettingsContext';
 import {
   Alert,
   Platform,
@@ -34,9 +36,17 @@ export function delay(ms:number) {
 }
 
 export function getColors(forcedTheme: 'light' | 'dark' | null = null) {
-  return Colors[forcedTheme ?? useColorScheme() ?? 'dark'];
+  const {settings} = useSettings()! as {settings: SettingsType, setSettings: (settings: SettingsType) => void};
+  let theme = useColorScheme() ?? 'dark';
+  if (settings && settings.theme != '') theme = settings.theme;
+
+  return Colors[forcedTheme ?? theme];
 }
 
 export function getLogo(forcedTheme: 'light' | 'dark' | null = null) {
-  return (forcedTheme ?? useColorScheme() ?? 'dark') === 'dark' ? require('../assets/images/logo.png') : require('../assets/images/logo--blue.png');
+  const {settings} = useSettings()! as {settings: SettingsType, setSettings: (settings: SettingsType) => void};
+  let theme = useColorScheme() ?? 'dark';
+  if (settings && settings.theme != '') theme = settings.theme;
+  
+  return (forcedTheme ?? theme) === 'dark' ? require('../assets/images/logo.png') : require('../assets/images/logo--blue.png');
 }

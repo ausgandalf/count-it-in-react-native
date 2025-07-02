@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 type SetlistFormProps = {
-  inputRef?: React.RefObject<TextInput>;
+  inputRef?: React.RefObject<TextInput | null>;
   setlist?: null | SetlistType;
   onSubmit: (setlist: { id: string, name: string; }) => void;
   onCancel?: () => void;

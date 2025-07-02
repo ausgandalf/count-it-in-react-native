@@ -137,7 +137,7 @@ export const getCommonStyles = () => {
       position: 'absolute',
       right: 16,
       top: '50%',
-      transform: [{ translateY: -8 }],
+      transform: [{ translateY: -12 }],
       color: themeColors.text,
       fontSize: 14,
     },

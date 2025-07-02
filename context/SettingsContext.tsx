@@ -1,7 +1,7 @@
 // context/SongsContext.tsx
-import { Settings } from '@/constants/Settings';
+import { Settings, SettingsType } from '@/constants/Settings';
 import React, { createContext, useContext, useState } from 'react';
-const SettingsContext = createContext(null);
+const SettingsContext = createContext<{ settings: SettingsType, setSettings: (settings: SettingsType) => void } | null>(null);
 
 export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
   const [settings, setSettings] = useState(Settings);
@@ -12,4 +12,10 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
   );
 };
 
-export const useSettings = () => useContext(SettingsContext);
+export const useSettings = () => {
+  const context = useContext(SettingsContext);
+  if (!context) {
+    throw new Error("useSettings must be used within a SettingsProvider");
+  }
+  return context;
+};

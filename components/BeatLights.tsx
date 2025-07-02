@@ -31,7 +31,7 @@ const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: isActive ? 1 : 0.3,
-      duration: 200,
+      duration: isActive ? 50 : 200,
       useNativeDriver: true,
     }).start();
   }, [isActive]);
@@ -69,7 +69,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   const [currentBpm, setCurrentBpm] = useState(bpm);
   const [currentBeat, setCurrentBeat] = useState(-1);
   const mutedRef = useRef(muted);
-  const intervalRef = useRef(null);
+  const intervalRef = useRef<number | null>(null);
   const intervalTime = 60000 / currentBpm;
 
   useEffect(() => playing ? startMetronome() : stopMetronome(), [playing]);
@@ -81,7 +81,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   useEffect(() => {
     return () => {
       // Cleanup on unmount
-      clearInterval(intervalRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
   
@@ -99,7 +99,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   };
 
   const stopMetronome = () => {
-    clearInterval(intervalRef.current);
+    if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = null;
     setIsRunning(false);
     setCurrentBeat(-1);

@@ -26,7 +26,7 @@ export const Colors = {
       color: '#6c859b',
     },
     input: {
-      background: '#ffffff',
+      background: '#e3eef7',
       borderColor: '#a9b6c1',
       color: '#000000',
       placeholder: '#555555',
@@ -64,8 +64,8 @@ export const Colors = {
       }
     },
     beat: {
-      first: '#2196f3',
-      active: '#5cbb60',
+      first: '#008cff',
+      active: '#77ab79',
       inactive: '#a9b2b9',
     }
   },

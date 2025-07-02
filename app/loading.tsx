@@ -1,6 +1,8 @@
 import LayoutTop from '@/components/LayoutTop';
 import { ThemedText } from '@/components/ThemedText';
+import { SettingsType } from '@/constants/Settings';
 import { getCommonStyles } from '@/constants/Styles';
+import { SongType } from '@/constants/Types';
 import { useSettings } from '@/context/SettingsContext';
 import { useSongs } from '@/context/SongsContext';
 import { getColors } from '@/functions/common';
@@ -11,11 +13,11 @@ import 'react-native-reanimated';
 import { importSongs, loadSettings } from '../functions/resources';
 
 export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
-  const themeColors = getColors();
   const {settings, setSettings} = useSettings();
-  const {songs, setSongs} = useSongs()!;
+  const {songs, setSongs} = useSongs();
   const [loadingText, setLoadingText] = useState('Loading...');
   const [progress, setProgress] = useState(0);
+  const themeColors = getColors();
 
   const finalizing = async () => {
     setLoadingText('Setting up songs library...');
@@ -28,10 +30,10 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
 
       setLoadingText('Loading settings...');
       const loadedSettings = await loadSettings();
-      setSettings(loadedSettings.settings);
+      setSettings(loadedSettings.settings as SettingsType);
       setProgress(0.2);
 
-      importSongs(songs, async (statusCode: number, progress: number, text: string, result?: any) => {
+      importSongs(songs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
         if (statusCode == 1) {
           setLoadingText('Updating songs library...');
         } else if (statusCode == 2) {

@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Svg, { Text as SvgText } from 'react-native-svg';
 
-const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }) => {
+const SetlistPicker = ({ viewMode, selected, setlist, commonStyles, onChange }: { viewMode: string, selected: SetlistType|undefined, setlist: SetlistType[], commonStyles: any, onChange: (value: string) => void }) => {
 
   // Controlled open state
   const [open, setOpen] = useState(false);

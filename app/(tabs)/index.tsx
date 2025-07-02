@@ -24,7 +24,7 @@ export default function HomeScreen() {
   const [bpm, setBpm] = useState(120);
   const {songs, setSongs} = useSongs();
   const [coreUpdates, setCoreUpdates] = useState({});
-  const sortedSongList = useCallback(() => arangeSongs(songs), [songs]);
+  const sortedSongList = useCallback(() => arangeSongs(songs as SongType[]), [songs]);
 
   const [setlists, setSetlists] = useState<SetlistType[]>([]);
   const [selectedSong, setSelectedSong] = useState<SongType>();
@@ -37,7 +37,7 @@ export default function HomeScreen() {
   const [isSongListModalVisible, setSongListModalVisible] = useState(false);
 
   const [isSongFormModalVisible, setSongFormModalVisible] = useState(false);
-  const songFormInputRef = useRef<TextInput>(null);
+  const songFormInputRef = useRef<TextInput|null>(null);
   useEffect(() => {
     if (isSongFormModalVisible) {
       const timeout = setTimeout(() => {
@@ -49,7 +49,7 @@ export default function HomeScreen() {
 
   const [isSetlistFormModalVisible, setSetlistFormModalVisible] = useState(false);
 
-  const setlistFormInputRef = useRef<TextInput>(null);
+  const setlistFormInputRef = useRef<TextInput | null>(null);
   useEffect(() => {
     if (isSetlistFormModalVisible) {
       const timeout = setTimeout(() => {
@@ -75,23 +75,24 @@ export default function HomeScreen() {
   }, [viewMode]);
 
   const updateSong = (song: any) => {
+    const newSongs = songs ? JSON.parse(JSON.stringify(songs)) : []; // React Native compatible deep clone
     // console.log(song);
     if (song.id == '') {
       // New song
       if (!song.label) song.label = song.name.charAt(0).toUpperCase();
-      songs.push({
+      newSongs.push({
         ...song,
         id: generateSongID(song, 'custom'),
         isCustom: true 
       });
     } else {
       // Find a song
-      for (let i=0; i<songs.length; i++) {
-        if (songs[i].id == song.id) {
+      for (let i=0; i<newSongs.length; i++) {
+        if (newSongs[i].id == song.id) {
 
-          songs[i].bpm = song.bpm;
-          songs[i].name = song.name;
-          songs[i].artist = song.artist;
+          newSongs[i].bpm = song.bpm;
+          newSongs[i].name = song.name;
+          newSongs[i].artist = song.artist;
 
           const newCoreUpdates = setCoreUpdate(coreUpdates, song);
           setCoreUpdates(newCoreUpdates);
@@ -105,7 +106,6 @@ export default function HomeScreen() {
       }
     }
     
-    const newSongs = JSON.parse(JSON.stringify(songs)); // React Native compatible deep clone
     setSongs(newSongs);
     saveSongList(newSongs);
   }
@@ -224,7 +224,7 @@ export default function HomeScreen() {
         updateSetlist(selectedSetlist);
       }
     } else if (type == 'deleteSongsFromLibrary') {
-      const newSongs = songs.filter((item:SongType) => v.indexOf(item.id) == -1);
+      const newSongs = songs ? songs.filter((item:SongType) => v.indexOf(item.id) == -1) : [];
       setSongs(newSongs);
       saveSongList(newSongs);
     } else if (type == 'openSongListModal') {

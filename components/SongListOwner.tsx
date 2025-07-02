@@ -24,16 +24,22 @@ export default function SongListOwner({ type = 'select', viewMode = 'songs', cur
 
     <View style={{}}>
 
-      <View style={{width: '100%', minHeight: 40}}>
+      <View style={{width: '100%'}}>
         <TouchableOpacity 
-          style={[commonStyles.button, commonStyles.tertiaryButton, type == 'button' ? {} : commonStyles.full]} 
           onPress={() => onUpdate('openSongListModal', true)}
         >
-          {type == 'button' ? (
-            <Text style={commonStyles.buttonText}>Add a Song</Text>
-          ) : (
-            <Text style={commonStyles.buttonText}>{selectedSong ? selectedSong.name + (selectedSong.artist ? ' - ' + selectedSong.artist : '') : 'Select a Song'}</Text>
-          )}
+          <View style={[
+            commonStyles.button, 
+            commonStyles.tertiaryButton, 
+            type == 'button' ? {} : commonStyles.full,
+            {paddingVertical: 12}
+          ]} >
+            {type == 'button' ? (
+              <Text style={commonStyles.buttonText}>Add a Song</Text>
+            ) : (
+              <Text style={commonStyles.buttonText}>{selectedSong ? selectedSong.name + (selectedSong.artist ? ' - ' + selectedSong.artist : '') : 'Select a Song'}</Text>
+            )}
+          </View>
           <Text style={commonStyles.triangle}>▼</Text>
         </TouchableOpacity>
       </View>

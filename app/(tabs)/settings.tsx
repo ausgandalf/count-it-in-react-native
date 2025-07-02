@@ -1,8 +1,10 @@
 import { ExternalLink } from '@/components/ExternalLink';
 import LayoutTop from '@/components/LayoutTop';
+import RadioButtonGroup from '@/components/RadioButtonGroup';
 import { ThemedText } from '@/components/ThemedText';
 import { Settings } from '@/constants/Settings';
 import { getCommonStyles } from '@/constants/Styles';
+import { SongType } from '@/constants/Types';
 import { useSettings } from '@/context/SettingsContext';
 import { useSongs } from '@/context/SongsContext';
 import { useState } from 'react';
@@ -26,7 +28,7 @@ export default function SettingsScreen() {
   const [progressText, setProgressText] = useState('');
 
   const doImportSongs = async () => {
-    importSongs(songs, (statusCode: number, progress: number, text: string, result?: any) => {
+    importSongs(songs as SongType[], (statusCode: number, progress: number, text: string, result?: any) => {
       if (statusCode == 1) {
         setIsImporting(true);
         setProgressVisible(true);
@@ -89,6 +91,19 @@ export default function SettingsScreen() {
                   <ThemedText type="link" textAlign="left">Terms of Service</ThemedText>
                 </ExternalLink>
                 <ThemedText type="default" textAlign="left">© 2025, All rights reserved</ThemedText>
+              </View>
+
+              <View style={[commonStyles.sub, {gap: 10}]}>
+                <View style={{flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10}}>
+                  <ThemedText type="default" textAlign="left">Theme Settings</ThemedText>
+                </View>
+                <View>
+                  <RadioButtonGroup 
+                    options={[{label: 'System Default', value: ''}, {label: 'Light', value: 'light'}, {label: 'Dark', value: 'dark'}]} 
+                    selected={settings.theme} 
+                    onSelect={(v: string) => setSettings({...settings, theme: v as 'light' | 'dark' | ''})} 
+                  />
+                </View>
               </View>
 
               <View style={[commonStyles.sub, {gap: 10}]}>

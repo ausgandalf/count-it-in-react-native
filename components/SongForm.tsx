@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 type SongFormProps = {
-  inputRef?: React.RefObject<TextInput>;
+  inputRef?: React.RefObject<TextInput | null>;
   song?: null | SongType;
   onSubmit: (song: { id: string, name: string; artist: string; bpm: number }) => void;
   onCancel?: () => void;
