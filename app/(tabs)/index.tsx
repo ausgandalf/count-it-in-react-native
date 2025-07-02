@@ -37,7 +37,7 @@ export default function HomeScreen() {
   const [isSongListModalVisible, setSongListModalVisible] = useState(false);
 
   const [isSongFormModalVisible, setSongFormModalVisible] = useState(false);
-  const songFormInputRef = useRef<TextInput|null>(null);
+  const songFormInputRef = useRef<TextInput | null>(null);
   useEffect(() => {
     if (isSongFormModalVisible) {
       const timeout = setTimeout(() => {
