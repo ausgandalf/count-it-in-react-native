@@ -249,7 +249,7 @@ export default function HomeScreen() {
     },
     middle: {
       flex: 1,
-      minHeight: viewMode == 'setlist' ? 260 : 100,
+      minHeight: viewMode == 'setlist' ? 270 : 100,
       width: '100%',
       zIndex: 1000,
     },
@@ -282,7 +282,7 @@ export default function HomeScreen() {
       <View style={[commonStyles.container, {gap: 0}]}>
         <LayoutTop />
         <View style={commonStyles.wrap}>
-          <View style={[commonStyles.body, {gap: 10}]}>
+          <View style={[commonStyles.body, {gap: 0}]}>
 
             <View style={styles.middle}>
 

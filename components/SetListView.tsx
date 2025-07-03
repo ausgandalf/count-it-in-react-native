@@ -62,11 +62,9 @@ export default function SetListView({
         onChange={onSetlistSelected}
       />
 
-      {viewMode == 'setlist' && (
-        <View style={commonStyles.sub}>
-          <SetlistSongs setlist={selectedSetlist} onUpdate={onUpdate} scrollable={!isModalOpen} />
-        </View>
-      )}
+      <View style={[commonStyles.sub, {display: (viewMode == 'songs') ? 'none' : 'flex'}]}>
+        <SetlistSongs setlist={selectedSetlist} onUpdate={onUpdate} scrollable={!isModalOpen} />
+      </View>
       
     </View>
   );

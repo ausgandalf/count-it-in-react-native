@@ -28,7 +28,6 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   useEffect(() => {
     setCurrentSetlist(setlist || null);
     if (JSON.stringify(data) != JSON.stringify(setlist?.songs)) {
-      console.log('setlist', setlist);
       setData(setlist ? [...setlist.songs] : []);
     }
   }, [setlist])
@@ -48,7 +47,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   }, [currentSetlist])
 
   const { height: windowHeight } = useWindowDimensions();
-  const songlistMaxHeight = Math.max(80, windowHeight - 600);
+  const songlistMaxHeight = Math.max(80, windowHeight - 620);
 
   const commonStyles = getCommonStyles();
   const themeColors = getColors();
@@ -140,9 +139,11 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
           scrollEnabled={scrollEnabled}
           data={data}
           onDragEnd={({ data }) => {
+            const newData = JSON.parse(JSON.stringify(data));
+            setData(newData);
             onUpdate('updateSetlist', {
               ...currentSetlist,
-              songs: data
+              songs: newData
             });
           }}
           keyExtractor={(item) => item.id ?? ''}
