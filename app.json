@@ -24,10 +24,12 @@
           }
         },
         "UIBackgroundModes": [
+          "audio",
           "audio"
         ],
         "NSMicrophoneUsageDescription": "This app uses the microphone for audio input and tempo detection.",
-        "NSCameraUsageDescription": "This app may access the camera for scanning QR codes or barcodes."
+        "NSCameraUsageDescription": "This app may access the camera for scanning QR codes or barcodes.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "splash": {
         "image": "./assets/images/splash-icon.png",
