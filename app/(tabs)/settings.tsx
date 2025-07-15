@@ -90,8 +90,8 @@ export default function SettingsScreen() {
                   This app does not collect, store, or transmit any personal data. It only fetches public music metadata from a remote source for display.
                 </ThemedText>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                  <ThemedText type="default" textAlign="left">© 2025 ESB Entertainment</ThemedText>
-                  <ExternalLink href="https://esbentertainment.com/privacy-policy">
+                  <ThemedText type="default" textAlign="left">© 2025 countitin.com</ThemedText>
+                  <ExternalLink href="https://countitin.com/privacy-policy">
                     <ThemedText type="link" textAlign="left">Privacy Policy</ThemedText>
                   </ExternalLink>
                 </View>

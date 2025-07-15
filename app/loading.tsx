@@ -5,7 +5,7 @@ import { getCommonStyles } from '@/constants/Styles';
 import { SongType } from '@/constants/Types';
 import { useSettings } from '@/context/SettingsContext';
 import { useSongs } from '@/context/SongsContext';
-import { getColors } from '@/functions/common';
+import { delay, getColors } from '@/functions/common';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import * as Progress from 'react-native-progress';
@@ -17,11 +17,13 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   const {songs, setSongs} = useSongs();
   const [loadingText, setLoadingText] = useState('Loading...');
   const [progress, setProgress] = useState(0);
+  const [importSongsOnLoad, setImportSongsOnLoad] = useState(false); // Let's implement more logics later
   const themeColors = getColors();
 
   const finalizing = async () => {
     setLoadingText('Setting up songs library...');
     setProgress(1);
+    await delay(1000);
     onLoad();
   }
 
@@ -33,23 +35,26 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
       setSettings(loadedSettings.settings as SettingsType);
       setProgress(0.2);
 
-      importSongs(songs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
-        if (statusCode == 1) {
-          setLoadingText('Updating songs library...');
-        } else if (statusCode == 2) {
-          setLoadingText(text);
-          setProgress(0.2 + 0.6 * progress);
-        } else if (statusCode == 3) {
-          setLoadingText(text);
-          setProgress(0.8);
-          await finalizing();
-        } else if ([4,5].indexOf(statusCode) != -1) {
-          setProgress(0.8);
-          await finalizing();
-        }
-      }, loadedSettings.settings);
+      if (importSongsOnLoad) {
+        importSongs(songs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
+          if (statusCode == 1) {
+            setLoadingText('Updating songs library...');
+          } else if (statusCode == 2) {
+            setLoadingText(text);
+            setProgress(0.2 + 0.6 * progress);
+          } else if (statusCode == 3) {
+            setLoadingText(text);
+            setProgress(0.8);
+            await finalizing();
+          } else if ([4,5].indexOf(statusCode) != -1) {
+            setProgress(0.8);
+            await finalizing();
+          }
+        }, loadedSettings.settings);
+      } else {
+        await finalizing();
+      }
     }
-
 
     doInitialLoad();
   }, []);

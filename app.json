@@ -5,12 +5,12 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "esb-count-it-in",
+    "scheme": "countitin",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jessee-beecham-320.countitin",
+      "bundleIdentifier": "com.countitin.app",
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
@@ -35,22 +35,22 @@
         "image": "./assets/images/splash-icon.png",
         "imageWidth": 200,
         "resizeMode": "contain",
-        "backgroundColor": "#cdd7df",
+        "backgroundColor": "#000000",
         "dark": {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#222222"
+          "backgroundColor": "#000000"
         }
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#cdd7df"
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.jessee_beecham_320.countitin",
+      "package": "com.countitin.app",
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE",
@@ -61,12 +61,12 @@
         "image": "./assets/images/splash-icon.png",
         "imageWidth": 200,
         "resizeMode": "contain",
-        "backgroundColor": "#cdd7df",
+        "backgroundColor": "#000000",
         "dark": {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#222222"
+          "backgroundColor": "#000000"
         }
       }
     },
@@ -83,12 +83,12 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#cdd7df",
+          "backgroundColor": "#000000",
           "dark": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 200,
             "resizeMode": "contain",
-            "backgroundColor": "#222222"
+            "backgroundColor": "#000000"
           }
         }
       ]

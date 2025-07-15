@@ -5,5 +5,5 @@ export type SettingsType = {
 
 export const Settings:SettingsType = {
     theme: '',
-    url: 'https://idealiumweb.com/jobs/songs.php',
+    url: 'https://countitin.com/api/songs',
 }
