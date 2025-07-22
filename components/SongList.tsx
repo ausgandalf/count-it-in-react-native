@@ -14,9 +14,10 @@ import {
 
 import { SongType } from '@/constants/Types';
 
-export default function SongList({ type = 'select', songs = [], onSelect = () => {}, onDelete = () => {}, openForm = () => {} }: {
+export default function SongList({ type = 'select', songs = [], onUpdate = () => {}, onSelect = () => {}, onDelete = () => {}, openForm = () => {} }: {
   type?: 'button' | 'select',
   songs: SongType[],
+  onUpdate: (type:string, v:any) => void,
   onSelect: (song: SongType) => void,
   onDelete: (songId: string[]) => void,
   openForm?: (isCreate:boolean, song:null|SongType) => void,
@@ -61,8 +62,8 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   //   const isAllSelected = (songs.length > 0) && (selectedIds.length === songs.length);
   const isAllSelected = useCallback(() => {
     if (!songs || songs.length == 0) return false;
-    const ids = songs.filter(song => (!song.isLabel || song.isLabel != 1)).map((s) => s.id);
-    let hasAll = true;
+    const ids = songs.filter(song => (!song.isLabel || song.isLabel != 1)&&song.isCustom).map((s) => s.id);
+    let hasAll = ids.length > 0;
     ids.some(id => {
       if (id && selectedIds.indexOf(id) == -1) {
         hasAll = false;
@@ -73,8 +74,8 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
   }, [songs, selectedIds]);
   const isGroupSelected = (label:string) => {
     if (!songs) return false;
-    const ids = songs.filter(song => (song.label == label)&&(!song.isLabel || song.isLabel != 1)).map((s) => s.id);
-    let hasAll = true;
+    const ids = songs.filter(song => (song.label == label)&&(!song.isLabel || song.isLabel != 1)&&song.isCustom).map((s) => s.id);
+    let hasAll = ids.length > 0;
     ids.some(id => {
       if (id && selectedIds.indexOf(id) == -1) {
         hasAll = false;
@@ -89,14 +90,14 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
       setSelectedIds([]);
       return;
     }
-    setSelectedIds(isAllSelected() ? [] : songs.map(song => song.id).filter(id => id != undefined));
+    setSelectedIds(isAllSelected() ? [] : songs.map(song => song.isCustom ? song.id : undefined).filter(id => id != undefined));
   };
 
   const toggleSong = (item: SongType, flag: boolean) => {
     const id = item.id;
     const label = item.name;
     if (item.isLabel) {
-      const ids = songs.filter(song => song.label == label).map((s) => s.id).filter(id => id != undefined);
+      const ids = songs.filter(song => song.label == label && song.isCustom).map((s) => s.id).filter(id => id != undefined);
       setSelectedIds(prev =>
         flag ? [...prev, ...ids].filter(id => id != undefined) : prev.filter(sid => ids.indexOf(sid) == -1)
       );
@@ -118,14 +119,27 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
     const isLast = index === songs.length - 1;
     return (
       <View style={[styles.row, isLast ? {borderBottomWidth: 0, paddingBlockEnd: 40} : {}]}>
-        <Checkbox
-          value={item.isLabel ? isGroupSelected(item.name) : selectedIds.includes(item.id ?? '')}
-          onValueChange={(v) => {
-            toggleSong(item, v);
-          }}
-          style={commonStyles.checkbox}
-          color={themeColors.checkbox.color}
-        />
+        
+        {item.isCustom ? (
+          <Checkbox
+            value={item.isLabel ? isGroupSelected(item.name) : selectedIds.includes(item.id ?? '')}
+            onValueChange={(v) => {
+              toggleSong(item, v);
+            }}
+            style={[commonStyles.checkbox]}
+            color={themeColors.checkbox.color}
+          />
+        ) : !(item.isLabel && item.isLabel == 1) && (
+          <View style={{width: 20}}></View>
+        )}
+        
+        {(!(item.isLabel && item.isLabel == 1) && (item.isCustom)) ? (
+          <TouchableOpacity style={commonStyles.icon} onPress={() => onDelete([item.id ?? ''])}>
+            <Ionicons name="trash-outline" size={20} color="#d11a2a" />
+          </TouchableOpacity>
+        ) : (
+          <></>
+        )}
         
         {(item.isLabel && item.isLabel == 1) ? (
           <Text style={[commonStyles.text, {fontSize: 20, color: themeColors.label}]}>{item.name}</Text>
@@ -135,16 +149,6 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
             style={{flex: 1}}
           >
             <Text style={commonStyles.text}>{item.name}{item.artist ? ` - ${item.artist}` : ``}</Text>
-          </TouchableOpacity>
-        )}
-
-        {(!(item.isLabel && item.isLabel == 1) && (item.isCustom)) ? (
-          <TouchableOpacity style={commonStyles.icon} onPress={() => onDelete([item.id ?? ''])}>
-            <Ionicons name="trash-outline" size={20} color="#d11a2a" />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={commonStyles.icon}>
-            
           </TouchableOpacity>
         )}
 
@@ -167,11 +171,18 @@ export default function SongList({ type = 'select', songs = [], onSelect = () =>
           style={commonStyles.checkbox}
           color={themeColors.checkbox.color}
         />
-        <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton]} onPress={() => openForm(true, null)}>
-          <Text style={commonStyles.buttonText}>Create Song</Text>
-        </TouchableOpacity>
         <TouchableOpacity onPress={deleteSelected} style={commonStyles.icon}>
-          <Ionicons name="trash-bin" size={20} color="#d11a2a" />
+          {/* <Ionicons name="trash-bin" size={20} color="#d11a2a" /> */}
+          <Ionicons name="trash-outline" size={20} color="#d11a2a" />
+        </TouchableOpacity>
+        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+          <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton]} onPress={() => openForm(true, null)}>
+            <Text style={commonStyles.buttonText}>Create ♫</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={() => onUpdate('openSongListModal', false)} style={[commonStyles.icon, {width: 30}]}>
+          {/* <Ionicons name="trash-bin" size={20} color="#d11a2a" /> */}
+          <Ionicons name="close-circle-outline" size={30} color="#d11a2a" />
         </TouchableOpacity>
       </View>
 

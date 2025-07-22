@@ -374,6 +374,7 @@ export default function HomeScreen() {
                 <View style={[commonStyles.modalBox, { zIndex: 1 }]}>
                   <SongList 
                     songs={sortedSongList()} 
+                    onUpdate={onUpdate}
                     onSelect={(song) => {
                       // Close the modal
                       setTimeout(() => {

@@ -10,14 +10,13 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import * as Progress from 'react-native-progress';
 import 'react-native-reanimated';
-import { importSongs, loadSettings } from '../functions/resources';
+import { checkVersion, importSongs, loadSettings, saveSettings } from '../functions/resources';
 
 export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   const {settings, setSettings} = useSettings();
   const {songs, setSongs} = useSongs();
   const [loadingText, setLoadingText] = useState('Loading...');
   const [progress, setProgress] = useState(0);
-  const [importSongsOnLoad, setImportSongsOnLoad] = useState(false); // Let's implement more logics later
   const themeColors = getColors();
 
   const finalizing = async () => {
@@ -34,6 +33,9 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
       const loadedSettings = await loadSettings();
       setSettings(loadedSettings.settings as SettingsType);
       setProgress(0.2);
+      
+      const apiVersion = await checkVersion(loadedSettings.settings.versionUrl);
+      const importSongsOnLoad = apiVersion > loadedSettings.settings.version;
 
       if (importSongsOnLoad) {
         importSongs(songs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
@@ -45,6 +47,12 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
           } else if (statusCode == 3) {
             setLoadingText(text);
             setProgress(0.8);
+
+            // Save settings with new version
+            const updatedSettings = {...loadedSettings.settings, version: apiVersion};
+            setSettings(updatedSettings);
+            saveSettings(updatedSettings);
+            
             await finalizing();
           } else if ([4,5].indexOf(statusCode) != -1) {
             setProgress(0.8);

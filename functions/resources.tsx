@@ -1,4 +1,4 @@
-import { Settings } from "@/constants/Settings";
+import { Settings, SettingsType } from "@/constants/Settings";
 import { SetlistType, SongType } from "@/constants/Types";
 import { alert } from "@/functions/common";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -7,7 +7,6 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Platform } from "react-native";
 import { delay } from "./common";
-
 
 export const handleExport = async (setlist:SetlistType) => {
   if (!setlist) return;
@@ -201,8 +200,8 @@ export const checkNetworkConnection = async () => {
   return state.isConnected && state.isInternetReachable;
 };
 
-export const importSongs = async (songs: SongType[], onProgress: (statusCode: number, progress: number, text: string, result?: any) => void, settings: any) => {
-  if (!settings.url) {
+export const importSongs = async (songs: SongType[], onProgress: (statusCode: number, progress: number, text: string, result?: any) => void, settings: SettingsType) => {
+  if (!settings.apiUrl) {
     onProgress(4, 0, 'Please enter a URL');
     return;
   }
@@ -220,7 +219,7 @@ export const importSongs = async (songs: SongType[], onProgress: (statusCode: nu
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
-    const response = await fetch(settings.url, {
+    const response = await fetch(settings.apiUrl, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -232,10 +231,13 @@ export const importSongs = async (songs: SongType[], onProgress: (statusCode: nu
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      // throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      onProgress(4, 0, 'API server is not available. Please try again later.');
+      return;
     }
     
-    const json = await response.json();
+    const jsonData = await response.json();
+    const json = jsonData.data;
     
     // Clone the existing songs and add the new songs
     let newSongs:SongType[] = JSON.parse(JSON.stringify(songs)); // React Native compatible deep clone
@@ -265,6 +267,45 @@ export const importSongs = async (songs: SongType[], onProgress: (statusCode: nu
   }
 };
 
+
+export const checkVersion = async (url: string):Promise<number> => {
+  if (!url) {
+    return 0;
+  }
+  
+  // Check network connection first
+  const isConnected = await checkNetworkConnection();
+  if (!isConnected) {
+    return 0;
+  }
+  
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      // throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      return 0;
+    }
+    
+    const json = await response.json();
+    return json.version ?? 0;
+  } catch (error: any) {
+    return 0
+  }
+};
+
 export const saveSettings = async (settings: {}) => {
   try {
     await AsyncStorage.setItem('settings', JSON.stringify(settings));
@@ -275,7 +316,7 @@ export const saveSettings = async (settings: {}) => {
   }
 };
 
-export async function loadSettings(): Promise<{settings: {}}> {
+export async function loadSettings(): Promise<{settings: SettingsType}> {
   try {
     const settingsStored = await AsyncStorage.getItem('settings');
     const settings = settingsStored ? JSON.parse(settingsStored) : {};

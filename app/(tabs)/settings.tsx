@@ -145,8 +145,8 @@ export default function SettingsScreen() {
                 </View>
                 <TextInput
                   style={commonStyles.inputText}
-                  value={settings.url}
-                  onChangeText={(v) => setSettings({...settings, url: v})}
+                  value={settings.apiUrl}
+                  onChangeText={(v) => setSettings({...settings, apiUrl: v})}
                   placeholder="https://default-song-list.com"
                 />
               </View>

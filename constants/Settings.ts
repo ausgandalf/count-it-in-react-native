@@ -1,9 +1,13 @@
 export type SettingsType = {
     theme: 'light' | 'dark' | '',
-    url: string,
+    apiUrl: string,
+    versionUrl: string,
+    version: number,
 }
 
 export const Settings:SettingsType = {
     theme: '',
-    url: 'https://countitin.com/api/songs',
+    apiUrl: 'https://countitin.com/api/songs',
+    versionUrl: 'https://countitin.com/api/version',
+    version: 0,
 }
