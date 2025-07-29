@@ -249,7 +249,7 @@ export default function HomeScreen() {
     },
     middle: {
       flex: 1,
-      minHeight: viewMode == 'setlist' ? 270 : 100,
+      // minHeight: viewMode == 'setlist' ? 270 : 100,
       width: '100%',
       zIndex: 1000,
     },
@@ -415,7 +415,7 @@ export default function HomeScreen() {
               backdropOpacity={0.5}
               useNativeDriver={true}
               hideModalContentWhileAnimating={true}
-              style={[commonStyles.modal, {padding: 0}]}
+              style={[commonStyles.modal, {padding: 0, zIndex: 1100}]}
             >
               <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
                 <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>

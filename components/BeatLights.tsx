@@ -1,28 +1,20 @@
+import { CLIPS } from '@/constants/Clips';
 import { getColors } from '@/functions/common';
-import { AudioPlayer, useAudioPlayer } from 'expo-audio';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, EmitterSubscription, LogBox, StyleSheet, View } from 'react-native';
+import { AudioPro, AudioProContentType } from 'react-native-audio-pro';
 
-const audioSource = require('../assets/audio/beep.mp3');
-export function initAudio(onError:Function) {
-  try {
-    return useAudioPlayer(audioSource);
-  } catch (error) {
-    console.error('Error initializing audio:', error);
-    onError();
-  }
-  return null;
-}
+// Suppress NativeEventEmitter warnings from react-native-audio-pro
+LogBox.ignoreLogs([
+  'new NativeEventEmitter() was called with a non-null argument without the required `addListener` method.',
+  'new NativeEventEmitter() was called with a non-null argument without the required `removeListeners` method.',
+]);
 
-export function playClick(player: null|AudioPlayer, isMuted:boolean = true) {
-  if (!player || isMuted) return;
-  try {
-    player.seekTo(0);
-    player.play();
-  } catch (error) {
-    console.error('Error playing click:', error);
-  }
-}
+// Optional: Set playback config
+AudioPro.configure({
+  contentType: AudioProContentType.MUSIC,
+  // debug: __DEV__,
+});
 
 const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}) => {
   const fadeAnim = useRef(new Animated.Value(0.3)).current;
@@ -57,52 +49,127 @@ const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}
 
 export default function BeatLights({ playing = false, muted = true, bpm = 120, onError = () => {} }: { playing?: boolean, muted?: boolean, bpm?:number, onError?:Function }) {
   
-  const player = initAudio(onError);
-  // useEffect(() => {
-  //   initAudio(() => {
-  //     onError();
-  //   });
-  // }, []);
-
   const beatCount = 4;
   const [isRunning, setIsRunning] = useState(playing);
   const [currentBpm, setCurrentBpm] = useState(bpm);
   const [currentBeat, setCurrentBeat] = useState(-1);
   const mutedRef = useRef(muted);
+  const subscriptionRef = useRef<EmitterSubscription | null>(null);
   const intervalRef = useRef<number | null>(null);
   const intervalTime = 60000 / currentBpm;
+  const startTimeRef = useRef<number>(0);
 
-  useEffect(() => playing ? startMetronome() : stopMetronome(), [playing]);
+  useEffect(() => {
+    const doMetronome = async () => {
+      if (playing) {
+        startMetronome();
+      } else {
+        stopMetronome();
+      }
+    };
+    doMetronome();
+  }, [playing]);
+  
   useEffect(() => setCurrentBpm(bpm), [bpm]);
   useEffect(() => {
     mutedRef.current = muted;
+    if (muted) {
+      AudioPro.ambientSetVolume(0);
+    } else {
+      AudioPro.ambientSetVolume(1);
+    }
   }, [muted]);
 
   useEffect(() => {
-    return () => {
-      // Cleanup on unmount
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    // Add ambient audio event listeners
+    try {
+      const ambientListener = AudioPro.addAmbientListener((event) => {
+        console.log('Ambient audio event:', event.type);
+
+        switch (event.type) {
+          case 'AMBIENT_TRACK_ENDED':
+            console.log('Ambient track ended');
+            break;
+          case 'AMBIENT_ERROR':
+            console.warn('Ambient error:', event.payload?.error);
+            onError();
+            break;
+        }
+      });
+
+      subscriptionRef.current = ambientListener;
+
+      // Clean up listeners when component unmounts
+      return () => {
+        try {
+          if (subscriptionRef.current) {
+            subscriptionRef.current.remove();
+            subscriptionRef.current = null;
+          }
+        } catch (error) {
+          console.warn('Error removing ambient listener:', error);
+        }
+      };
+    } catch (error) {
+      console.error('Error setting up ambient listener:', error);
+      onError();
+    }
   }, []);
   
+  const doNextBeat = () => {
+    setCurrentBeat((prevBeat) => (prevBeat + 1) % beatCount);
+  }
+
+  const scheduleNextBeat = () => {
+    doNextBeat();
+    // Schedule the next beat
+    intervalRef.current = setInterval(() => {
+      if (Date.now() - startTimeRef.current >= intervalTime) {
+        startTimeRef.current = startTimeRef.current + intervalTime;
+        doNextBeat();
+      }
+    }, intervalTime / 11);
+  }
+
+  const stopInterval = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    startTimeRef.current = 0;
+  }
+
   const startMetronome = () => {
     if (isRunning) return;
-    let beat = 0;
+    
+    try {
+      console.log('Starting ambient track with BPM:', currentBpm);
+      stopInterval();
 
-    intervalRef.current = setInterval(() => {
-      setCurrentBeat(beat);
-      playClick(player, mutedRef.current);
-      beat = (beat + 1) % beatCount;
-    }, intervalTime);
+      startTimeRef.current = Date.now();
 
-    setIsRunning(true);
+      AudioPro.ambientPlay({
+        url: CLIPS[currentBpm],
+        loop: true,
+      });
+
+      // Start the recursive timer
+      scheduleNextBeat();
+
+      setIsRunning(true);
+    } catch (error) {
+      console.error('Error starting metronome:', error);
+      onError();
+    }
   };
 
   const stopMetronome = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = null;
-    setIsRunning(false);
-    setCurrentBeat(-1);
+    try {
+      AudioPro.ambientStop();
+      stopInterval();
+      setIsRunning(false);
+      setCurrentBeat(-1);
+    } catch (error) {
+      console.error('Error stopping metronome:', error);
+    }
   };
 
   return (

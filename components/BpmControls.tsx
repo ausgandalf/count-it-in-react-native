@@ -59,7 +59,7 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
           setMuted(!isMuted);
           onStateUpdated('muted', !isMuted);
         }}>
-          <Text style={commonStyles.buttonText}>{isMuted ? '🔇 Sound' : '🔊 Sound'}</Text>
+          <Text style={commonStyles.buttonText}>{isMuted ? '🔇' : '🔊'}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[commonStyles.button, commonStyles.secondaryButton]} onPress={() => {
           onStateUpdated('saveBpm', bpmValue);
@@ -67,7 +67,9 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
           <Text style={commonStyles.buttonText}>Save BPM</Text>
         </TouchableOpacity>
       </View>
-      <BeatLights bpm={bpmValue} playing={isPlaying} muted={isMuted} onError={() => setMuted(true)} />
+      <View>
+        <BeatLights bpm={bpmValue} playing={isPlaying} muted={isMuted} onError={() => setMuted(true)} />
+      </View>
     </View>
   );
 }
