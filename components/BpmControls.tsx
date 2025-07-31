@@ -1,7 +1,7 @@
 import { getCommonStyles } from '@/constants/Styles';
 import { Slider } from '@miblanchard/react-native-slider';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { AppState, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import BeatLights from './BeatLights';
 import { ThemedText } from './ThemedText';
 
@@ -31,6 +31,17 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
       gap: 20,
     },
   });
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'background') {
+        setPlaying(false);
+        onStateUpdated('playing', false);
+      }
+    });
+  
+    return () => subscription.remove();
+  }, []);
 
   return (
     <View style={styles.container}>

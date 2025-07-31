@@ -79,42 +79,6 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       AudioPro.ambientSetVolume(1);
     }
   }, [muted]);
-
-  useEffect(() => {
-    // Add ambient audio event listeners
-    try {
-      const ambientListener = AudioPro.addAmbientListener((event) => {
-        console.log('Ambient audio event:', event.type);
-
-        switch (event.type) {
-          case 'AMBIENT_TRACK_ENDED':
-            console.log('Ambient track ended');
-            break;
-          case 'AMBIENT_ERROR':
-            console.warn('Ambient error:', event.payload?.error);
-            onError();
-            break;
-        }
-      });
-
-      subscriptionRef.current = ambientListener;
-
-      // Clean up listeners when component unmounts
-      return () => {
-        try {
-          if (subscriptionRef.current) {
-            subscriptionRef.current.remove();
-            subscriptionRef.current = null;
-          }
-        } catch (error) {
-          console.warn('Error removing ambient listener:', error);
-        }
-      };
-    } catch (error) {
-      console.error('Error setting up ambient listener:', error);
-      onError();
-    }
-  }, []);
   
   const doNextBeat = () => {
     setCurrentBeat((prevBeat) => (prevBeat + 1) % beatCount);
@@ -141,7 +105,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
     if (isRunning) return;
     
     try {
-      console.log('Starting ambient track with BPM:', currentBpm);
+      // console.log('Starting ambient track with BPM:', currentBpm);
       stopInterval();
 
       startTimeRef.current = Date.now();
