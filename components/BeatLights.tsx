@@ -75,12 +75,21 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   </head>
   <body style="margin:0;padding:0;background:black;color:white;display:flex;align-items:center;justify-content:center;height:100vh;">
     <script>
-      let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      let gainNode = audioCtx.createGain();
-      gainNode.connect(audioCtx.destination);
-
+      let audioCtx = null;
+      let gainNode = null;
       let intervalId = null;
       let bpm = 60;
+
+      function initAudio() {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          gainNode = audioCtx.createGain();
+          gainNode.connect(audioCtx.destination);
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      }
 
       function playTick() {
         const osc = audioCtx.createOscillator();
@@ -92,9 +101,10 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       }
 
       function startMetronome() {
+        initAudio(); // ensure audio context is ready after user gesture
         if (intervalId) return;
         const interval = 60000 / bpm;
-        playTick(); // tick immediately
+        playTick();
         intervalId = setInterval(playTick, interval);
       }
 
@@ -103,14 +113,13 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
         intervalId = null;
       }
 
-      // Listen for React Native messages
       document.addEventListener('message', event => {
         const msg = JSON.parse(event.data);
         if (msg.command === 'start') startMetronome();
         else if (msg.command === 'stop') stopMetronome();
         else if (msg.command === 'setBpm') bpm = msg.bpm;
-        else if (msg.command === 'mute') gainNode.gain.value = 0;
-        else if (msg.command === 'unmute') gainNode.gain.value = 1;
+        else if (msg.command === 'mute') gainNode && (gainNode.gain.value = 0);
+        else if (msg.command === 'unmute') gainNode && (gainNode.gain.value = 1);
       });
     </script>
   </body>
@@ -179,7 +188,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       // console.log('Starting ambient track with BPM:', currentBpm);
       stopInterval();
       startTimeRef.current = Date.now();
-      
+
       if (Platform.OS == "android") {
         AudioPro.ambientPlay({
           url: CLIPS[currentBpm],
@@ -220,6 +229,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
         source={{ html: metronomeHTML }}
         javaScriptEnabled={true}
         domStorageEnabled={true}
+        style={{width: 0, height: 0, opacity: 0}}
       />
       {[0, 1, 2, 3].map((i) => {
         const isActive = currentBeat === i;
