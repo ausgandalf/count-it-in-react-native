@@ -360,7 +360,7 @@ export default function HomeScreen() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{ flex: 1 }}>
             <Modal
-              isVisible={isSongListModalVisible && !isSongFormModalVisible}
+              isVisible={isSongListModalVisible}
               onBackdropPress={() => onUpdate('openSongListModal', false)}
               onBackButtonPress={() => onUpdate('openSongListModal', false)}
               backdropOpacity={0.5}
@@ -375,70 +375,55 @@ export default function HomeScreen() {
             >
               <View style={[commonStyles.overlay, {padding: 0}]}>
                 <View style={[commonStyles.modalBox, { zIndex: 1 }]}>
-                  <SongList 
-                    songs={sortedSongList()} 
-                    onUpdate={onUpdate}
-                    onSelect={(song) => {
-                      // Close the modal
-                      setTimeout(() => {
-                        onUpdate('openSongListModal', false);
-                      }, 1);
+                  {
+                    isSongFormModalVisible ? (
+                      <SongForm 
+                        inputRef={songFormInputRef}
+                        song={editingSong}
+                        onSubmit={(song: { id: string, name: string; artist: string; bpm: number }) =>{
+                          // TODO - Song list update
+                          onUpdate('openSongFormModal', false);
+                          onUpdate('song', song);
+                        }}
+                        onCancel={() =>{
+                          onUpdate('openSongFormModal', false);
+                        }}
+                      />
+                    ) : (
+                      <SongList 
+                        songs={sortedSongList()} 
+                        onUpdate={onUpdate}
+                        onSelect={(song) => {
+                          // Close the modal
+                          setTimeout(() => {
+                            onUpdate('openSongListModal', false);
+                          }, 1);
 
-                      // Update the selected song
-                      if (viewMode == 'songs') {
-                        setSelectedSong(song);
-                      } else {
-                        // let's add it to selected setlist
-                        if (!selectedSetlist) return;
-                        song.id = song.id + '--' + Date.now().toString();
-                        selectedSetlist.songs.push(song)
-                        updateSetlist(selectedSetlist);
-                      }
+                          // Update the selected song
+                          if (viewMode == 'songs') {
+                            setSelectedSong(song);
+                          } else {
+                            // let's add it to selected setlist
+                            if (!selectedSetlist) return;
+                            song.id = song.id + '--' + Date.now().toString();
+                            selectedSetlist.songs.push(song)
+                            updateSetlist(selectedSetlist);
+                          }
 
-                      // Update the bpm
-                      setBpm(song.bpm??120);
-                    }} 
-                    openForm={openSongForm}
-                    onDelete={(ids:string[]) => onUpdate('deleteSongsFromLibrary', ids)}
-                  />
+                          // Update the bpm
+                          setBpm(song.bpm??120);
+                        }} 
+                        openForm={openSongForm}
+                        onDelete={(ids:string[]) => onUpdate('deleteSongsFromLibrary', ids)}
+                      />
+                    )
+                  }
                 </View>
               </View>
             </Modal>
           </View>
         </TouchableWithoutFeedback>
 
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{ flex: 1 }}>
-            <Modal 
-              isVisible={isSongFormModalVisible} 
-              onBackButtonPress={() => onUpdate('openSongFormModal', false)}
-              onBackdropPress={() => onUpdate('openSongFormModal', false)}
-              animationIn="fadeIn"
-              animationOut="fadeOut"
-              backdropOpacity={0.5}
-              useNativeDriver={true}
-              hideModalContentWhileAnimating={true}
-              style={[commonStyles.modal, {padding: 0, zIndex: 1100}]}
-            >
-              <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
-                <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
-                  <SongForm 
-                    inputRef={songFormInputRef}
-                    song={editingSong}
-                    onSubmit={(song: { id: string, name: string; artist: string; bpm: number }) =>{
-                      // TODO - Song list update
-                      onUpdate('openSongFormModal', false);
-                      onUpdate('song', song);
-                    }}
-                    onCancel={() =>{
-                      onUpdate('openSongFormModal', false);
-                    }}
-                  />
-                </View>
-              </View>
-            </Modal>
-          </View>
-        </TouchableWithoutFeedback>
       </View>
       
     </View>
