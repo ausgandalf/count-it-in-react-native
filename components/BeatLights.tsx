@@ -87,6 +87,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       let gainNode = null;
       let intervalId = null;
       let bpm = 60;
+      let lastTickedOn = 0;
 
       function initAudio() {
         if (!audioCtx) {
@@ -117,9 +118,15 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       function startMetronome() {
         initAudio(); // ensure audio context is ready after user gesture
         if (intervalId) return;
-        const interval = 60000 / bpm;
+        const interval = 60000 / (bpm * 10);
+        lastTickedOn = Date.now();
         playTick();
-        intervalId = setInterval(playTick, interval);
+        intervalId = setInterval(() => {
+          if (Date.now() - lastTickedOn >= interval) {
+            playTick();
+            lastTickedOn = Date.now();
+          }
+        }, interval);
       }
 
       function stopMetronome() {
@@ -185,7 +192,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
         startTimeRef.current = startTimeRef.current + intervalTime;
         doNextBeat();
       }
-    }, intervalTime / 11);
+    }, intervalTime / 10);
   }
 
   const stopInterval = () => {
