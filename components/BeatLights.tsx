@@ -1,8 +1,9 @@
 import { CLIPS } from '@/constants/Clips';
 import { getColors } from '@/functions/common';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, EmitterSubscription, LogBox, StyleSheet, View } from 'react-native';
+import { Animated, EmitterSubscription, LogBox, Platform, StyleSheet, View } from 'react-native';
 import { AudioPro, AudioProContentType } from 'react-native-audio-pro';
+import { WebView } from 'react-native-webview';
 
 // Suppress NativeEventEmitter warnings from react-native-audio-pro
 LogBox.ignoreLogs([
@@ -59,6 +60,64 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   const intervalTime = 60000 / currentBpm;
   const startTimeRef = useRef<number>(0);
 
+  const webViewRef = useRef<WebView>(null);
+  const sendMessage = (msg: any) => {
+    if (webViewRef.current) {
+      webViewRef.current.postMessage(JSON.stringify(msg));
+    }
+  };
+  const metronomeHTML = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metronome</title>
+  </head>
+  <body style="margin:0;padding:0;background:black;color:white;display:flex;align-items:center;justify-content:center;height:100vh;">
+    <script>
+      let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      let gainNode = audioCtx.createGain();
+      gainNode.connect(audioCtx.destination);
+
+      let intervalId = null;
+      let bpm = 60;
+
+      function playTick() {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+        osc.connect(gainNode);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+      }
+
+      function startMetronome() {
+        if (intervalId) return;
+        const interval = 60000 / bpm;
+        playTick(); // tick immediately
+        intervalId = setInterval(playTick, interval);
+      }
+
+      function stopMetronome() {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+
+      // Listen for React Native messages
+      document.addEventListener('message', event => {
+        const msg = JSON.parse(event.data);
+        if (msg.command === 'start') startMetronome();
+        else if (msg.command === 'stop') stopMetronome();
+        else if (msg.command === 'setBpm') bpm = msg.bpm;
+        else if (msg.command === 'mute') gainNode.gain.value = 0;
+        else if (msg.command === 'unmute') gainNode.gain.value = 1;
+      });
+    </script>
+  </body>
+</html>
+`;
+
+
   useEffect(() => {
     const doMetronome = async () => {
       if (playing) {
@@ -70,13 +129,25 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
     doMetronome();
   }, [playing]);
   
-  useEffect(() => setCurrentBpm(bpm), [bpm]);
+  useEffect(() => {
+    setCurrentBpm(bpm);
+    sendMessage({ command: 'setBpm', bpm: bpm });
+  }, [bpm]);
+
   useEffect(() => {
     mutedRef.current = muted;
     if (muted) {
-      AudioPro.ambientSetVolume(0);
+      if (Platform.OS == "android") {
+        AudioPro.ambientSetVolume(0);
+      } else {
+        sendMessage({ command: 'mute' });
+      }
     } else {
-      AudioPro.ambientSetVolume(1);
+      if (Platform.OS == "android") {
+        AudioPro.ambientSetVolume(1); 
+      } else {
+        sendMessage({ command: 'unmute' });
+      }
     }
   }, [muted]);
   
@@ -106,18 +177,18 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
     
     try {
       // console.log('Starting ambient track with BPM:', currentBpm);
-      stopInterval();
-
-      startTimeRef.current = Date.now();
-
-      AudioPro.ambientPlay({
-        url: CLIPS[currentBpm],
-        loop: true,
-      });
-
+      if (Platform.OS == "android") {
+        stopInterval();
+        startTimeRef.current = Date.now();
+        AudioPro.ambientPlay({
+          url: CLIPS[currentBpm],
+          loop: true,
+        }); 
+      } else {
+        sendMessage({ command: 'start' });
+      }
       // Start the recursive timer
-      scheduleNextBeat();
-
+      scheduleNextBeat(); 
       setIsRunning(true);
     } catch (error) {
       console.error('Error starting metronome:', error);
@@ -127,7 +198,11 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
 
   const stopMetronome = () => {
     try {
-      AudioPro.ambientStop();
+      if (Platform.OS == "android") {
+        AudioPro.ambientStop();
+      } else {
+        sendMessage({ command: 'stop' });
+      }
       stopInterval();
       setIsRunning(false);
       setCurrentBeat(-1);
@@ -138,6 +213,13 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
 
   return (
     <View style={[styles.circleWrapper]}>
+      <WebView
+        ref={webViewRef}
+        originWhitelist={['*']}
+        source={{ html: metronomeHTML }}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+      />
       {[0, 1, 2, 3].map((i) => {
         const isActive = currentBeat === i;
         const isStart = i === 0 && isActive;
