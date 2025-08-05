@@ -61,7 +61,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
           selectedSongId == item.id ? commonStyles.selected: {}
         ]}
       >
-        <TouchableOpacity onPressIn={drag} style={[styles.handle, {paddingBlock: 16, paddingInlineStart: 16}]}>
+        <TouchableOpacity onLongPress={drag} delayLongPress={200} style={[styles.handle, {paddingBlock: 16, paddingInlineStart: 16}]}>
           <Ionicons name="reorder-three" size={24} color="#666" />
         </TouchableOpacity>
         
@@ -134,7 +134,6 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
       <View style={{zIndex: 1}}>
         
         <DraggableFlatList
-          nestedScrollEnabled={true}
           activationDistance={scrollEnabled ? 10 : 1000}
           scrollEnabled={scrollEnabled}
           data={data}
