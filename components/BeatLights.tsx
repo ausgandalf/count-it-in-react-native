@@ -177,9 +177,10 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
     
     try {
       // console.log('Starting ambient track with BPM:', currentBpm);
+      stopInterval();
+      startTimeRef.current = Date.now();
+      
       if (Platform.OS == "android") {
-        stopInterval();
-        startTimeRef.current = Date.now();
         AudioPro.ambientPlay({
           url: CLIPS[currentBpm],
           loop: true,
