@@ -3,6 +3,7 @@
 # CNG / Prebuild
 /ios
 /android
+.idea/
 
 # dependencies
 node_modules/

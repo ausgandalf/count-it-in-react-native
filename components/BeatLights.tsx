@@ -156,7 +156,6 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
 
 const styles = StyleSheet.create({
   circleWrapper: {
-    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 15,

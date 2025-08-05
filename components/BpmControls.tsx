@@ -78,7 +78,7 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
           <Text style={commonStyles.buttonText}>Save BPM</Text>
         </TouchableOpacity>
       </View>
-      <View>
+      <View style={{height: 130}}>
         <BeatLights bpm={bpmValue} playing={isPlaying} muted={isMuted} onError={() => setMuted(true)} />
       </View>
     </View>

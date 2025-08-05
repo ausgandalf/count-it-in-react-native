@@ -33,8 +33,8 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <GestureHandlerRootView>
-        <ThemeProvider value={true || colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <GestureHandlerRootView style={{flex: 1}}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <SettingsProvider>
             <SongsProvider>
               {loading ? (
