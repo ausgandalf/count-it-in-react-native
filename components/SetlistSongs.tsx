@@ -20,6 +20,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   const [data, setData] = useState<SongType[]>(setlist ? setlist.songs : []);
   const [selectedSongId, setSelectedSongId] = useState<string | undefined>(undefined);
   const [scrollEnabled, setScrollEnabled] = useState(scrollable);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     setScrollEnabled(scrollable);
@@ -61,7 +62,15 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
           selectedSongId == item.id ? commonStyles.selected: {}
         ]}
       >
-        <TouchableOpacity onLongPress={drag} delayLongPress={200} activeOpacity={0.8} style={[styles.handle, {paddingBlock: 16, paddingInlineStart: 16}]}>
+        <TouchableOpacity
+          onLongPress={() => {
+            setIsDragging(true);
+            drag();
+          }}
+          delayLongPress={200}
+          activeOpacity={0.8}
+          style={[styles.handle, {paddingBlock: 16, paddingInlineStart: 16}]}
+        >
           <Ionicons name="reorder-three" size={24} color="#666" />
         </TouchableOpacity>
         
@@ -132,10 +141,13 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
       </View>
       
       <View style={{zIndex: 1}}>
-        
+        {isDragging && <View style={styles.scrollBlocker} pointerEvents="auto" />}
         <DraggableFlatList
+          activationDistance={0}
+          scrollEnabled={true}
           data={data}
           onDragEnd={({ data }) => {
+            setIsDragging(false);
             const newData = JSON.parse(JSON.stringify(data));
             setData(newData);
             onUpdate('updateSetlist', {
@@ -174,5 +186,10 @@ const styles = StyleSheet.create({
   },
   handle: {
     paddingHorizontal: 4,
+  },
+  scrollBlocker: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "transparent",
+    zIndex: 999,
   },
 });
