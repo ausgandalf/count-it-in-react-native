@@ -1,21 +1,7 @@
-import { CLIPS } from '@/constants/Clips';
 import { getColors } from '@/functions/common';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, EmitterSubscription, LogBox, Platform, StyleSheet, View } from 'react-native';
-import { AudioPro, AudioProContentType } from 'react-native-audio-pro';
+import { Animated, EmitterSubscription, StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-
-// Suppress NativeEventEmitter warnings from react-native-audio-pro
-LogBox.ignoreLogs([
-  'new NativeEventEmitter() was called with a non-null argument without the required `addListener` method.',
-  'new NativeEventEmitter() was called with a non-null argument without the required `removeListeners` method.',
-]);
-
-// Optional: Set playback config
-AudioPro.configure({
-  contentType: AudioProContentType.MUSIC,
-  // debug: __DEV__,
-});
 
 const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}) => {
   const fadeAnim = useRef(new Animated.Value(0.3)).current;
@@ -166,17 +152,9 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   useEffect(() => {
     mutedRef.current = muted;
     if (muted) {
-      if (Platform.OS == "android") {
-        AudioPro.ambientSetVolume(0);
-      } else {
-        sendMessage({ command: 'mute' });
-      }
+      sendMessage({ command: 'mute' });
     } else {
-      if (Platform.OS == "android") {
-        AudioPro.ambientSetVolume(1); 
-      } else {
-        sendMessage({ command: 'unmute' });
-      }
+      sendMessage({ command: 'unmute' });
     }
   }, [muted]);
   
@@ -209,14 +187,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       stopInterval();
       startTimeRef.current = Date.now();
 
-      if (Platform.OS == "android") {
-        AudioPro.ambientPlay({
-          url: CLIPS[currentBpm],
-          loop: true,
-        }); 
-      } else {
-        sendMessage({ command: 'start' });
-      }
+      sendMessage({ command: 'start' });
       // Start the recursive timer
       scheduleNextBeat(); 
       setIsRunning(true);
@@ -228,11 +199,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
 
   const stopMetronome = () => {
     try {
-      if (Platform.OS == "android") {
-        AudioPro.ambientStop();
-      } else {
-        sendMessage({ command: 'stop' });
-      }
+      sendMessage({ command: 'stop' });
       stopInterval();
       setIsRunning(false);
       setCurrentBeat(-1);
