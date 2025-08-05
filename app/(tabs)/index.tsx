@@ -229,6 +229,7 @@ export default function HomeScreen() {
       saveSongList(newSongs);
     } else if (type == 'openSongListModal') {
       setSongListModalVisible(v);
+      setSongFormModalVisible(false);
     } else if (type == 'openSetlistFormModal') {
       setSetlistFormModalVisible(v);
     } else if (type == 'openSongFormModal') {
