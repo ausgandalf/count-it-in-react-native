@@ -76,6 +76,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   <body style="margin:0;padding:0;background:black;color:white;display:flex;align-items:center;justify-content:center;height:100vh;">
     <script>
       let audioCtx = null;
+      let audioSource = null;
       let gainNode = null;
       let intervalId = null;
       let bpm = 60;
@@ -85,19 +86,47 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           gainNode = audioCtx.createGain();
           gainNode.connect(audioCtx.destination);
+          gainNode.gain.value = 0;
+
+          // Create a simple click sound
+          const sampleRate = audioContext.sampleRate;
+          const duration = 0.05; // 50ms click
+          const buffer = audioContext.createBuffer(
+            1,
+            sampleRate * duration,
+            sampleRate
+          );
+          const data = buffer.getChannelData(0);
+
+          // Create a click sound with a quick attack and decay
+          for (let i = 0; i < buffer.length; i++) {
+            const t = i / sampleRate;
+            data[i] = Math.sin(2 * Math.PI * 1000 * t) * Math.exp(-t * 50);
+          }
+
+          audioSource = audioContext.createBufferSource();
+          audioSource.buffer = buffer;
+          audioSource.connect(audioContext.destination);
+          
+          window.ReactNativeWebView.postMessage('Audio initialized.', audioCtx, audioSource);
         }
         if (audioCtx.state === 'suspended') {
           audioCtx.resume();
+          window.ReactNativeWebView.postMessage('Audio resumed.');
         }
       }
 
       function playTick() {
+        audioSource && audioSource.start();
+        window.ReactNativeWebView.postMessage('Audio ticked.');
+        /*
         const osc = audioCtx.createOscillator();
         osc.type = 'square';
         osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
         osc.connect(gainNode);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.05);
+        */
       }
 
       function startMetronome() {
@@ -222,27 +251,34 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   };
 
   return (
-    <View style={[styles.circleWrapper]}>
+    <View>
+      
+      <View style={[styles.circleWrapper]}>
+        {[0, 1, 2, 3].map((i) => {
+          const isActive = currentBeat === i;
+          const isStart = i === 0 && isActive;
+            return (
+              <BeatCircle
+                key={i}
+                isActive={currentBeat === i}
+                isStart={i === 0 && currentBeat === i}
+              />
+            )
+          }
+        )}
+      </View>
+
       <WebView
         ref={webViewRef}
         originWhitelist={['*']}
         source={{ html: metronomeHTML }}
         javaScriptEnabled={true}
         domStorageEnabled={true}
+        onMessage={(event) => {
+          console.log('WebView says:', event.nativeEvent.data);
+        }}
         style={{width: 0, height: 0, opacity: 0}}
       />
-      {[0, 1, 2, 3].map((i) => {
-        const isActive = currentBeat === i;
-        const isStart = i === 0 && isActive;
-          return (
-            <BeatCircle
-              key={i}
-              isActive={currentBeat === i}
-              isStart={i === 0 && currentBeat === i}
-            />
-          )
-        }
-      )}
     </View>
   );
 }
