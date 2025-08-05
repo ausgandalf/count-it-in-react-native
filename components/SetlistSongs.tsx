@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons'; // or use any icon lib
 import Checkbox from 'expo-checkbox';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import DraggableFlatList from 'react-native-draggable-flatlist';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import ImportSetlistButton from './ImportSetlistButton';
 import InnerShadow from './InnerShadow';
 
@@ -53,7 +53,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   const commonStyles = getCommonStyles();
   const themeColors = getColors();
   const renderItem = ({ item, drag, isActive }: { item: SongType, drag: () => void, isActive: boolean }) => (
-    // <ScaleDecorator>
+    <ScaleDecorator>
       <View
         style={[
           styles.row,
@@ -93,7 +93,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
           <Ionicons name="trash" size={20} color={themeColors.danger} />
         </TouchableOpacity>
       </View>
-    // </ScaleDecorator>
+    </ScaleDecorator>
   );
 
   return (
