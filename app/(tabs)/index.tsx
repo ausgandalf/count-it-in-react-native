@@ -60,6 +60,7 @@ export default function HomeScreen() {
   }, [isSetlistFormModalVisible]);
 
   const openSongForm = (isCreate:boolean, song:null|SongType) => {
+    onUpdate('openSongListModal', false);
     onUpdate('openSongFormModal', true);
     if (!isCreate && song) {
       setEditingSong(song);
@@ -426,9 +427,11 @@ export default function HomeScreen() {
                       // TODO - Song list update
                       onUpdate('openSongFormModal', false);
                       onUpdate('song', song);
+                      onUpdate('openSongListModal', true);
                     }}
                     onCancel={() =>{
                       onUpdate('openSongFormModal', false);
+                      onUpdate('openSongListModal', true);
                     }}
                   />
                 </View>
