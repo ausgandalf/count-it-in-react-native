@@ -369,6 +369,9 @@ export default function HomeScreen() {
               useNativeDriver={true}
               hideModalContentWhileAnimating={true}
               style={[commonStyles.modal]}
+              onDismiss={() => {
+                onUpdate('openSongFormModal', true);
+              }}
             >
               <View style={[commonStyles.overlay, {padding: 0}]}>
                 <View style={[commonStyles.modalBox, { zIndex: 1 }]}>
