@@ -62,8 +62,15 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
 
   const webViewRef = useRef<WebView>(null);
   const sendMessage = (msg: any) => {
+    // if (webViewRef.current) {
+    //   webViewRef.current.postMessage(JSON.stringify(msg));
+    // }
+
     if (webViewRef.current) {
-      webViewRef.current.postMessage(JSON.stringify(msg));
+      webViewRef.current.injectJavaScript(`
+        window.handleRNMessage(${JSON.stringify(msg)});
+        true;
+      `);
     }
   };
   const metronomeHTML = `
@@ -142,14 +149,14 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
         intervalId = null;
       }
 
-      document.addEventListener('message', event => {
-        const msg = JSON.parse(event.data);
+      window.handleRNMessage = function(msg) {
+        alert('handleRNMessage: ', msg);
         if (msg.command === 'start') startMetronome();
         else if (msg.command === 'stop') stopMetronome();
         else if (msg.command === 'setBpm') bpm = msg.bpm;
         else if (msg.command === 'mute') gainNode && (gainNode.gain.value = 0);
         else if (msg.command === 'unmute') gainNode && (gainNode.gain.value = 1);
-      });
+      }
     </script>
   </body>
 </html>
