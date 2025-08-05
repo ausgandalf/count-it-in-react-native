@@ -86,7 +86,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       let audioSource = null;
       let gainNode = null;
       let intervalId = null;
-      let bpm = 60;
+      let bpm = 120;
       let lastTickedOn = 0;
 
       function initAudio() {
@@ -118,7 +118,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       function startMetronome() {
         initAudio(); // ensure audio context is ready after user gesture
         if (intervalId) return;
-        const interval = 60000 / (bpm * 10);
+        const interval = 60000 / bpm;
         lastTickedOn = Date.now();
         playTick();
         intervalId = setInterval(() => {
@@ -126,7 +126,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
             playTick();
             lastTickedOn = Date.now();
           }
-        }, interval);
+        }, interval / 10);
       }
 
       function stopMetronome() {
@@ -137,7 +137,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       window.handleRNMessage = function(msg) {
         if (msg.command === 'start') startMetronome();
         else if (msg.command === 'stop') stopMetronome();
-        else if (msg.command === 'setBpm') bpm = msg.bpm;
+        else if (msg.command === 'setBpm') bpm = parseInt(msg.bpm);
         else if (msg.command === 'mute') gainNode && (gainNode.gain.value = 0);
         else if (msg.command === 'unmute') gainNode && (gainNode.gain.value = 1);
       }
