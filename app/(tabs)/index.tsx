@@ -60,10 +60,7 @@ export default function HomeScreen() {
   }, [isSetlistFormModalVisible]);
 
   const openSongForm = (isCreate:boolean, song:null|SongType) => {
-    onUpdate('openSongListModal', false);
-    setTimeout(() => {
-      onUpdate('openSongFormModal', true);
-    }, 100);
+    onUpdate('openSongFormModal', true);
     if (!isCreate && song) {
       setEditingSong(song);
     } else {
@@ -363,7 +360,7 @@ export default function HomeScreen() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{ flex: 1 }}>
             <Modal
-              isVisible={isSongListModalVisible}
+              isVisible={isSongListModalVisible && !isSongFormModalVisible}
               onBackdropPress={() => onUpdate('openSongListModal', false)}
               onBackButtonPress={() => onUpdate('openSongListModal', false)}
               backdropOpacity={0.5}
@@ -429,15 +426,9 @@ export default function HomeScreen() {
                       // TODO - Song list update
                       onUpdate('openSongFormModal', false);
                       onUpdate('song', song);
-                      setTimeout(() => {
-                        onUpdate('openSongListModal', true);
-                      }, 100);
                     }}
                     onCancel={() =>{
                       onUpdate('openSongFormModal', false);
-                      setTimeout(() => {
-                        onUpdate('openSongListModal', true);
-                      }, 100);
                     }}
                   />
                 </View>
