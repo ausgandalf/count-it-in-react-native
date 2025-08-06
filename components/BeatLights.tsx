@@ -111,6 +111,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       function playTick() {
         const audioSource = audioCtx.createBufferSource();
         audioSource.buffer = clickBuffer;
+        audioSource.connect(gainNode);
         audioSource.connect(audioCtx.destination);
         audioSource.start();
 
