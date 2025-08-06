@@ -3,7 +3,7 @@ import { SetlistType, SongType } from '@/constants/Types';
 import { confirm, getColors } from '@/functions/common';
 import { Ionicons } from '@expo/vector-icons'; // or use any icon lib
 import Checkbox from 'expo-checkbox';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import ImportSetlistButton from './ImportSetlistButton';
@@ -142,7 +142,6 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
         <DraggableFlatList
           ref={scrollRef} // ref to the internal scroll view
           simultaneousHandlers={scrollRef} // allow drag + scroll to run together
-          activationDistance={10}
           scrollEnabled={true || isScrollEnabled}
           data={data}
           onRelease={(index:number) => {
