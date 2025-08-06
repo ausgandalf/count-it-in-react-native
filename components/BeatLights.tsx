@@ -89,6 +89,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
           window.ReactNativeWebView.postMessage('Audio resumed.');
         }
 
+        /*
         // Create a simple click sound
         const sampleRate = audioCtx.sampleRate;
         const duration = 0.05; // 50ms click
@@ -106,23 +107,23 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
         }
 
         clickBuffer = buffer;
+        */
       }
 
       function playTick() {
+        /*
         const audioSource = audioCtx.createBufferSource();
         audioSource.buffer = clickBuffer;
-        audioSource.connect(gainNode);
         audioSource.connect(audioCtx.destination);
         audioSource.start();
+        */
 
-        /*
         const osc = audioCtx.createOscillator();
-        osc.type = 'square';
+        osc.type = 'sine';
         osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
         osc.connect(gainNode);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.05);
-        */
         
       }
 
