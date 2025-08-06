@@ -145,10 +145,11 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
           onReordered={(fromIndex: number, toIndex: number) => {
             const newDataIds = [...dataIds]; // Don't modify react data in-place
             const removed = newDataIds.splice(fromIndex, 1);
-        
             newDataIds.splice(toIndex, 0, removed[0]); // Now insert at the new pos
-            setDataIds(newDataIds);
-            const newData = newDataIds.map((id) => data.find((s) => s.id == id) ?? {id: id, name: '', artist: '', label: '', bpm: 0, isCustom: false, isLabel: 0} as SongType);
+            const newDataIdsFiltered = newDataIds.filter((id) => id != '');
+            setDataIds(newDataIdsFiltered);
+            const newDataSet = newDataIdsFiltered.map((id) => data.find((s) => s.id == id) ?? {id: '', name: '', artist: '', label: '', bpm: 0, isCustom: false, isLabel: 0} as SongType);
+            const newData = newDataSet.filter((s) => s.id != '');
             setData(newData);
             onUpdate('updateSetlist', {
               ...currentSetlist,
