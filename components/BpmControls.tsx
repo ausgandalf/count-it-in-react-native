@@ -1,5 +1,6 @@
 import { getCommonStyles } from '@/constants/Styles';
 import { Slider } from '@miblanchard/react-native-slider';
+import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { AppState, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import BeatLights from './BeatLights';
@@ -42,6 +43,15 @@ export default function BpmControls({ bpm, playing = false, muted = true, onUpda
   
     return () => subscription.remove();
   }, []);
+
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (!isFocused) {
+      // Pause the metronome when the app is not focused
+      setPlaying(false);
+      onStateUpdated('playing', false);
+    }
+  }, [isFocused]);
 
   return (
     <View style={styles.container}>
