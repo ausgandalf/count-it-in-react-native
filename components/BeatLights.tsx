@@ -74,12 +74,12 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       let lastTickedOn = 0;
       let clickBuffer = null;
 
-      function initAudio() {
+      function initAudio(unMuted = false) {
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           gainNode = audioCtx.createGain();
           gainNode.connect(audioCtx.destination);
-          gainNode.gain.value = 0;
+          gainNode.gain.value = unMuted ? 1 : 0;
           
           window.ReactNativeWebView.postMessage('Audio initialized.', audioCtx);
         }
@@ -147,6 +147,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       window.handleRNMessage = function(msg) {
         if (msg.command === 'start') startMetronome();
         else if (msg.command === 'init') initAudio();
+        else if (msg.command === 'initUnMuted') initAudio(true);
         else if (msg.command === 'stop') stopMetronome();
         else if (msg.command === 'setBpm') bpm = parseInt(msg.bpm);
         else if (msg.command === 'mute') gainNode && (gainNode.gain.value = 0);
@@ -212,9 +213,10 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       stopInterval();
       startTimeRef.current = Date.now();
 
-      sendMessage({ command: 'init' });
-      if (!mutedRef.current) {
-        sendMessage({ command: 'unmute' });
+      if (mutedRef.current) {
+        sendMessage({ command: 'init' });
+      } else {
+        sendMessage({ command: 'initUnMuted' });
       }
       sendMessage({ command: 'start' });
 
