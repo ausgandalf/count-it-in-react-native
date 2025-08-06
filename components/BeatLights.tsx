@@ -74,7 +74,6 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       let intervalId = null;
       let bpm = 120;
       let lastTickedOn = 0;
-      let audioSource = null;
 
       function initAudio() {
         if (!audioCtx) {
@@ -83,6 +82,27 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
           gainNode.connect(audioCtx.destination);
           gainNode.gain.value = 0;
           
+
+          // Create a simple click sound
+          const sampleRate = audioContext.sampleRate;
+          const duration = 0.05; // 50ms click
+          const buffer = audioContext.createBuffer(
+            1,
+            sampleRate * duration,
+            sampleRate
+          );
+          const data = buffer.getChannelData(0);
+
+          // Create a click sound with a quick attack and decay
+          for (let i = 0; i < buffer.length; i++) {
+            const t = i / sampleRate;
+            data[i] = Math.sin(2 * Math.PI * 1000 * t) * Math.exp(-t * 50);
+          }
+
+          audioSource = audioCtx.createBufferSource();
+          audioSource.buffer = buffer;
+          audioSource.connect(audioContext.destination);
+
           window.ReactNativeWebView.postMessage('Audio initialized.', audioCtx, audioSource);
         }
         if (audioCtx.state === 'suspended') {
@@ -92,13 +112,16 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       }
 
       function playTick() {
-        
+        audioSource && audioSource.start();
+
+        /*
         const osc = audioCtx.createOscillator();
         osc.type = 'square';
         osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
         osc.connect(gainNode);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.05);
+        */
         
       }
 
@@ -188,7 +211,11 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       stopInterval();
       startTimeRef.current = Date.now();
 
+      if (!mutedRef.current) {
+        sendMessage({ command: 'unmute' });
+      }
       sendMessage({ command: 'start' });
+      
       // Start the recursive timer
       scheduleNextBeat(); 
       setIsRunning(true);
