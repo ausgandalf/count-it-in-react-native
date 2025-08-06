@@ -9,7 +9,6 @@ import { delay, getColors } from '@/functions/common';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import * as Progress from 'react-native-progress';
-import 'react-native-reanimated';
 import { checkVersion, importSongs, loadSettings, saveSettings } from '../functions/resources';
 
 export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
@@ -35,7 +34,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
       setProgress(0.2);
       
       const apiVersion = await checkVersion(loadedSettings.settings.versionUrl);
-      const importSongsOnLoad = apiVersion > loadedSettings.settings.version;
+      const importSongsOnLoad = apiVersion > Number(loadedSettings.settings.version);
 
       if (importSongsOnLoad) {
         importSongs(songs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
@@ -49,7 +48,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
             setProgress(0.8);
 
             // Save settings with new version
-            const updatedSettings = {...loadedSettings.settings, version: apiVersion};
+            const updatedSettings = {...loadedSettings.settings, version: apiVersion.toString()};
             setSettings(updatedSettings);
             saveSettings(updatedSettings);
             

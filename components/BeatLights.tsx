@@ -112,7 +112,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
             playTick();
             lastTickedOn = Date.now();
           }
-        }, interval / 10);
+        }, interval / 20);
       }
 
       function stopMetronome() {
@@ -170,7 +170,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
         startTimeRef.current = startTimeRef.current + intervalTime;
         doNextBeat();
       }
-    }, intervalTime / 10);
+    }, intervalTime / 20);
   }
 
   const stopInterval = () => {
