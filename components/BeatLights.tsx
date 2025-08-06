@@ -215,7 +215,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
         sendMessage({ command: 'unmute' });
       }
       sendMessage({ command: 'start' });
-      
+
       // Start the recursive timer
       scheduleNextBeat(); 
       setIsRunning(true);
@@ -255,7 +255,6 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       </View>
 
       <WebView
-        pointerEvents="none"
         scrollEnabled={false}
         ref={webViewRef}
         originWhitelist={['*']}
@@ -265,7 +264,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
         onMessage={(event) => {
           console.log('WebView says:', event.nativeEvent.data);
         }}
-        style={{width: 0, height: 0, opacity: 0}}
+        style={{width: 0, height: 0, opacity: 0, pointerEvents: 'none'}}
       />
     </View>
   );
