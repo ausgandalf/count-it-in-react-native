@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons'; // or use any icon lib
 import Checkbox from 'expo-checkbox';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
+import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
 import ImportSetlistButton from './ImportSetlistButton';
 import InnerShadow from './InnerShadow';
 
@@ -19,15 +19,15 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   const [isAddMode, setAddMode] = useState(true);
   const [currentSetlist, setCurrentSetlist] = useState<SetlistType | null>(null);
   const [data, setData] = useState<SongType[]>(setlist ? setlist.songs : []);
+  const [dataIds, setDataIds] = useState<string[]>([]);
   const [selectedSongId, setSelectedSongId] = useState<string | undefined>(undefined);
-  const [isScrollEnabled, setScrollEnabled] = useState(scrollable);
-  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     setCurrentSetlist(setlist || null);
     if (JSON.stringify(data) != JSON.stringify(setlist?.songs)) {
       setData(setlist ? [...setlist.songs] : []);
     }
+    setDataIds(data.map((s) => s.id ?? ''));
   }, [setlist])
 
   useEffect(() => {
@@ -49,23 +49,22 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
 
   const commonStyles = getCommonStyles();
   const themeColors = getColors();
-  const renderItem = ({ item, drag, isActive }: { item: SongType, drag: () => void, isActive: boolean }) => (
-    <ScaleDecorator>
+  const renderItem = (info: DragListRenderItemInfo<string>) => {
+    const {item, onDragStart, onDragEnd, isActive} = info;
+    const song = data.find((s) => s.id == item);
+    return (
       <View
+        key={item}
         style={[
           styles.row,
           commonStyles.item,
           isActive ? {opacity: 0.9} : {},
-          selectedSongId == item.id ? commonStyles.selected: {}
+          selectedSongId == item ? commonStyles.selected: {}
         ]}
       >
         <TouchableOpacity
-          onLongPress={() => {
-            drag();
-            setIsDragging(true);
-            setScrollEnabled(false);
-          }}
-          delayLongPress={100}
+          onPressIn={onDragStart}
+          onPressOut={onDragEnd}
           style={[styles.handle, {paddingBlock: 16, paddingInlineStart: 16}]}
         >
           <Ionicons name="reorder-three" size={24} color="#666" />
@@ -73,25 +72,25 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
         
         <TouchableOpacity
           onPress={() => {
-            setSelectedSongId(item.id);
-            onUpdate('selectSongOnList', item);
+            setSelectedSongId(item);
+            onUpdate('selectSongOnList', song);
           }}
           style={{flex: 1, paddingBlock: 16}}
         >
-          <Text style={commonStyles.text}>{item.name}{item.artist ? ` - ${item.artist}` : ``}</Text>
+          <Text style={commonStyles.text}>{song?.name}{song?.artist ? ` - ${song.artist}` : ``}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => {
-            onUpdate('deleteSongFromSetlist', item);
+            onUpdate('deleteSongFromSetlist', song);
           }}
           style={{paddingBlock: 16, paddingInlineEnd: 16}}
         >
           <Ionicons name="trash" size={20} color={themeColors.danger} />
         </TouchableOpacity>
       </View>
-    </ScaleDecorator>
-  );
+    );
+  };
 
   return (
     <View style={{gap: 20}}>
@@ -138,28 +137,24 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
       </View>
       
       <View style={{zIndex: 1}}>
-        {false && isDragging && <View style={styles.scrollBlocker} pointerEvents="auto" />}
-        <DraggableFlatList
-          ref={scrollRef} // ref to the internal scroll view
-          simultaneousHandlers={scrollRef} // allow drag + scroll to run together
-          scrollEnabled={true || isScrollEnabled}
-          data={data}
-          onRelease={(index:number) => {
-              setIsDragging(false);
-              setScrollEnabled(true);
-          }}
-          onDragEnd={({ data }) => {
-              setIsDragging(false);
-              setScrollEnabled(true);
-              const newData = JSON.parse(JSON.stringify(data));
-              setData(newData);
-              onUpdate('updateSetlist', {
-                  ...currentSetlist,
-                  songs: newData
-              });
-          }}
-          keyExtractor={(item) => String(item.id)}
+
+        <DragList
+          data={dataIds}
           renderItem={renderItem}
+          keyExtractor={(item) => item}
+          onReordered={(fromIndex: number, toIndex: number) => {
+            const newDataIds = [...dataIds]; // Don't modify react data in-place
+            const removed = newDataIds.splice(fromIndex, 1);
+        
+            newDataIds.splice(toIndex, 0, removed[0]); // Now insert at the new pos
+            setDataIds(newDataIds);
+            const newData = newDataIds.map((id) => data.find((s) => s.id == id) ?? {id: id, name: '', artist: '', label: '', bpm: 0, isCustom: false, isLabel: 0} as SongType);
+            setData(newData);
+            onUpdate('updateSetlist', {
+              ...currentSetlist,
+              songs: newData  
+            });
+          }}
           ItemSeparatorComponent={() => <View style={{ height: 8 }} />} // ← gap between items
           ListEmptyComponent={() => (
             <View style={{ padding: 20, alignItems: 'center' }}>
@@ -189,10 +184,5 @@ const styles = StyleSheet.create({
   },
   handle: {
     paddingHorizontal: 4,
-  },
-  scrollBlocker: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "transparent",
-    zIndex: 999,
-  },
+  }
 });
