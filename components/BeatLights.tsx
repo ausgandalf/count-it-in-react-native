@@ -69,11 +69,11 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   <body style="margin:0;padding:0;background:black;color:white;display:flex;align-items:center;justify-content:center;height:100vh;">
     <script>
       let audioCtx = null;
-      let audioSource = null;
       let gainNode = null;
       let intervalId = null;
       let bpm = 120;
       let lastTickedOn = 0;
+      let clickBuffer = null;
 
       function initAudio() {
         if (!audioCtx) {
@@ -82,7 +82,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
           gainNode.connect(audioCtx.destination);
           gainNode.gain.value = 0;
           
-          window.ReactNativeWebView.postMessage('Audio initialized.', audioCtx, audioSource);
+          window.ReactNativeWebView.postMessage('Audio initialized.', audioCtx);
         }
         if (audioCtx.state === 'suspended') {
           audioCtx.resume();
@@ -105,14 +105,14 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
           data[i] = Math.sin(2 * Math.PI * 1000 * t) * Math.exp(-t * 50);
         }
 
-        audioSource = audioCtx.createBufferSource();
-        audioSource.buffer = buffer;
-        audioSource.connect(audioCtx.destination);
-
+        clickBuffer = buffer;
       }
 
       function playTick() {
-        audioSource && audioSource.start();
+        const audioSource = audioCtx.createBufferSource();
+        audioSource.buffer = clickBuffer;
+        audioSource.connect(audioCtx.destination);
+        audioSource.start();
 
         /*
         const osc = audioCtx.createOscillator();
