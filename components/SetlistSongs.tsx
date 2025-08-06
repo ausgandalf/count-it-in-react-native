@@ -19,12 +19,8 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   const [currentSetlist, setCurrentSetlist] = useState<SetlistType | null>(null);
   const [data, setData] = useState<SongType[]>(setlist ? setlist.songs : []);
   const [selectedSongId, setSelectedSongId] = useState<string | undefined>(undefined);
-  const [scrollEnabled, setScrollEnabled] = useState(scrollable);
+  const [isScrollEnabled, setScrollEnabled] = useState(scrollable);
   const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    setScrollEnabled(scrollable);
-  }, [scrollable]);
 
   useEffect(() => {
     setCurrentSetlist(setlist || null);
@@ -65,6 +61,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
         <TouchableOpacity
           onLongPress={() => {
             setIsDragging(true);
+            setScrollEnabled(false);
             drag();
           }}
           delayLongPress={200}
@@ -144,10 +141,11 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
         {isDragging && <View style={styles.scrollBlocker} pointerEvents="auto" />}
         <DraggableFlatList
           activationDistance={0}
-          scrollEnabled={true}
+          scrollEnabled={isScrollEnabled}
           data={data}
           onDragEnd={({ data }) => {
             setIsDragging(false);
+            setScrollEnabled(true);
             const newData = JSON.parse(JSON.stringify(data));
             setData(newData);
             onUpdate('updateSetlist', {
