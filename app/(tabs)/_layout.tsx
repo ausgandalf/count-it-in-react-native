@@ -28,8 +28,7 @@ export default function TabLayout() {
             default: {
               borderTopWidth: 0,
             },
-          }),
-          swipeEnabled: false
+          })
         }}>
         <Tabs.Screen
           name="index"
