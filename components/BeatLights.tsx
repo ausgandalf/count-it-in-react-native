@@ -74,6 +74,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       let intervalId = null;
       let bpm = 120;
       let lastTickedOn = 0;
+      let audioSource = null;
 
       function initAudio() {
         if (!audioCtx) {
@@ -227,6 +228,8 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       </View>
 
       <WebView
+        pointerEvents="none"
+        scrollEnabled={false}
         ref={webViewRef}
         originWhitelist={['*']}
         source={{ html: metronomeHTML }}

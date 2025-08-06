@@ -3,7 +3,7 @@ import { SetlistType, SongType } from '@/constants/Types';
 import { confirm, getColors } from '@/functions/common';
 import { Ionicons } from '@expo/vector-icons'; // or use any icon lib
 import Checkbox from 'expo-checkbox';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import ImportSetlistButton from './ImportSetlistButton';
@@ -15,6 +15,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   onUpdate: (type:string, v:any) => void,
 }) {
 
+  const scrollRef = useRef(null);
   const [isAddMode, setAddMode] = useState(true);
   const [currentSetlist, setCurrentSetlist] = useState<SetlistType | null>(null);
   const [data, setData] = useState<SongType[]>(setlist ? setlist.songs : []);
@@ -60,12 +61,11 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
       >
         <TouchableOpacity
           onLongPress={() => {
+            drag();
             setIsDragging(true);
             setScrollEnabled(false);
-            drag();
           }}
-          delayLongPress={200}
-          activeOpacity={0.8}
+          delayLongPress={100}
           style={[styles.handle, {paddingBlock: 16, paddingInlineStart: 16}]}
         >
           <Ionicons name="reorder-three" size={24} color="#666" />
@@ -106,13 +106,13 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
             </TouchableOpacity>
           </View>
           <View style={{flexDirection: 'row', gap: 6}}>
-            <ImportSetlistButton buttonText='📥' onSuccess={onUpdate} />
+            <ImportSetlistButton buttonText='Import' onSuccess={onUpdate} />
 
             <TouchableOpacity style={[commonStyles.buttonSm, commonStyles.secondaryButton]} onPress={() => {
               // TODO - Export
               onUpdate('export', '');
             }}>
-              <Text style={commonStyles.buttonText}>📤</Text>
+              <Text style={commonStyles.buttonText}>Export</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={[commonStyles.buttonSm, commonStyles.dangerButton]} onPress={() => {
@@ -138,20 +138,26 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
       </View>
       
       <View style={{zIndex: 1}}>
-        {isDragging && <View style={styles.scrollBlocker} pointerEvents="auto" />}
+        {false && isDragging && <View style={styles.scrollBlocker} pointerEvents="auto" />}
         <DraggableFlatList
-          activationDistance={0}
-          scrollEnabled={isScrollEnabled}
+          ref={scrollRef} // ref to the internal scroll view
+          simultaneousHandlers={scrollRef} // allow drag + scroll to run together
+          activationDistance={10}
+          scrollEnabled={true || isScrollEnabled}
           data={data}
+          onRelease={(index:number) => {
+              setIsDragging(false);
+              setScrollEnabled(true);
+          }}
           onDragEnd={({ data }) => {
-            setIsDragging(false);
-            setScrollEnabled(true);
-            const newData = JSON.parse(JSON.stringify(data));
-            setData(newData);
-            onUpdate('updateSetlist', {
-              ...currentSetlist,
-              songs: newData
-            });
+              setIsDragging(false);
+              setScrollEnabled(true);
+              const newData = JSON.parse(JSON.stringify(data));
+              setData(newData);
+              onUpdate('updateSetlist', {
+                  ...currentSetlist,
+                  songs: newData
+              });
           }}
           keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
