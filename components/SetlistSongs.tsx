@@ -26,8 +26,8 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
     setCurrentSetlist(setlist || null);
     if (JSON.stringify(data) != JSON.stringify(setlist?.songs)) {
       setData(setlist ? [...setlist.songs] : []);
+      setDataIds(setlist ? setlist.songs.map((s) => s.id ?? '') : []);
     }
-    setDataIds(data.map((s) => s.id ?? ''));
   }, [setlist])
 
   useEffect(() => {

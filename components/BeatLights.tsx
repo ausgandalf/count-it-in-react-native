@@ -1,6 +1,6 @@
 import { getColors } from '@/functions/common';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, EmitterSubscription, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}) => {
@@ -41,7 +41,6 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   const [currentBpm, setCurrentBpm] = useState(bpm);
   const [currentBeat, setCurrentBeat] = useState(-1);
   const mutedRef = useRef(muted);
-  const subscriptionRef = useRef<EmitterSubscription | null>(null);
   const intervalRef = useRef<number | null>(null);
   const intervalTime = 60000 / currentBpm;
   const startTimeRef = useRef<number>(0);
@@ -128,7 +127,6 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       }
 
       function startMetronome() {
-        initAudio(); // ensure audio context is ready after user gesture
         if (intervalId) return;
         const interval = 60000 / bpm;
         lastTickedOn = Date.now();
@@ -148,6 +146,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
 
       window.handleRNMessage = function(msg) {
         if (msg.command === 'start') startMetronome();
+        else if (msg.command === 'init') initAudio();
         else if (msg.command === 'stop') stopMetronome();
         else if (msg.command === 'setBpm') bpm = parseInt(msg.bpm);
         else if (msg.command === 'mute') gainNode && (gainNode.gain.value = 0);
@@ -213,6 +212,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       stopInterval();
       startTimeRef.current = Date.now();
 
+      sendMessage({ command: 'init' });
       if (!mutedRef.current) {
         sendMessage({ command: 'unmute' });
       }
