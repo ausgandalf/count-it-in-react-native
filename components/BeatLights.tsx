@@ -74,13 +74,14 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   }
 
   const scheduleNextBeat = () => {
-    doNextBeat();
+    
     // Schedule the next beat
     intervalRef.current = setTimeout(() => {
       if (Date.now() - startTimeRef.current >= intervalTime) {
         startTimeRef.current = startTimeRef.current + intervalTime;
-        scheduleNextBeat();
+        doNextBeat();
       }
+      scheduleNextBeat();
     }, intervalTime / 20);
   }
 
@@ -104,6 +105,8 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
       BeepPlayer.start(currentBpm, 'beep.wav');
       
       // Start the recursive timer
+      startTimeRef.current = Date.now();
+      doNextBeat();
       scheduleNextBeat(); 
       setIsRunning(true);
     } catch (error) {
