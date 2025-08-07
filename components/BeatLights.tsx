@@ -1,7 +1,7 @@
 import { getColors } from '@/functions/common';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
-import { WebView } from 'react-native-webview';
+import BeepPlayer from 'react-native-beep-player';
 
 const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}) => {
   const fadeAnim = useRef(new Animated.Value(0.3)).current;
@@ -45,120 +45,6 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   const intervalTime = 60000 / currentBpm;
   const startTimeRef = useRef<number>(0);
 
-  const webViewRef = useRef<WebView>(null);
-  const sendMessage = (msg: any) => {
-    // if (webViewRef.current) {
-    //   webViewRef.current.postMessage(JSON.stringify(msg));
-    // }
-
-    if (webViewRef.current) {
-      webViewRef.current.injectJavaScript(`
-        window.handleRNMessage(${JSON.stringify(msg)});
-        true;
-      `);
-    }
-  };
-  const metronomeHTML = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metronome</title>
-  </head>
-  <body style="margin:0;padding:0;background:black;color:white;display:flex;align-items:center;justify-content:center;height:100vh;">
-    <script>
-      let audioCtx = null;
-      let gainNode = null;
-      let intervalId = null;
-      let bpm = 120;
-      let lastTickedOn = 0;
-      let clickBuffer = null;
-
-      function initAudio(unMuted = false) {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          gainNode = audioCtx.createGain();
-          gainNode.connect(audioCtx.destination);
-          gainNode.gain.value = unMuted ? 1 : 0;
-          
-          window.ReactNativeWebView.postMessage('Audio initialized.', audioCtx);
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-          window.ReactNativeWebView.postMessage('Audio resumed.');
-        }
-
-        /*
-        // Create a simple click sound
-        const sampleRate = audioCtx.sampleRate;
-        const duration = 0.05; // 50ms click
-        const buffer = audioCtx.createBuffer(
-          1,
-          sampleRate * duration,
-          sampleRate
-        );
-        const data = buffer.getChannelData(0);
-
-        // Create a click sound with a quick attack and decay
-        for (let i = 0; i < buffer.length; i++) {
-          const t = i / sampleRate;
-          data[i] = Math.sin(2 * Math.PI * 1000 * t) * Math.exp(-t * 50);
-        }
-
-        clickBuffer = buffer;
-        */
-      }
-
-      function playTick() {
-        /*
-        const audioSource = audioCtx.createBufferSource();
-        audioSource.buffer = clickBuffer;
-        audioSource.connect(audioCtx.destination);
-        audioSource.start();
-        */
-
-        const osc = audioCtx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-        osc.connect(gainNode);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.05);
-        
-      }
-
-      function startMetronome() {
-        if (intervalId) return;
-        const interval = 60000 / bpm;
-        lastTickedOn = Date.now();
-        playTick();
-        intervalId = setInterval(() => {
-          if (Date.now() - lastTickedOn >= interval) {
-            playTick();
-            lastTickedOn = Date.now();
-          }
-        }, interval / 20);
-      }
-
-      function stopMetronome() {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
-
-      window.handleRNMessage = function(msg) {
-        if (msg.command === 'start') startMetronome();
-        else if (msg.command === 'init') initAudio();
-        else if (msg.command === 'initUnMuted') initAudio(true);
-        else if (msg.command === 'stop') stopMetronome();
-        else if (msg.command === 'setBpm') bpm = parseInt(msg.bpm);
-        else if (msg.command === 'mute') gainNode && (gainNode.gain.value = 0);
-        else if (msg.command === 'unmute') gainNode && (gainNode.gain.value = 1);
-      }
-    </script>
-  </body>
-</html>
-`;
-
-
   useEffect(() => {
     const doMetronome = async () => {
       if (playing) {
@@ -172,15 +58,14 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   
   useEffect(() => {
     setCurrentBpm(bpm);
-    sendMessage({ command: 'setBpm', bpm: bpm });
   }, [bpm]);
 
   useEffect(() => {
     mutedRef.current = muted;
     if (muted) {
-      sendMessage({ command: 'mute' });
+      BeepPlayer.mute(true);
     } else {
-      sendMessage({ command: 'unmute' });
+      BeepPlayer.mute(false);
     }
   }, [muted]);
   
@@ -191,10 +76,10 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   const scheduleNextBeat = () => {
     doNextBeat();
     // Schedule the next beat
-    intervalRef.current = setInterval(() => {
+    intervalRef.current = setTimeout(() => {
       if (Date.now() - startTimeRef.current >= intervalTime) {
         startTimeRef.current = startTimeRef.current + intervalTime;
-        doNextBeat();
+        scheduleNextBeat();
       }
     }, intervalTime / 20);
   }
@@ -209,17 +94,15 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
     if (isRunning) return;
     
     try {
-      // console.log('Starting ambient track with BPM:', currentBpm);
-      stopInterval();
-      startTimeRef.current = Date.now();
 
       if (mutedRef.current) {
-        sendMessage({ command: 'init' });
+        BeepPlayer.mute(true);
       } else {
-        sendMessage({ command: 'initUnMuted' });
+        BeepPlayer.mute(false);
       }
-      sendMessage({ command: 'start' });
 
+      BeepPlayer.start(currentBpm, 'beep.wav');
+      
       // Start the recursive timer
       scheduleNextBeat(); 
       setIsRunning(true);
@@ -231,7 +114,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
 
   const stopMetronome = () => {
     try {
-      sendMessage({ command: 'stop' });
+      BeepPlayer.stop();
       stopInterval();
       setIsRunning(false);
       setCurrentBeat(-1);
@@ -257,19 +140,6 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
           }
         )}
       </View>
-
-      <WebView
-        scrollEnabled={false}
-        ref={webViewRef}
-        originWhitelist={['*']}
-        source={{ html: metronomeHTML }}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        onMessage={(event) => {
-          console.log('WebView says:', event.nativeEvent.data);
-        }}
-        style={{width: 0, height: 0, opacity: 0, pointerEvents: 'none'}}
-      />
     </View>
   );
 }
