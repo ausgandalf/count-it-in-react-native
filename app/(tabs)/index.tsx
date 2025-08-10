@@ -6,7 +6,7 @@ import { Songs } from '@/constants/Songs';
 import { SetlistType, SongType } from '@/constants/Types';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View, useWindowDimensions } from 'react-native';
+import { Keyboard, Platform, StyleSheet, TextInput, TouchableWithoutFeedback, View, useWindowDimensions } from 'react-native';
 import Modal from 'react-native-modal';
 
 import SetlistForm from '@/components/SetlistForm';
@@ -83,7 +83,7 @@ export default function HomeScreen() {
       newSongs.push({
         ...song,
         id: generateSongID(song, 'custom'),
-        isCustom: true 
+        isCustom: true
       });
     } else {
       // Find a song
@@ -166,7 +166,7 @@ export default function HomeScreen() {
     } else if (type == 'setBpm') {
       setBpm(v);
     } else if (type == 'saveBpm') {
-      // TODO 
+      // TODO
       if (viewMode == 'songs') {
         if (selectedSong && !isNaN(Number(v))) {
           // Let's save a song
@@ -203,7 +203,7 @@ export default function HomeScreen() {
           ...song,
           id: generateSongID(song, 'custom'),
           label: song.name.charAt(0).toUpperCase(),
-          isCustom: true 
+          isCustom: true
         };
         if ((songImportMode == 1) && !isSongExists(newSongs, song)) {
           newSongs.push({...song});
@@ -274,9 +274,9 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <View style={{flex: 1}}>
-      {/* <ParallaxScrollView 
-      headerBackgroundColor={{dark: Colors.dark.background, light: Colors.light.background}} 
+    <View style={{flex: 1, paddingBlockEnd: Platform.OS == 'ios' ? 80 : 0}}>
+      {/* <ParallaxScrollView
+      headerBackgroundColor={{dark: Colors.dark.background, light: Colors.light.background}}
       headerImage={<LayoutTop />}
       contentStyle={styles.content}
       > */}
@@ -289,24 +289,24 @@ export default function HomeScreen() {
 
               <View style={{gap: 10}}>
                 <View style={{zIndex: 1000}}>
-                  <SetListView 
+                  <SetListView
                     viewMode={viewMode}
                     selected={selectedSetlist}
                     setlist={setlists}
-                    onUpdate={onUpdate} 
+                    onUpdate={onUpdate}
                     modalOpen={isSongListModalVisible || isSetlistFormModalVisible || isSongFormModalVisible}
                   />
                 </View>
                 {
                   viewMode == 'songs' && (
                     <View style={{}}>
-                      <SongListOwner 
+                      <SongListOwner
                         type='select'
-                        viewMode={viewMode} 
-                        onUpdate={onUpdate} 
+                        viewMode={viewMode}
+                        onUpdate={onUpdate}
                         currentSong={selectedSong ?? null}
                       />
-                    </View>   
+                    </View>
                   )
                 }
                 
@@ -328,8 +328,8 @@ export default function HomeScreen() {
       <View>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{ flex: 1 }}>
-            <Modal 
-              isVisible={isSetlistFormModalVisible} 
+            <Modal
+              isVisible={isSetlistFormModalVisible}
               onBackButtonPress={() => onUpdate('openSetlistFormModal', false)}
               onBackdropPress={() => onUpdate('openSetlistFormModal', false)}
               animationIn="fadeIn"
@@ -341,7 +341,7 @@ export default function HomeScreen() {
             >
               <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
                 <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
-                  <SetlistForm 
+                  <SetlistForm
                     inputRef={setlistFormInputRef}
                     onSubmit={(setlist: { id: string, name: string; }) =>{
                       // TODO - Setlist list update
@@ -378,7 +378,7 @@ export default function HomeScreen() {
                 <View style={[commonStyles.modalBox, { zIndex: 1 }]}>
                   {
                     isSongFormModalVisible ? (
-                      <SongForm 
+                      <SongForm
                         inputRef={songFormInputRef}
                         song={editingSong}
                         onSubmit={(song: { id: string, name: string; artist: string; bpm: number }) =>{
@@ -391,8 +391,8 @@ export default function HomeScreen() {
                         }}
                       />
                     ) : (
-                      <SongList 
-                        songs={sortedSongList()} 
+                      <SongList
+                        songs={sortedSongList()}
                         onUpdate={onUpdate}
                         onSelect={(song) => {
                           // Close the modal
@@ -413,7 +413,7 @@ export default function HomeScreen() {
 
                           // Update the bpm
                           setBpm(song.bpm??120);
-                        }} 
+                        }}
                         openForm={openSongForm}
                         onDelete={(ids:string[]) => onUpdate('deleteSongsFromLibrary', ids)}
                       />

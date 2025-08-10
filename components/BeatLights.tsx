@@ -1,7 +1,11 @@
+
 import { getColors } from '@/functions/common';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import BeepPlayer from 'react-native-beep-player';
+
+import { NativeModules } from 'react-native';
+console.log('Native Module - BeepPlayer', NativeModules.BeepPlayer);
 
 const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}) => {
   const fadeAnim = useRef(new Animated.Value(0.3)).current;
@@ -34,7 +38,7 @@ const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}
   );
 };
 
-export default function BeatLights({ playing = false, muted = true, bpm = 120, onError = () => {} }: { playing?: boolean, muted?: boolean, bpm?:number, onError?:Function }) {
+export default function BeatLights({ playing = false, muted = true, bpm = 120, audioPath = null, onError = () => {} }: { playing?: boolean, muted?: boolean, bpm?:number, audioPath?:string | null, onError?:Function }) {
   
   const beatCount = 4;
   const [isRunning, setIsRunning] = useState(playing);
@@ -44,6 +48,14 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   const intervalRef = useRef<number | null>(null);
   const intervalTime = 60000 / currentBpm;
   const startTimeRef = useRef<number>(0);
+  const [wavAssetPath, setWavAssetPath] = useState<string | null>(audioPath || null);
+
+  useEffect(() => {
+    console.log('audioPath', audioPath);
+    if (audioPath) {
+      setWavAssetPath(audioPath);
+    }
+  }, [audioPath]);
 
   useEffect(() => {
     const doMetronome = async () => {
@@ -74,13 +86,14 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
   }
 
   const scheduleNextBeat = () => {
-    doNextBeat();
+    
     // Schedule the next beat
     intervalRef.current = setTimeout(() => {
       if (Date.now() - startTimeRef.current >= intervalTime) {
         startTimeRef.current = startTimeRef.current + intervalTime;
-        scheduleNextBeat();
+        doNextBeat();
       }
+      scheduleNextBeat();
     }, intervalTime / 20);
   }
 
@@ -101,10 +114,16 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, o
         BeepPlayer.mute(false);
       }
 
-      BeepPlayer.start(currentBpm, 'beep.wav');
+      if (wavAssetPath) {
+        BeepPlayer.start(currentBpm, wavAssetPath);
+      } else {
+        BeepPlayer.start(currentBpm, 'beep.wav'); // fallback to default
+      }
       
       // Start the recursive timer
-      scheduleNextBeat(); 
+      startTimeRef.current = Date.now();
+      doNextBeat();
+      scheduleNextBeat();
       setIsRunning(true);
     } catch (error) {
       console.error('Error starting metronome:', error);
