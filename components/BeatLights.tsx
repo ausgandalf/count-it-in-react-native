@@ -4,8 +4,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import BeepPlayer from 'react-native-beep-player';
 
-import { NativeModules } from 'react-native';
+import { NativeEventEmitter, NativeModules } from 'react-native';
 console.log('Native Module - BeepPlayer', NativeModules.BeepPlayer);
+
+const beepPlayerEmitter = new NativeEventEmitter(NativeModules.BeepPlayer);
 
 const BeatCircle = ({ isActive, isStart }: {isActive: boolean, isStart: boolean}) => {
   const fadeAnim = useRef(new Animated.Value(0.3)).current;
@@ -49,6 +51,17 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, a
   const intervalTime = 60000 / currentBpm;
   const startTimeRef = useRef<number>(0);
   const [wavAssetPath, setWavAssetPath] = useState<string | null>(audioPath || null);
+
+  // Listen to beat events
+  useEffect(() => {
+    const subscription = beepPlayerEmitter.addListener('onBeat', (event) => {
+      // console.log("Beat index:", event.beatIndex);
+      // Change circle colors here based on event.beatIndex % 4
+      setCurrentBeat(event.beatIndex % beatCount);
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     console.log('audioPath', audioPath);
@@ -122,8 +135,8 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, a
       
       // Start the recursive timer
       startTimeRef.current = Date.now();
-      doNextBeat();
-      scheduleNextBeat();
+      // doNextBeat();
+      // scheduleNextBeat();
       setIsRunning(true);
     } catch (error) {
       console.error('Error starting metronome:', error);
@@ -134,7 +147,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, a
   const stopMetronome = () => {
     try {
       BeepPlayer.stop();
-      stopInterval();
+      // stopInterval();
       setIsRunning(false);
       setCurrentBeat(-1);
     } catch (error) {

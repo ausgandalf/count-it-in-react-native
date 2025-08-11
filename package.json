@@ -45,7 +45,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
-    "react-native-beep-player": "^1.0.12",
+    "react-native-beep-player": "^1.0.14",
     "react-native-draglist": "^3.9.7",
     "react-native-dropdown-picker": "^5.4.7-beta.0",
     "react-native-gesture-handler": "~2.24.0",
