@@ -350,7 +350,7 @@ export default function HomeScreen() {
               style={[commonStyles.modal, {padding: 0}]}
             >
               <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
-                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, justifyContent: 'flex-end', alignItems: 'center', width: '100%'}}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%'}}>
                   <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
                     <SetlistForm
                       inputRef={setlistFormInputRef}
