@@ -62,7 +62,7 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
   //   const isAllSelected = (songs.length > 0) && (selectedIds.length === songs.length);
   const isAllSelected = useCallback(() => {
     if (!songs || songs.length == 0) return false;
-    const ids = songs.filter(song => (!song.isLabel || song.isLabel != 1)&&song.isCustom).map((s) => s.id);
+    const ids = songs.filter(song => (!song.isLabel || song.isLabel != 1)).map((s) => s.id);
     let hasAll = ids.length > 0;
     ids.some(id => {
       if (id && selectedIds.indexOf(id) == -1) {
@@ -74,7 +74,7 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
   }, [songs, selectedIds]);
   const isGroupSelected = (label:string) => {
     if (!songs) return false;
-    const ids = songs.filter(song => (song.label == label)&&(!song.isLabel || song.isLabel != 1)&&song.isCustom).map((s) => s.id);
+    const ids = songs.filter(song => (song.label == label)&&(!song.isLabel || song.isLabel != 1)).map((s) => s.id);
     let hasAll = ids.length > 0;
     ids.some(id => {
       if (id && selectedIds.indexOf(id) == -1) {
@@ -90,14 +90,14 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
       setSelectedIds([]);
       return;
     }
-    setSelectedIds(isAllSelected() ? [] : songs.map(song => song.isCustom ? song.id : undefined).filter(id => id != undefined));
+    setSelectedIds(isAllSelected() ? [] : songs.map(song => song.id).filter(id => id != undefined));
   };
 
   const toggleSong = (item: SongType, flag: boolean) => {
     const id = item.id;
     const label = item.name;
     if (item.isLabel) {
-      const ids = songs.filter(song => song.label == label && song.isCustom).map((s) => s.id).filter(id => id != undefined);
+      const ids = songs.filter(song => song.label == label).map((s) => s.id).filter(id => id != undefined);
       setSelectedIds(prev =>
         flag ? [...prev, ...ids].filter(id => id != undefined) : prev.filter(sid => ids.indexOf(sid) == -1)
       );
@@ -120,20 +120,16 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
     return (
       <View style={[styles.row, isLast ? {borderBottomWidth: 0, paddingBlockEnd: 40} : {}]}>
         
-        {item.isCustom ? (
-          <Checkbox
-            value={item.isLabel ? isGroupSelected(item.name) : selectedIds.includes(item.id ?? '')}
-            onValueChange={(v) => {
-              toggleSong(item, v);
-            }}
-            style={[commonStyles.checkbox]}
-            color={themeColors.checkbox.color}
-          />
-        ) : !(item.isLabel && item.isLabel == 1) && (
-          <View style={{width: 20}}></View>
-        )}
+        <Checkbox
+          value={item.isLabel ? isGroupSelected(item.name) : selectedIds.includes(item.id ?? '')}
+          onValueChange={(v) => {
+            toggleSong(item, v);
+          }}
+          style={[commonStyles.checkbox]}
+          color={themeColors.checkbox.color}
+        />
         
-        {(!(item.isLabel && item.isLabel == 1) && (item.isCustom)) ? (
+        {(!(item.isLabel && item.isLabel == 1)) ? (
           <TouchableOpacity style={commonStyles.icon} onPress={() => onDelete([item.id ?? ''])}>
             <Ionicons name="trash-outline" size={20} color="#d11a2a" />
           </TouchableOpacity>

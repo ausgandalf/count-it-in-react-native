@@ -67,7 +67,23 @@ export const handleExportMobile = async (fileName: string, csvContent:string) =>
   }
 };
 
+/**
+ * Save song list to AsyncStorage
+ * @param songList - The song list to save
+ */
 export const saveSongList = async (songList:SongType[]) => {
+  try {
+    await AsyncStorage.setItem('songs', JSON.stringify(songList));
+  } catch (e) {
+    console.error('Failed to save song list:', e);
+  }
+};
+
+/**
+ * Legacy function : Save custom song list to AsyncStorage
+ * @param songList - The song list to save
+ */
+export const saveCustomSongList = async (songList:SongType[]) => {
   try {
     const customSongs = songList.filter(s => s.isCustom);
     await AsyncStorage.setItem('customSongs', JSON.stringify(customSongs));
@@ -76,6 +92,10 @@ export const saveSongList = async (songList:SongType[]) => {
   }
 };
 
+/**
+ * Legacy function : Save core updates to AsyncStorage
+ * @param coreUpdates - The core updates to save
+ */
 export const saveCoreUpdates = async (coreUpdates:any) => {
   try {
     await AsyncStorage.setItem('coreUpdates', JSON.stringify(coreUpdates));
@@ -158,6 +178,11 @@ export function generateSongID(song: SongType, type: 'core'|'custom') {
   return `${type}-${song.name}-${song.artist}`
 }
 
+/**
+ * Legacy function : Load core updates and custom songs from AsyncStorage, then compose songs from them
+ * @param songs
+ * @returns 
+ */
 export async function loadSongs(songs: any[]):Promise<{songs: SongType[], updates:{}}> {
   const songList:SongType[] = [];
   
@@ -193,6 +218,22 @@ export async function loadSongs(songs: any[]):Promise<{songs: SongType[], update
   });
 
   return {songs: songList, updates: overrideList};
+}
+
+/**
+ * Load own songs from AsyncStorage
+ * @returns The song list or null if no songs are found
+ */
+export async function loadSavedSongs():Promise<SongType[]|null> {
+  
+  const songsJson = await AsyncStorage.getItem('songs');
+  if (songsJson) {
+    const songList:SongType[] = JSON.parse(songsJson);
+    return songList;
+  } else {
+    return null;
+  }
+
 }
 
 export const checkNetworkConnection = async () => {

@@ -6,7 +6,7 @@ import { Songs } from '@/constants/Songs';
 import { SetlistType, SongType } from '@/constants/Types';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, Platform, StyleSheet, TextInput, TouchableWithoutFeedback, View, useWindowDimensions } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TextInput, TouchableWithoutFeedback, View, useWindowDimensions } from 'react-native';
 import Modal from 'react-native-modal';
 
 import SetlistForm from '@/components/SetlistForm';
@@ -14,7 +14,7 @@ import SongForm from '@/components/SongForm';
 import SongList from '@/components/SongList';
 import { getCommonStyles } from '@/constants/Styles';
 import { useSongs } from '@/context/SongsContext';
-import { arangeSongs, generateSongID, handleExport, isSongExists, loadSetlist, loadSongs, saveCoreUpdates, saveSetlists, saveSongList, setCoreUpdate } from '../../functions/resources';
+import { arangeSongs, generateSongID, handleExport, isSongExists, loadSavedSongs, loadSetlist, loadSongs, saveSetlists, saveSongList } from '../../functions/resources';
 
 export default function HomeScreen() {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -87,22 +87,26 @@ export default function HomeScreen() {
       });
     } else {
       // Find a song
+      let isFound = false;
       for (let i=0; i<newSongs.length; i++) {
         if (newSongs[i].id == song.id) {
-
+          isFound = true;
           newSongs[i].bpm = song.bpm;
           newSongs[i].name = song.name;
           newSongs[i].artist = song.artist;
 
+          /*
           const newCoreUpdates = setCoreUpdate(coreUpdates, song);
           setCoreUpdates(newCoreUpdates);
           saveCoreUpdates(newCoreUpdates);
+          */
 
           break;
-        } else {
-          // TODO : This should not be happening, so what logic should be here???
-          // console.log(`The song is not found: ${song}`);
         }
+      }
+      if (!isFound) {
+        // TODO : This should not be happening, but if so
+        newSongs.push({...song});
       }
     }
     
@@ -263,10 +267,16 @@ export default function HomeScreen() {
   // Load songs and setlists
   useEffect(() => {
     const doInitialLoad = async () => {
-      const loadedInfo = await loadSongs(Songs);
-      setSongs(loadedInfo.songs);
-      setCoreUpdates(loadedInfo.updates);
-
+      const savedSongs = await loadSavedSongs();
+      if (savedSongs) {
+        setSongs(savedSongs);
+        setCoreUpdates({}); // We don't need core updates for saved songs
+      } else {
+        const loadedInfo = await loadSongs(Songs);
+        setSongs(loadedInfo.songs);
+        setCoreUpdates(loadedInfo.updates);
+      }
+      
       const loadedSetlistInfo = await loadSetlist();
       setSetlists(loadedSetlistInfo.setlists);
     }
@@ -375,51 +385,57 @@ export default function HomeScreen() {
               }}
             >
               <View style={[commonStyles.overlay, {padding: 0}]}>
-                <View style={[commonStyles.modalBox, { zIndex: 1 }]}>
-                  {
-                    isSongFormModalVisible ? (
-                      <SongForm
-                        inputRef={songFormInputRef}
-                        song={editingSong}
-                        onSubmit={(song: { id: string, name: string; artist: string; bpm: number }) =>{
-                          // TODO - Song list update
-                          onUpdate('openSongFormModal', false);
-                          onUpdate('song', song);
-                        }}
-                        onCancel={() =>{
-                          onUpdate('openSongFormModal', false);
-                        }}
-                      />
-                    ) : (
-                      <SongList
-                        songs={sortedSongList()}
-                        onUpdate={onUpdate}
-                        onSelect={(song) => {
-                          // Close the modal
-                          setTimeout(() => {
-                            onUpdate('openSongListModal', false);
-                          }, 1);
+                
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1}}>
+                
+                  <View style={[commonStyles.modalBox, { zIndex: 1 }]}>
+                    {
+                      isSongFormModalVisible ? (
+                        <SongForm
+                          inputRef={songFormInputRef}
+                          song={editingSong}
+                          onSubmit={(song: { id: string, name: string; artist: string; bpm: number }) =>{
+                            // TODO - Song list update
+                            onUpdate('openSongFormModal', false);
+                            onUpdate('song', song);
+                          }}
+                          onCancel={() =>{
+                            onUpdate('openSongFormModal', false);
+                          }}
+                        />
+                      ) : (
+                        <SongList
+                          songs={sortedSongList()}
+                          onUpdate={onUpdate}
+                          onSelect={(song) => {
+                            // Close the modal
+                            setTimeout(() => {
+                              onUpdate('openSongListModal', false);
+                            }, 1);
 
-                          // Update the selected song
-                          if (viewMode == 'songs') {
-                            setSelectedSong(song);
-                          } else {
-                            // let's add it to selected setlist
-                            if (!selectedSetlist) return;
-                            song.id = song.id + '--' + Date.now().toString();
-                            selectedSetlist.songs.push(song)
-                            updateSetlist(selectedSetlist);
-                          }
+                            // Update the selected song
+                            if (viewMode == 'songs') {
+                              setSelectedSong(song);
+                            } else {
+                              // let's add it to selected setlist
+                              if (!selectedSetlist) return;
+                              song.id = song.id + '--' + Date.now().toString();
+                              selectedSetlist.songs.push(song)
+                              updateSetlist(selectedSetlist);
+                            }
 
-                          // Update the bpm
-                          setBpm(song.bpm??120);
-                        }}
-                        openForm={openSongForm}
-                        onDelete={(ids:string[]) => onUpdate('deleteSongsFromLibrary', ids)}
-                      />
-                    )
-                  }
-                </View>
+                            // Update the bpm
+                            setBpm(song.bpm??120);
+                          }}
+                          openForm={openSongForm}
+                          onDelete={(ids:string[]) => onUpdate('deleteSongsFromLibrary', ids)}
+                        />
+                      )
+                    }
+                  </View>
+
+                </KeyboardAvoidingView>
+
               </View>
             </Modal>
           </View>
