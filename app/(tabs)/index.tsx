@@ -350,19 +350,21 @@ export default function HomeScreen() {
               style={[commonStyles.modal, {padding: 0}]}
             >
               <View style={[commonStyles.overlay, {justifyContent: 'center',}]}>
-                <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
-                  <SetlistForm
-                    inputRef={setlistFormInputRef}
-                    onSubmit={(setlist: { id: string, name: string; }) =>{
-                      // TODO - Setlist list update
-                      onUpdate('openSetlistFormModal', false)
-                      onUpdate('updateSetlist', setlist);
-                    }}
-                    onCancel={() =>{
-                      onUpdate('openSetlistFormModal', false)
-                    }}
-                  />
-                </View>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, justifyContent: 'flex-end', alignItems: 'center', width: '100%'}}>
+                  <View style={[commonStyles.modalBox, { zIndex: 1, borderRadius: 10 }]}>
+                    <SetlistForm
+                      inputRef={setlistFormInputRef}
+                      onSubmit={(setlist: { id: string, name: string; }) =>{
+                        // TODO - Setlist list update
+                        onUpdate('openSetlistFormModal', false)
+                        onUpdate('updateSetlist', setlist);
+                      }}
+                      onCancel={() =>{
+                        onUpdate('openSetlistFormModal', false)
+                      }}
+                    />
+                  </View>
+                </KeyboardAvoidingView>
               </View>
             </Modal>
           </View>
