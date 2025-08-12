@@ -386,7 +386,7 @@ export default function HomeScreen() {
             >
               <View style={[commonStyles.overlay, {padding: 0}]}>
                 
-                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1}}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, justifyContent: 'flex-end', alignItems: 'center', width: '100%'}}>
                 
                   <View style={[commonStyles.modalBox, { zIndex: 1 }]}>
                     {
