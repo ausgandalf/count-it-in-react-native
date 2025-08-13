@@ -253,10 +253,11 @@ export async function loadSavedSongs():Promise<SongType[]|null> {
   }
 }
 
+let unsubscribe: any;  // declare first
 export const checkNetworkConnection = () => {
   console.log('checkNetworkConnection called');
   return new Promise((resolve) => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
+    unsubscribe = NetInfo.addEventListener((state) => {
       console.log('NetInfo state:', state);
       if (state.isInternetReachable != null) {
         console.log('NetInfo resolved:', { isConnected: state.isConnected, isInternetReachable: state.isInternetReachable });
