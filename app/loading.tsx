@@ -29,6 +29,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   }
 
   const doImportSongs = async (loadedSettings: {settings: SettingsType}, apiVersion: string) => {
+    console.log('doImportSongs', loadedSongs);
     await importSongs(loadedSongs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
       if (statusCode == 1) {
         setLoadingText('Updating songs library...');
@@ -89,7 +90,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
                 onPress: async () => {
                   console.log('no clicked');
                   // User chose not to update, so save settings with new version
-                  const updatedSettings = {...loadedSettings.settings, version: apiVersion.toString()};
+                  const updatedSettings = {...loadedSettings.settings, version: apiVersion};
                   setSettings(updatedSettings);
                   saveSettings(updatedSettings);
                   
