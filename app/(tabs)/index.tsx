@@ -143,6 +143,13 @@ export default function HomeScreen() {
     // TODO
     if (type == 'song') {
       updateSong(v);
+    } else if (type == 'onAddSongsToSetlist') {
+      if (!selectedSetlist || !v) return;
+      v.forEach((song:SongType) => {
+        song.id = song.id + '--' + Date.now().toString();
+        selectedSetlist.songs.push(song)
+      });
+      updateSetlist(selectedSetlist);
     } else if (type == 'updateSetlist') {
       updateSetlist(v);
     } else if (type == 'selectSetlist') {
