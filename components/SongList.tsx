@@ -114,7 +114,7 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
     onUpdate('onAddSongsToSetlist', songsSelected);
 
     setSelectedIds([]);
-    
+
   }
 
   const toggleSelectAll = () => {
@@ -175,7 +175,11 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
           <TouchableOpacity 
             // onPress={() => onSelect(item)} 
             onPress={() => {
-              toggleSong(item, !selectedIds.includes(item.id ?? ''));
+              if (currentViewMode == 'setlist') {
+                toggleSong(item, !selectedIds.includes(item.id ?? ''));
+              } else {
+                onSelect(item);
+              }
             }} 
             style={{flex: 1}}
           >
