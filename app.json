@@ -12,22 +12,6 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.countitin.app",
       "infoPlist": {
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true,
-          "NSExceptionDomains": {
-            "*": {
-              "NSExceptionAllowsInsecureHTTPLoads": false,
-              "NSExceptionMinimumTLSVersion": "1.2",
-              "NSExceptionRequiresForwardSecrecy": true,
-              "NSIncludesSubdomains": true
-            }
-          }
-        },
-        "UIBackgroundModes": [
-          "audio"
-        ],
-        "NSMicrophoneUsageDescription": "This app uses the microphone for audio input and tempo detection.",
-        "NSCameraUsageDescription": "This app may access the camera for scanning QR codes or barcodes.",
         "ITSAppUsesNonExemptEncryption": false
       },
       "splash": {
