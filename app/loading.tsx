@@ -76,7 +76,8 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
       const apiVersion = await checkVersion(loadedSettings.settings.versionUrl);
       const importSongsOnLoad = apiVersion >loadedSettings.settings.version;
       if (importSongsOnLoad) {
-        if (apiVersion == '0') {
+        if (loadedSettings.settings.version == '0') {
+          // Just import songs for very first time
           await doImportSongs(loadedSettings, apiVersion);
         } else {
           Alert.alert(
@@ -86,6 +87,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
               { 
                 text: "No", 
                 onPress: async () => {
+                  console.log('no clicked');
                   // User chose not to update, so save settings with new version
                   const updatedSettings = {...loadedSettings.settings, version: apiVersion.toString()};
                   setSettings(updatedSettings);
@@ -97,6 +99,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
               { 
                 text: "Yes", 
                 onPress: async () => {
+                  console.log('yes clicked');
                   await doImportSongs(loadedSettings, apiVersion);
                 }
               }
