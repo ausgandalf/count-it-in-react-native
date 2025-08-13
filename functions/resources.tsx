@@ -236,9 +236,15 @@ export async function loadSavedSongs():Promise<SongType[]|null> {
 
 }
 
-export const checkNetworkConnection = async () => {
-  const state = await NetInfo.fetch();
-  return state.isConnected && state.isInternetReachable;
+export const checkNetworkConnection = () => {
+  return new Promise((resolve) => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      if (state.isInternetReachable != null) {
+        unsubscribe();
+        resolve(state.isConnected && state.isInternetReachable);
+      }
+    });
+  });
 };
 
 export const importSongs = async (songs: SongType[], onProgress: (statusCode: number, progress: number, text: string, result?: any) => void, settings: SettingsType) => {
