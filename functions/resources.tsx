@@ -309,15 +309,17 @@ export const importSongs = async (songs: SongType[], onProgress: (statusCode: nu
 };
 
 
-export const checkVersion = async (url: string):Promise<number> => {
+export const checkVersion = async (url: string):Promise<string> => {
   if (!url) {
-    return 0;
+    console.log('no url');
+    return '0';
   }
   
   // Check network connection first
   const isConnected = await checkNetworkConnection();
   if (!isConnected) {
-    return 0;
+    console.log('not connected');
+    return '0';
   }
   
   try {
@@ -337,13 +339,16 @@ export const checkVersion = async (url: string):Promise<number> => {
     
     if (!response.ok) {
       // throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      return 0;
+      console.log('check version response not ok', response);
+      return '0';
     }
     
     const json = await response.json();
-    return json.version ?? 0;
+    console.log('check version response ok', json);
+    return json.version ?? '0';
   } catch (error: any) {
-    return 0
+    console.log('check version error', error);
+    return '0'
   }
 };
 

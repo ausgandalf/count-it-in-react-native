@@ -28,7 +28,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
     onLoad();
   }
 
-  const doImportSongs = async (loadedSettings: {settings: SettingsType}, apiVersion: number) => {
+  const doImportSongs = async (loadedSettings: {settings: SettingsType}, apiVersion: string) => {
     await importSongs(loadedSongs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
       if (statusCode == 1) {
         setLoadingText('Updating songs library...');
@@ -40,7 +40,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
         setProgress(0.8);
 
         // Save settings with new version
-        const updatedSettings = {...loadedSettings.settings, version: apiVersion.toString()};
+        const updatedSettings = {...loadedSettings.settings, version: apiVersion};
         setSettings(updatedSettings);
         saveSettings(updatedSettings);
 
@@ -74,9 +74,9 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
       setProgress(0.2);
       
       const apiVersion = await checkVersion(loadedSettings.settings.versionUrl);
-      const importSongsOnLoad = apiVersion > Number(loadedSettings.settings.version);
+      const importSongsOnLoad = apiVersion >loadedSettings.settings.version;
       if (importSongsOnLoad) {
-        if (apiVersion == 0) {
+        if (apiVersion == '0') {
           await doImportSongs(loadedSettings, apiVersion);
         } else {
           Alert.alert(
