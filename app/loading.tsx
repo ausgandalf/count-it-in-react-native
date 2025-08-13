@@ -10,7 +10,7 @@ import { delay, getColors } from '@/functions/common';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import * as Progress from 'react-native-progress';
-import { checkVersion, importSongs, loadSavedSongs, loadSettings, loadSongs, saveSettings } from '../functions/resources';
+import { checkVersion, fillSongsID, importSongs, loadSavedSongs, loadSettings, saveSettings } from '../functions/resources';
 
 export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   console.log('LoadingScreen rendered, onLoad function:', typeof onLoad);
@@ -161,8 +161,11 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
         if (savedSongs) {
           loadedSongsRef.current = savedSongs;
         } else {
+          loadedSongsRef.current = fillSongsID(Songs);
+          /*
           const loadedInfo = await loadSongs(Songs);
           loadedSongsRef.current = loadedInfo.songs;
+          */
         }
         setSongs(loadedSongsRef.current);
         

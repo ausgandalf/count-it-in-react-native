@@ -178,6 +178,14 @@ export function generateSongID(song: SongType, type: 'core'|'custom') {
   return `${type}-${song.name}-${song.artist}`
 }
 
+
+export function fillSongsID(songs: SongType[]) {
+  songs.forEach(song => {
+    song.id = generateSongID(song, 'core');
+  });
+  return songs;
+}
+
 /**
  * Legacy function : Load core updates and custom songs from AsyncStorage, then compose songs from them
  * @param songs
