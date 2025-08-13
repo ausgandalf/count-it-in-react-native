@@ -171,7 +171,10 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
           <Text style={[commonStyles.text, {fontSize: 20, color: themeColors.label}]}>{item.name}</Text>
         ) : (
           <TouchableOpacity 
-            onPress={() => onSelect(item)} 
+            // onPress={() => onSelect(item)} 
+            onPress={() => {
+              toggleSong(item, !selectedIds.includes(item.id ?? ''));
+            }} 
             style={{flex: 1}}
           >
             <Text style={commonStyles.text}>{item.name}{item.artist ? ` - ${item.artist}` : ``}</Text>
