@@ -202,7 +202,7 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
         </TouchableOpacity>
 
         <View style={{flex: 1, gap: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-          {currentViewMode == 'setlists' && isSongSelected() && (
+          {currentViewMode == 'setlist' && isSongSelected() && (
             <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton]} onPress={() => onAddtoSetlist()}>
               <Text style={commonStyles.buttonText}>Add to 📋</Text>
             </TouchableOpacity>
