@@ -61,6 +61,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
 
   useEffect(() => {
     if (importConfirmed) {
+      console.log('importConfirmed', importConfirmed);
       if (importConfirmed == 'yes') {
         doImportSongs(loadedSettings, apiVersion);
       } else {
