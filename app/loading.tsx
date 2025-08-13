@@ -56,10 +56,10 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
     console.log('doImportSongs', loadedSongsRef.current);
     
     // Add a timeout to prevent the function from getting stuck
-    const importTimeout = setTimeout(() => {
-      console.log('Import timeout reached, finalizing anyway...');
-      finalizing();
-    }, 60000); // 60 second timeout
+    // const importTimeout = setTimeout(() => {
+    //   console.log('Import timeout reached, finalizing anyway...');
+    //   finalizing();
+    // }, 60000); // 60 second timeout
     
     try {
       await importSongs(loadedSongsRef.current as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
@@ -83,18 +83,18 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
           setSongs(result);
           
           console.log('Calling finalizing from doImportSongs...');
-          clearTimeout(importTimeout);
+          // clearTimeout(importTimeout);
           await finalizing();
         } else if ([4,5].indexOf(statusCode) != -1) {
           setProgress(0.8);
           console.log('Calling finalizing from doImportSongs (status 4/5)...');
-          clearTimeout(importTimeout);
+          // clearTimeout(importTimeout);
           await finalizing();
         }
       }, loadedSettings.settings);
     } catch (error) {
       console.error('Error in doImportSongs:', error);
-      clearTimeout(importTimeout);
+      // clearTimeout(importTimeout);
       // If there's an error, try to continue anyway
       setLoadingText('Import failed, continuing anyway...');
       await delay(1000);
@@ -206,14 +206,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
                 }
               ]
             );
-            
-            // Add a fallback timeout in case the user doesn't respond
-            setTimeout(() => {
-              if (importConfirmed === null) {
-                console.log('User did not respond to alert, defaulting to no import');
-                setImportConfirmed('no');
-              }
-            }, 10000); // 10 second timeout
+
           }
         } else {
           console.log('No import needed, finalizing...');
