@@ -260,6 +260,7 @@ export const checkNetworkConnection = () => {
       console.log('NetInfo state:', state);
       if (state.isInternetReachable != null) {
         console.log('NetInfo resolved:', { isConnected: state.isConnected, isInternetReachable: state.isInternetReachable });
+        console.log('unsubscribe', unsubscribe);
         unsubscribe();
         resolve(state.isConnected && state.isInternetReachable);
       }
