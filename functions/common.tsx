@@ -50,3 +50,13 @@ export function getLogo(forcedTheme: 'light' | 'dark' | null = null) {
   
   return (forcedTheme ?? theme) === 'dark' ? require('../assets/images/logo.png') : require('../assets/images/logo--blue.png');
 }
+
+export function randomSlug(length = 6, withTimestamp = true) {
+  const timestamp = Date.now();
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let slug = '';
+  for (let i = 0; i < length; i++) {
+    slug += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return withTimestamp ? `${timestamp}-${slug}` : slug;
+}

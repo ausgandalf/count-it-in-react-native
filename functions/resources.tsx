@@ -6,7 +6,7 @@ import NetInfo from '@react-native-community/netinfo';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Platform } from "react-native";
-import { delay } from "./common";
+import { delay, randomSlug } from "./common";
 
 export const handleExport = async (setlist:SetlistType) => {
   if (!setlist) return;
@@ -175,7 +175,7 @@ export function isSongExists(list:SongType[], song:SongType) {
 }
 
 export function generateSongID(song: SongType, type: 'core'|'custom') {
-  return `${type}-${song.name}-${song.artist}`
+  return `${type}-${song.name}-${song.artist}-${randomSlug()}`
 }
 
 
