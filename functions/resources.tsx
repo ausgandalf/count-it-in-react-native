@@ -184,40 +184,50 @@ export function generateSongID(song: SongType, type: 'core'|'custom') {
  * @returns 
  */
 export async function loadSongs(songs: any[]):Promise<{songs: SongType[], updates:{}}> {
+  console.log('loadSongs called with songs count:', songs.length);
   const songList:SongType[] = [];
   
-  const coreUpdates = await AsyncStorage.getItem('coreUpdates');
-  const overrideList = coreUpdates ? JSON.parse(coreUpdates) : {};
+  try {
+    const coreUpdates = await AsyncStorage.getItem('coreUpdates');
+    const overrideList = coreUpdates ? JSON.parse(coreUpdates) : {};
+    console.log('Core updates loaded:', Object.keys(overrideList).length);
 
-  songs.forEach((song: SongType) => {
-    // Use saved BPM if it exists, otherwise use original BPM
-    const songId = generateSongID(song, 'core');
-    const savedBpm = overrideList[songId] ? overrideList[songId]['bpm'] : undefined;
-    if (overrideList[songId] && overrideList[songId]['name']) song.name = overrideList[songId]['name'];
-    if (overrideList[songId] && overrideList[songId]['artist']) song.artist = overrideList[songId]['artist'];
+    songs.forEach((song: SongType) => {
+      // Use saved BPM if it exists, otherwise use original BPM
+      const songId = generateSongID(song, 'core');
+      const savedBpm = overrideList[songId] ? overrideList[songId]['bpm'] : undefined;
+      if (overrideList[songId] && overrideList[songId]['name']) song.name = overrideList[songId]['name'];
+      if (overrideList[songId] && overrideList[songId]['artist']) song.artist = overrideList[songId]['artist'];
 
-    songList.push({ 
-      ...song, 
-      bpm: savedBpm !== undefined ? savedBpm : song.bpm,
-      id: songId 
-    });
-  });
-
-  const customSongs = await AsyncStorage.getItem('customSongs');
-  const customList:SongType[] = customSongs ? JSON.parse(customSongs) : [];
-
-  customList.forEach(song => {
-    if (!isSongExists(songList, song)) {
-      if (!song.label) song.label = song.name.charAt(0).toUpperCase();
       songList.push({ 
         ...song, 
-        id: generateSongID(song, 'custom'),
-        isCustom: true 
+        bpm: savedBpm !== undefined ? savedBpm : song.bpm,
+        id: songId 
       });
-    }
-  });
+    });
 
-  return {songs: songList, updates: overrideList};
+    const customSongs = await AsyncStorage.getItem('customSongs');
+    const customList:SongType[] = customSongs ? JSON.parse(customSongs) : [];
+    console.log('Custom songs loaded:', customList.length);
+
+    customList.forEach(song => {
+      if (!isSongExists(songList, song)) {
+        if (!song.label) song.label = song.name.charAt(0).toUpperCase();
+        songList.push({ 
+          ...song, 
+          id: generateSongID(song, 'custom'),
+          isCustom: true 
+        });
+      }
+    });
+
+    console.log('Total songs loaded:', songList.length);
+    return {songs: songList, updates: overrideList};
+  } catch (error) {
+    console.error('Error in loadSongs:', error);
+    // Return empty result if there's an error
+    return {songs: [], updates: {}};
+  }
 }
 
 /**
@@ -225,21 +235,31 @@ export async function loadSongs(songs: any[]):Promise<{songs: SongType[], update
  * @returns The song list or null if no songs are found
  */
 export async function loadSavedSongs():Promise<SongType[]|null> {
-  
-  const songsJson = await AsyncStorage.getItem('songs');
-  if (songsJson) {
-    const songList:SongType[] = JSON.parse(songsJson);
-    return songList;
-  } else {
+  console.log('loadSavedSongs called');
+  try {
+    const songsJson = await AsyncStorage.getItem('songs');
+    console.log('Songs from storage:', songsJson ? 'Found' : 'Not found');
+    if (songsJson) {
+      const songList:SongType[] = JSON.parse(songsJson);
+      console.log('Loaded songs count:', songList.length);
+      return songList;
+    } else {
+      console.log('No saved songs found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error loading saved songs:', error);
     return null;
   }
-
 }
 
 export const checkNetworkConnection = () => {
+  console.log('checkNetworkConnection called');
   return new Promise((resolve) => {
     const unsubscribe = NetInfo.addEventListener((state) => {
+      console.log('NetInfo state:', state);
       if (state.isInternetReachable != null) {
+        console.log('NetInfo resolved:', { isConnected: state.isConnected, isInternetReachable: state.isInternetReachable });
         unsubscribe();
         resolve(state.isConnected && state.isInternetReachable);
       }
@@ -248,18 +268,26 @@ export const checkNetworkConnection = () => {
 };
 
 export const importSongs = async (songs: SongType[], onProgress: (statusCode: number, progress: number, text: string, result?: any) => void, settings: SettingsType) => {
+  console.log('importSongs called with:', { songsLength: songs.length, settings });
+  
   if (!settings.apiUrl) {
+    console.log('No API URL provided');
     onProgress(4, 0, 'Please enter a URL');
     return;
   }
   
   // Check network connection first
+  console.log('Checking network connection...');
   const isConnected = await checkNetworkConnection();
+  console.log('Network connection result:', isConnected);
+  
   if (!isConnected) {
+    console.log('No network connection');
     onProgress(4, 0, 'No internet connection. Please check your network settings.');
     return;
   }
   
+  console.log('Starting API request to:', settings.apiUrl);
   onProgress(1, 0, 'Accessing URL...');
   
   try {
@@ -278,18 +306,21 @@ export const importSongs = async (songs: SongType[], onProgress: (statusCode: nu
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      // throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      console.log('API response not ok:', response.status, response.statusText);
       onProgress(4, 0, 'API server is not available. Please try again later.');
       return;
     }
     
+    console.log('API response received, parsing JSON...');
     const jsonData = await response.json();
     const json = jsonData.data;
+    console.log('JSON parsed, songs count:', json.length);
     
     // Clone the existing songs and add the new songs
     let newSongs:SongType[] = JSON.parse(JSON.stringify(songs)); // React Native compatible deep clone
     let newlyAddedSongsCount = 0;
     
+    console.log('Processing songs...');
     for (let i=0; i<json.length; i++) {
       await delay(10);
       onProgress(2, (i + 1) / json.length, 'Importing songs... ' + (i+1) + ' of ' + json.length);
@@ -301,27 +332,31 @@ export const importSongs = async (songs: SongType[], onProgress: (statusCode: nu
         newlyAddedSongsCount++;
       }
     }
+    
+    console.log('Import complete, calling onProgress with status 3');
     onProgress(3, 1, 'Found ' + json.length + ' song(s). Imported ' + newlyAddedSongsCount + ', skipping duplicates.', newSongs);
   } catch (error: any) {
-    console.error('Network error:', error);
+    console.error('Network error in importSongs:', error);
     if (error.name === 'AbortError') {
       onProgress(4, 0, 'Request timed out. Please check your internet connection.');
-    } else if (error.message.includes('Network request failed')) {
+    } else if (error.message && error.message.includes('Network request failed')) {
       onProgress(4, 0, 'Network error. Please check your internet connection and try again.');
     } else {
-      onProgress(4, 0, `Failed to load songs: ${error.message}`);
+      onProgress(4, 0, `Failed to load songs: ${error.message || 'Unknown error'}`);
     }
   }
 };
 
 
 export const checkVersion = async (url: string):Promise<string> => {
+  console.log('checkVersion called with URL:', url);
   if (!url) {
     console.log('no url');
     return '0';
   }
   
   // Check network connection first
+  console.log('Checking network connection for version check...');
   const isConnected = await checkNetworkConnection();
   if (!isConnected) {
     console.log('not connected');
@@ -329,6 +364,7 @@ export const checkVersion = async (url: string):Promise<string> => {
   }
   
   try {
+    console.log('Making version check request to:', url);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
@@ -344,8 +380,7 @@ export const checkVersion = async (url: string):Promise<string> => {
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      // throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      console.log('check version response not ok', response);
+      console.log('check version response not ok', response.status, response.statusText);
       return '0';
     }
     
@@ -359,8 +394,10 @@ export const checkVersion = async (url: string):Promise<string> => {
 };
 
 export const saveSettings = async (settings: {}) => {
+  console.log('saveSettings called with:', settings);
   try {
     await AsyncStorage.setItem('settings', JSON.stringify(settings));
+    console.log('Settings saved successfully');
   } catch (error) {
     console.error('Failed to save settings:', error);
     // Add user notification here
@@ -369,13 +406,18 @@ export const saveSettings = async (settings: {}) => {
 };
 
 export async function loadSettings(): Promise<{settings: SettingsType}> {
+  console.log('loadSettings called');
   try {
     const settingsStored = await AsyncStorage.getItem('settings');
+    console.log('Settings from storage:', settingsStored);
     const settings = settingsStored ? JSON.parse(settingsStored) : {};
-    return {settings: {...Settings, ...settings}};
+    const mergedSettings = {...Settings, ...settings};
+    console.log('Merged settings:', mergedSettings);
+    return {settings: mergedSettings};
   } catch (error) {
     console.error('Failed to load settings:', error);
     // Return default settings if loading fails
+    console.log('Returning default settings due to error');
     return {settings: {...Settings}};
   }
 }
