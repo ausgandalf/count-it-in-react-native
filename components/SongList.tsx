@@ -88,11 +88,12 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
   const onAddtoSetlist = () => {
     // TODO : Add to setlist
     setTimeout(() => {
-      onUpdate('openSetlistFormModal', false);
+      onUpdate('openSongListModal', false);
     }, 1);
 
     const songsSelected = songs.filter(song => selectedIds.includes(song.id ?? '') && (!song.isLabel || song.isLabel != 1));
     onUpdate('onAddSongsToSetlist', songsSelected);
+    setSelectedIds([]);
   }
 
   const toggleSelectAll = () => {
@@ -182,7 +183,7 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
           <Ionicons name="trash-outline" size={20} color="#d11a2a" />
         </TouchableOpacity>
 
-        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{flex: 1, gap: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
           <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton]} onPress={() => onAddtoSetlist()}>
             <Text style={commonStyles.buttonText}>Add to 📋</Text>
           </TouchableOpacity>
