@@ -2,7 +2,7 @@ import { getCommonStyles } from '@/constants/Styles';
 import { getColors } from '@/functions/common';
 import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -14,9 +14,10 @@ import {
 
 import { SongType } from '@/constants/Types';
 
-export default function SongList({ type = 'select', songs = [], onUpdate = () => {}, onSelect = () => {}, onDelete = () => {}, openForm = () => {} }: {
+export default function SongList({ type = 'select', songs = [], viewMode = 'songs', onUpdate = () => {}, onSelect = () => {}, onDelete = () => {}, openForm = () => {} }: {
   type?: 'button' | 'select',
   songs: SongType[],
+  viewMode: 'songs' | 'setlist',
   onUpdate: (type:string, v:any) => void,
   onSelect: (song: SongType) => void,
   onDelete: (songId: string[]) => void,
@@ -58,6 +59,10 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
 
   
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentViewMode, setCurrentViewMode] = useState<string>(viewMode);
+  useEffect(() => {
+    setCurrentViewMode(viewMode);
+  }, [viewMode]);
   
   //   const isAllSelected = (songs.length > 0) && (selectedIds.length === songs.length);
   const isAllSelected = useCallback(() => {
@@ -72,6 +77,7 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
     })
     return hasAll;
   }, [songs, selectedIds]);
+
   const isGroupSelected = (label:string) => {
     if (!songs) return false;
     const ids = songs.filter(song => (song.label == label)&&(!song.isLabel || song.isLabel != 1)).map((s) => s.id);
@@ -84,6 +90,18 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
     })
     return hasAll;
   };
+
+  const isSongSelected = () => {
+    let isSelected = false;
+    return songs.some(song => {
+      if (!song.isLabel || song.isLabel != 1) {
+        if (selectedIds.includes(song.id ?? '')) {
+          isSelected = true;
+          return true;
+        }
+      }
+    });
+  }
 
   const onAddtoSetlist = () => {
     // TODO : Add to setlist
@@ -178,15 +196,17 @@ export default function SongList({ type = 'select', songs = [], onUpdate = () =>
           style={commonStyles.checkbox}
           color={themeColors.checkbox.color}
         />
-        <TouchableOpacity onPress={deleteSelected} style={commonStyles.icon}>
+        <TouchableOpacity onPress={deleteSelected} style={{...commonStyles.icon, opacity : isSongSelected() ? 1 : 0}}>
           {/* <Ionicons name="trash-bin" size={20} color="#d11a2a" /> */}
           <Ionicons name="trash-outline" size={20} color="#d11a2a" />
         </TouchableOpacity>
 
         <View style={{flex: 1, gap: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-          <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton]} onPress={() => onAddtoSetlist()}>
-            <Text style={commonStyles.buttonText}>Add to 📋</Text>
-          </TouchableOpacity>
+          {currentViewMode == 'setlists' && isSongSelected() && (
+            <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton]} onPress={() => onAddtoSetlist()}>
+              <Text style={commonStyles.buttonText}>Add to 📋</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={[commonStyles.button, commonStyles.primaryButton]} onPress={() => openForm(true, null)}>
             <Text style={commonStyles.buttonText}>Create ♫</Text>
           </TouchableOpacity>

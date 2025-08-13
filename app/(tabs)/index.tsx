@@ -421,6 +421,7 @@ export default function HomeScreen() {
                         <SongList
                           songs={sortedSongList()}
                           onUpdate={onUpdate}
+                          viewMode={viewMode}
                           onSelect={(song) => {
                             // Close the modal
                             setTimeout(() => {
