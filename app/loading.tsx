@@ -85,19 +85,19 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
             [
               { 
                 text: "No", 
-                onPress: () => {
+                onPress: async () => {
                   // User chose not to update, so save settings with new version
                   const updatedSettings = {...loadedSettings.settings, version: apiVersion.toString()};
                   setSettings(updatedSettings);
                   saveSettings(updatedSettings);
                   
-                  finalizing();
+                  await finalizing();
                 }
               },
               { 
                 text: "Yes", 
-                onPress: () => {
-                  doImportSongs(loadedSettings, apiVersion);
+                onPress: async () => {
+                  await doImportSongs(loadedSettings, apiVersion);
                 }
               }
             ]
