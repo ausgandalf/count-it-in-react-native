@@ -112,7 +112,11 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
 
     const songsSelected = songs.filter(song => selectedIds.includes(song.id ?? '') && (!song.isLabel || song.isLabel != 1));
     onUpdate('onAddSongsToSetlist', songsSelected);
-    setSelectedIds([]);
+
+    setTimeout(() => {
+      setSelectedIds([]);
+    }, 500);
+    
   }
 
   const toggleSelectAll = () => {
