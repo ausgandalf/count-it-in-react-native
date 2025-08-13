@@ -13,12 +13,15 @@ import * as Progress from 'react-native-progress';
 import { checkVersion, importSongs, loadSavedSongs, loadSettings, loadSongs, saveSettings } from '../functions/resources';
 
 let loadedSongs: SongType[] = [];
+let loadedSettings: {settings: SettingsType};
+let apiVersion: string = '0';
 
 export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   const {settings, setSettings} = useSettings();
   const {songs, setSongs} = useSongs();
   const [loadingText, setLoadingText] = useState('Loading...');
   const [progress, setProgress] = useState(0);
+  const [importConfirmed, setImportConfirmed] = useState<string | null>(null);
   const themeColors = getColors();
 
   const finalizing = async () => {
@@ -57,10 +60,25 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   }
 
   useEffect(() => {
+    if (importConfirmed) {
+      if (importConfirmed == 'yes') {
+        doImportSongs(loadedSettings, apiVersion);
+      } else {
+        // User chose not to update, so save settings with new version
+        const updatedSettings = {...loadedSettings.settings, version: apiVersion};
+        setSettings(updatedSettings);
+        saveSettings(updatedSettings);
+        
+        finalizing();
+      }
+    }
+  }, [importConfirmed]);
+
+  useEffect(() => {
     const doInitialLoad = async () => {
 
       setLoadingText('Loading settings...');
-      const loadedSettings = await loadSettings();
+      loadedSettings = await loadSettings();
       setSettings(loadedSettings.settings as SettingsType);
 
       const savedSongs = await loadSavedSongs();
@@ -74,7 +92,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
       
       setProgress(0.2);
       
-      const apiVersion = await checkVersion(loadedSettings.settings.versionUrl);
+      apiVersion = await checkVersion(loadedSettings.settings.versionUrl);
       const importSongsOnLoad = apiVersion >loadedSettings.settings.version;
       if (importSongsOnLoad) {
         if (loadedSettings.settings.version == '0') {
@@ -89,20 +107,15 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
                 text: "No", 
                 onPress: async () => {
                   setTimeout(async () => {
-                    // User chose not to update, so save settings with new version
-                    const updatedSettings = {...loadedSettings.settings, version: apiVersion};
-                    setSettings(updatedSettings);
-                    saveSettings(updatedSettings);
-                    
-                    await finalizing();  
+                    setImportConfirmed('no');
                   }, 200); // delay allows alert to close first
                 }
               },
               { 
                 text: "Yes", 
-                onPress: async () => {
+                onPress: () => {
                   setTimeout(async () => {
-                    await doImportSongs(loadedSettings, apiVersion);
+                    setImportConfirmed('yes');
                   }, 200); // delay allows alert to close first
                 }
               }
