@@ -9,5 +9,5 @@ export const Settings:SettingsType = {
     theme: '',
     apiUrl: 'https://countitin.com/api/songs',
     versionUrl: 'https://countitin.com/api/version',
-    version: '0.0.0',
+    version: '0.0',
 }

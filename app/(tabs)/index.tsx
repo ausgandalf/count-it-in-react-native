@@ -2,7 +2,6 @@ import BpmControls from '@/components/BpmControls';
 import LayoutTop from '@/components/LayoutTop';
 import SetListView from '@/components/SetListView';
 import SongListOwner from '@/components/SongListOwner';
-import { Songs } from '@/constants/Songs';
 import { SetlistType, SongType } from '@/constants/Types';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -14,7 +13,7 @@ import SongForm from '@/components/SongForm';
 import SongList from '@/components/SongList';
 import { getCommonStyles } from '@/constants/Styles';
 import { useSongs } from '@/context/SongsContext';
-import { arangeSongs, generateSongID, handleExport, isSongExists, loadSavedSongs, loadSetlist, loadSongs, saveSetlists, saveSongList } from '../../functions/resources';
+import { arangeSongs, generateSongID, handleExport, isSongExists, loadSetlist, saveSetlists, saveSongList } from '../../functions/resources';
 
 export default function HomeScreen() {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -267,6 +266,11 @@ export default function HomeScreen() {
   // Load songs and setlists
   useEffect(() => {
     const doInitialLoad = async () => {
+      /*
+       * Moved this block to LoadingScreen.tsx
+       * because it's not needed to load songs and setlists here
+       */
+      /*
       const savedSongs = await loadSavedSongs();
       if (savedSongs) {
         setSongs(savedSongs);
@@ -276,6 +280,7 @@ export default function HomeScreen() {
         setSongs(loadedInfo.songs);
         setCoreUpdates(loadedInfo.updates);
       }
+      */
       
       const loadedSetlistInfo = await loadSetlist();
       setSetlists(loadedSetlistInfo.setlists);

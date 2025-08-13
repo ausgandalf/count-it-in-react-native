@@ -1,15 +1,18 @@
 import LayoutTop from '@/components/LayoutTop';
 import { ThemedText } from '@/components/ThemedText';
 import { SettingsType } from '@/constants/Settings';
+import { Songs } from '@/constants/Songs';
 import { getCommonStyles } from '@/constants/Styles';
 import { SongType } from '@/constants/Types';
 import { useSettings } from '@/context/SettingsContext';
 import { useSongs } from '@/context/SongsContext';
 import { delay, getColors } from '@/functions/common';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 import * as Progress from 'react-native-progress';
-import { checkVersion, importSongs, loadSettings, saveSettings } from '../functions/resources';
+import { checkVersion, importSongs, loadSavedSongs, loadSettings, loadSongs, saveSettings } from '../functions/resources';
+
+let loadedSongs: SongType[] = [];
 
 export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   const {settings, setSettings} = useSettings();
@@ -25,39 +28,81 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
     onLoad();
   }
 
+  const doImportSongs = async (loadedSettings: {settings: SettingsType}, apiVersion: number) => {
+    await importSongs(loadedSongs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
+      if (statusCode == 1) {
+        setLoadingText('Updating songs library...');
+      } else if (statusCode == 2) {
+        setLoadingText(text);
+        setProgress(0.2 + 0.6 * progress);
+      } else if (statusCode == 3) {
+        setLoadingText(text);
+        setProgress(0.8);
+
+        // Save settings with new version
+        const updatedSettings = {...loadedSettings.settings, version: apiVersion.toString()};
+        setSettings(updatedSettings);
+        saveSettings(updatedSettings);
+
+        // Save songs
+        setSongs(result);
+        
+        await finalizing();
+      } else if ([4,5].indexOf(statusCode) != -1) {
+        setProgress(0.8);
+        await finalizing();
+      }
+    }, loadedSettings.settings);
+  }
+
   useEffect(() => {
     const doInitialLoad = async () => {
 
       setLoadingText('Loading settings...');
       const loadedSettings = await loadSettings();
       setSettings(loadedSettings.settings as SettingsType);
+
+      const savedSongs = await loadSavedSongs();
+      if (savedSongs) {
+        loadedSongs = savedSongs;
+      } else {
+        const loadedInfo = await loadSongs(Songs);
+        loadedSongs = loadedInfo.songs;
+      }
+      setSongs(loadedSongs);
+      
       setProgress(0.2);
       
       const apiVersion = await checkVersion(loadedSettings.settings.versionUrl);
       const importSongsOnLoad = apiVersion > Number(loadedSettings.settings.version);
-
       if (importSongsOnLoad) {
-        importSongs(songs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
-          if (statusCode == 1) {
-            setLoadingText('Updating songs library...');
-          } else if (statusCode == 2) {
-            setLoadingText(text);
-            setProgress(0.2 + 0.6 * progress);
-          } else if (statusCode == 3) {
-            setLoadingText(text);
-            setProgress(0.8);
-
-            // Save settings with new version
-            const updatedSettings = {...loadedSettings.settings, version: apiVersion.toString()};
-            setSettings(updatedSettings);
-            saveSettings(updatedSettings);
-            
-            await finalizing();
-          } else if ([4,5].indexOf(statusCode) != -1) {
-            setProgress(0.8);
-            await finalizing();
-          }
-        }, loadedSettings.settings);
+        if (apiVersion == 0) {
+          await doImportSongs(loadedSettings, apiVersion);
+        } else {
+          Alert.alert(
+            "Song List Updated",
+            "Do you want to import the new list?",
+            [
+              { 
+                text: "No", 
+                onPress: () => async () => {
+                  // User chose not to update, so save settings with new version
+                  const updatedSettings = {...loadedSettings.settings, version: apiVersion.toString()};
+                  setSettings(updatedSettings);
+                  saveSettings(updatedSettings);
+                  
+                  await finalizing();
+                }
+              },
+              { 
+                text: "Yes", 
+                onPress: () => async () => {
+                  await doImportSongs(loadedSettings, apiVersion);
+                }
+              }
+            ]
+          );
+        }
       } else {
         await finalizing();
       }
