@@ -88,20 +88,22 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
               { 
                 text: "No", 
                 onPress: async () => {
-                  console.log('no clicked');
-                  // User chose not to update, so save settings with new version
-                  const updatedSettings = {...loadedSettings.settings, version: apiVersion};
-                  setSettings(updatedSettings);
-                  saveSettings(updatedSettings);
-                  
-                  await finalizing();
+                  setTimeout(async () => {
+                    // User chose not to update, so save settings with new version
+                    const updatedSettings = {...loadedSettings.settings, version: apiVersion};
+                    setSettings(updatedSettings);
+                    saveSettings(updatedSettings);
+                    
+                    await finalizing();  
+                  }, 200); // delay allows alert to close first
                 }
               },
               { 
                 text: "Yes", 
                 onPress: async () => {
-                  console.log('yes clicked');
-                  await doImportSongs(loadedSettings, apiVersion);
+                  setTimeout(async () => {
+                    await doImportSongs(loadedSettings, apiVersion);
+                  }, 200); // delay allows alert to close first
                 }
               }
             ]
