@@ -61,9 +61,9 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   }
 
   useEffect(() => {
-    if (importConfirmed) {
-      console.log('importConfirmed', importConfirmed);
-      if (importConfirmed == 'yes') {
+    const onConfirmed = async (confirmed: string|null) => {
+      if (!confirmed) return;
+      if (confirmed == 'yes') {
         doImportSongs(loadedSettings, apiVersion);
       } else {
         // User chose not to update, so save settings with new version
@@ -74,6 +74,11 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
         finalizing();
       }
     }
+
+    onConfirmed(importConfirmed).then(() => {
+      console.log('onConfirmed complete', importConfirmed);
+    });
+
   }, [importConfirmed]);
 
   useEffect(() => {
