@@ -64,14 +64,14 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
     const onConfirmed = async (confirmed: string|null) => {
       if (!confirmed) return;
       if (confirmed == 'yes') {
-        doImportSongs(loadedSettings, apiVersion);
+        await doImportSongs(loadedSettings, apiVersion);
       } else {
         // User chose not to update, so save settings with new version
         const updatedSettings = {...loadedSettings.settings, version: apiVersion};
         setSettings(updatedSettings);
         saveSettings(updatedSettings);
         
-        finalizing();
+        await finalizing();
       }
     }
 
