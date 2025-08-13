@@ -32,6 +32,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   }
 
   const doImportSongs = async (loadedSettings: {settings: SettingsType}, apiVersion: string) => {
+    console.log('doImportSongs', loadedSongs);
     await importSongs(loadedSongs as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
       if (statusCode == 1) {
         setLoadingText('Updating songs library...');
