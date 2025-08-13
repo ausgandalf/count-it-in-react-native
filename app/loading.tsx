@@ -13,7 +13,7 @@ import * as Progress from 'react-native-progress';
 import { checkVersion, fillSongsID, importSongs, loadSavedSongs, loadSettings, saveSettings } from '../functions/resources';
 
 export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
-  console.log('LoadingScreen rendered, onLoad function:', typeof onLoad);
+  // console.log('LoadingScreen rendered, onLoad function:', typeof onLoad);
   
   const {settings, setSettings} = useSettings();
   const {songs, setSongs} = useSongs();
@@ -28,15 +28,15 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   const apiVersionRef = useRef<string>('0');
 
   const finalizing = async () => {
-    console.log('finalizing called, setting up songs library...');
+    // console.log('finalizing called, setting up songs library...');
     try {
       setLoadingText('Setting up songs library...');
       setProgress(1);
-      console.log('Waiting 1 second before calling onLoad...');
+      // console.log('Waiting 1 second before calling onLoad...');
       await delay(1000);
-      console.log('finalizing complete, calling onLoad...');
+      // console.log('finalizing complete, calling onLoad...');
       if (typeof onLoad === 'function') {
-        console.log('onLoad is a function, calling it...');
+        // console.log('onLoad is a function, calling it...');
         onLoad();
       } else {
         console.error('onLoad is not a function:', typeof onLoad);
@@ -44,7 +44,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
     } catch (error) {
       console.error('Error in finalizing:', error);
       // Try to continue anyway
-      console.log('Continuing despite error...');
+      // console.log('Continuing despite error...');
       if (typeof onLoad === 'function') {
         onLoad();
       }
@@ -52,8 +52,8 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   }
 
   const doImportSongs = async (loadedSettings: {settings: SettingsType}, apiVersion: string) => {
-    console.log('doImportSongs called with:', { loadedSettings, apiVersion });
-    console.log('doImportSongs', loadedSongsRef.current);
+    // console.log('doImportSongs called with:', { loadedSettings, apiVersion });
+    // console.log('doImportSongs', loadedSongsRef.current);
     
     // Add a timeout to prevent the function from getting stuck
     // const importTimeout = setTimeout(() => {
@@ -63,7 +63,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
     
     try {
       await importSongs(loadedSongsRef.current as SongType[], async (statusCode: number, progress: number, text: string, result?: any) => {
-        console.log('importSongs callback:', { statusCode, progress, text, result });
+        // console.log('importSongs callback:', { statusCode, progress, text, result });
         if (statusCode == 1) {
           setLoadingText('Updating songs library...');
         } else if (statusCode == 2) {
@@ -79,15 +79,15 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
           saveSettings(updatedSettings);
 
           // Save songs
-          console.log('doImportSongs result', result);
+          // console.log('doImportSongs result', result);
           setSongs(result);
           
-          console.log('Calling finalizing from doImportSongs...');
+          // console.log('Calling finalizing from doImportSongs...');
           // clearTimeout(importTimeout);
           await finalizing();
         } else if ([4,5].indexOf(statusCode) != -1) {
           setProgress(0.8);
-          console.log('Calling finalizing from doImportSongs (status 4/5)...');
+          // console.log('Calling finalizing from doImportSongs (status 4/5)...');
           // clearTimeout(importTimeout);
           await finalizing();
         }
@@ -103,16 +103,16 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   }
 
   useEffect(() => {
-    console.log('useEffect triggered with importConfirmed:', importConfirmed);
+    // console.log('useEffect triggered with importConfirmed:', importConfirmed);
     
     const onConfirmed = async (confirmed: string|null) => {
-      console.log('onConfirmed called with:', confirmed);
+      // console.log('onConfirmed called with:', confirmed);
       if (!confirmed) {
-        console.log('No confirmation, returning early');
+        // console.log('No confirmation, returning early');
         return;
       }
       if (confirmed == 'yes') {
-        console.log('Starting import process...');
+        // console.log('Starting import process...');
         try {
           await doImportSongs(loadedSettingsRef.current!, apiVersionRef.current);
         } catch (error) {
@@ -121,7 +121,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
           await finalizing();
         }
       } else {
-        console.log('User chose not to update, finalizing...');
+        // console.log('User chose not to update, finalizing...');
         try {
           // User chose not to update, so save settings with new version
           const updatedSettings = {...loadedSettingsRef.current!.settings, version: apiVersionRef.current};
@@ -138,11 +138,11 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
     }
 
     if (importConfirmed) {
-      console.log('Calling onConfirmed with:', importConfirmed);
+      // console.log('Calling onConfirmed with:', importConfirmed);
       onConfirmed(importConfirmed).catch((error) => {
         console.error('Error in onConfirmed:', error);
         // Fallback to finalizing if there's an error
-        console.log('Calling finalizing due to error in onConfirmed...');
+        // console.log('Calling finalizing due to error in onConfirmed...');
         finalizing();
       });
     }
@@ -152,7 +152,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
   useEffect(() => {
     const doInitialLoad = async () => {
       try {
-        console.log('doInitialLoad started');
+        // console.log('doInitialLoad started');
         setLoadingText('Loading settings...');
         loadedSettingsRef.current = await loadSettings();
         setSettings(loadedSettingsRef.current.settings as SettingsType);
@@ -171,20 +171,20 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
         
         setProgress(0.2);
         
-        console.log('Checking version...');
+        // console.log('Checking version...');
         apiVersionRef.current = await checkVersion(loadedSettingsRef.current.settings.versionUrl);
-        console.log('Version check result:', apiVersionRef.current);
+        // console.log('Version check result:', apiVersionRef.current);
         
         const importSongsOnLoad = apiVersionRef.current > loadedSettingsRef.current.settings.version;
-        console.log('Import songs on load:', importSongsOnLoad, 'Current version:', loadedSettingsRef.current.settings.version, 'API version:', apiVersionRef.current);
+        // console.log('Import songs on load:', importSongsOnLoad, 'Current version:', loadedSettingsRef.current.settings.version, 'API version:', apiVersionRef.current);
         
         if (importSongsOnLoad) {
           if (loadedSettingsRef.current.settings.version == '0') {
             // Just import songs for very first time
-            console.log('First time import, starting import process...');
+            // console.log('First time import, starting import process...');
             await doImportSongs(loadedSettingsRef.current, apiVersionRef.current);
           } else {
-            console.log('Showing import confirmation dialog...');
+            // console.log('Showing import confirmation dialog...');
             Alert.alert(
               "Song List Updated",
               "Do you want to import the new list?",
@@ -192,7 +192,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
                 { 
                   text: "No", 
                   onPress: () => {
-                    console.log('User chose No, setting importConfirmed to no');
+                    // console.log('User chose No, setting importConfirmed to no');
                     setTimeout(() => {
                       setImportConfirmed('no');
                     }, 200); // delay allows alert to close first
@@ -201,7 +201,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
                 { 
                   text: "Yes", 
                   onPress: () => {
-                    console.log('User chose Yes, setting importConfirmed to yes');
+                    // console.log('User chose Yes, setting importConfirmed to yes');
                     setTimeout(() => {
                       setImportConfirmed('yes');
                     }, 200); // delay allows alert to close first
@@ -212,7 +212,7 @@ export default function LoadingScreen({ onLoad }: { onLoad: () => void }) {
 
           }
         } else {
-          console.log('No import needed, finalizing...');
+          // console.log('No import needed, finalizing...');
           await finalizing();
         }
       } catch (error) {

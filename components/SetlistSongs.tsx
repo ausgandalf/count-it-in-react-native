@@ -45,7 +45,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
   }, [currentSetlist])
 
   const { height: windowHeight } = useWindowDimensions();
-  const songlistMaxHeight = Math.max(80, windowHeight - 620);
+  const songlistMaxHeight = Math.max(100, windowHeight - 630);
 
   const commonStyles = getCommonStyles();
   const themeColors = getColors();

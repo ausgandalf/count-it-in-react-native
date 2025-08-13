@@ -5,7 +5,7 @@ import { Animated, StyleSheet, View } from 'react-native';
 import BeepPlayer from 'react-native-beep-player';
 
 import { NativeEventEmitter, NativeModules } from 'react-native';
-console.log('Native Module - BeepPlayer', NativeModules.BeepPlayer);
+// console.log('Native Module - BeepPlayer', NativeModules.BeepPlayer);
 
 const beepPlayerEmitter = new NativeEventEmitter(NativeModules.BeepPlayer);
 
@@ -64,7 +64,7 @@ export default function BeatLights({ playing = false, muted = true, bpm = 120, a
   }, []);
 
   useEffect(() => {
-    console.log('audioPath', audioPath);
+    // console.log('audioPath', audioPath);
     if (audioPath) {
       setWavAssetPath(audioPath);
     }
