@@ -104,6 +104,7 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
   }
 
   const onAddtoSetlist = () => {
+    if (!isSongSelected()) return;
     // TODO : Add to setlist
     setTimeout(() => {
       onUpdate('openSongListModal', false);
@@ -202,8 +203,8 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
         </TouchableOpacity>
 
         <View style={{flex: 1, gap: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-          {currentViewMode == 'setlist' && isSongSelected() && (
-            <TouchableOpacity style={[commonStyles.button, commonStyles.secondaryButton]} onPress={() => onAddtoSetlist()}>
+          {currentViewMode == 'setlist' && (
+            <TouchableOpacity style={[commonStyles.button, commonStyles.secondaryButton, {opacity : isSongSelected() ? 1 : 0.3}]} onPress={() => onAddtoSetlist()}>
               <Text style={commonStyles.buttonText}>Add to 📋</Text>
             </TouchableOpacity>
           )}
