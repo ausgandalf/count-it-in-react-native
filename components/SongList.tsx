@@ -287,9 +287,12 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
 
         <TouchableOpacity 
           onPress={() => {
+            const selectedCount = getSelectedSongsCount();
+            if (selectedCount < 1) return;
+            
             Alert.alert(
               "Delete songs",
-              `Are you sure to delete ${getSelectedSongsCount()} selected songs?`,
+              `Are you sure to delete ${selectedCount} selected songs?`,
               [
                 { 
                   text: "No",
