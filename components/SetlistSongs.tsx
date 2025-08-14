@@ -84,9 +84,9 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
           onPress={() => {
             onUpdate('deleteSongFromSetlist', song);
           }}
-          style={{paddingBlock: 16, paddingInlineEnd: 16}}
+          style={{paddingBlock: 6, paddingInlineEnd: 16}}
         >
-          <Ionicons name="trash" size={20} color={themeColors.danger} />
+          <Ionicons name="trash" size={30} color={themeColors.danger} />
         </TouchableOpacity>
       </View>
     );

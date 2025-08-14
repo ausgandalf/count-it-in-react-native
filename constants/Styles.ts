@@ -33,7 +33,7 @@ export const getCommonStyles = () => {
     },
     icon: {
       marginHorizontal: 8,
-      width: 16,
+      width: 30,
     },
     text: {
       color: themeColors.text,
