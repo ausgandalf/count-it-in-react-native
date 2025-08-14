@@ -181,7 +181,16 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
         </TouchableOpacity>
         
         {(item.isLabel && item.isLabel == 1) ? (
-          <Text style={[commonStyles.text, styles.rowInner, {fontSize: 20, color: themeColors.label}]}>{item.name}</Text>
+          <TouchableOpacity 
+            activeOpacity={0.8}
+            // onPress={() => onSelect(item)} 
+            onPress={() => {
+              toggleSong(item, !isGroupSelected(item.name));
+            }} 
+            style={[styles.rowInner, {flex: 1}]}
+          >
+            <Text style={[commonStyles.text, styles.rowInner, {fontSize: 20, color: themeColors.label}]}>{item.name}</Text>
+          </TouchableOpacity>
         ) : (
           <TouchableOpacity 
             activeOpacity={0.8}
@@ -200,7 +209,7 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
         )}
 
 
-        {(item.isLabel && item.isLabel == 1) && (
+        {(!(item.isLabel && item.isLabel == 1)) && (
           <TouchableOpacity activeOpacity={0.8} style={[commonStyles.icon, {marginRight: 20}]} onPress={() => openForm(false, item)}>
             <Ionicons name="create-outline" size={30} color="#777" />
           </TouchableOpacity>
