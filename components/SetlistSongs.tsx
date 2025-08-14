@@ -63,6 +63,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
         ]}
       >
         <TouchableOpacity
+          activeOpacity={0.8}
           onPressIn={onDragStart}
           onPressOut={onDragEnd}
           style={[styles.handle, {paddingBlock: 16, paddingInlineStart: 16}]}
@@ -71,6 +72,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
         </TouchableOpacity>
         
         <TouchableOpacity
+          activeOpacity={0.8}
           onPress={() => {
             setSelectedSongId(item);
             onUpdate('selectSongOnList', song);
@@ -81,6 +83,7 @@ export default function SetlistSongs({ setlist, scrollable, onUpdate }: {
         </TouchableOpacity>
 
         <TouchableOpacity
+          activeOpacity={0.8}
           onPress={() => {
             onUpdate('deleteSongFromSetlist', song);
           }}
