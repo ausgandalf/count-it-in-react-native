@@ -51,9 +51,11 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 12,
       borderBottomWidth: 1,
       borderColor: themeColors.borderLight,
+    },
+    rowInner: {
+      paddingVertical: 12,
     },
   });
 
@@ -151,26 +153,32 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
     const isLast = index === songs.length - 1;
     return (
       <View style={[styles.row, isLast ? {borderBottomWidth: 0, paddingBlockEnd: 40} : {}]}>
-        
-        <Checkbox
-          value={item.isLabel ? isGroupSelected(item.name) : selectedIds.includes(item.id ?? '')}
-          onValueChange={(v) => {
-            toggleSong(item, v);
+
+        <TouchableOpacity 
+          style={[commonStyles.icon, styles.rowInner]} 
+          onPress={() => {
+            toggleSong(item, !selectedIds.includes(item.id ?? ''));
           }}
-          style={[commonStyles.checkbox]}
-          color={themeColors.checkbox.color}
-        />
+        >
+          <Checkbox
+            value={item.isLabel ? isGroupSelected(item.name) : selectedIds.includes(item.id ?? '')}
+            // onValueChange={(v) => {
+            //   toggleSong(item, v);
+            // }}
+            style={[commonStyles.checkbox]}
+            color={themeColors.checkbox.color}
+          />
+        </TouchableOpacity>
         
-        {(!(item.isLabel && item.isLabel == 1)) ? (
-          <TouchableOpacity style={commonStyles.icon} onPress={() => onDelete([item.id ?? ''])}>
-            <Ionicons name="trash-outline" size={20} color="#d11a2a" />
+        {!(item.isLabel && item.isLabel == 1) && (
+          <TouchableOpacity style={[commonStyles.icon, styles.rowInner]} onPress={() => openForm(false, item)}>
+            <Ionicons name="create-outline" size={20} color="#777" />
           </TouchableOpacity>
-        ) : (
-          <></>
         )}
         
+        
         {(item.isLabel && item.isLabel == 1) ? (
-          <Text style={[commonStyles.text, {fontSize: 20, color: themeColors.label}]}>{item.name}</Text>
+          <Text style={[commonStyles.text, styles.rowInner, {fontSize: 20, color: themeColors.label}]}>{item.name}</Text>
         ) : (
           <TouchableOpacity 
             // onPress={() => onSelect(item)} 
@@ -181,16 +189,18 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
                 onSelect(item);
               }
             }} 
-            style={{flex: 1}}
+            style={[styles.rowInner, {flex: 1}]}
           >
             <Text style={commonStyles.text}>{item.name}{item.artist ? ` - ${item.artist}` : ``}</Text>
           </TouchableOpacity>
         )}
-
-        {!(item.isLabel && item.isLabel == 1) && (
-          <TouchableOpacity style={commonStyles.icon} onPress={() => openForm(false, item)}>
-            <Ionicons name="create-outline" size={20} color="#777" />
+        
+        {(!(item.isLabel && item.isLabel == 1)) ? (
+          <TouchableOpacity style={[commonStyles.icon, styles.rowInner]} onPress={() => onDelete([item.id ?? ''])}>
+            <Ionicons name="trash-outline" size={20} color="#d11a2a" />
           </TouchableOpacity>
+        ) : (
+          <></>
         )}
 
       </View>
@@ -206,9 +216,10 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
           style={commonStyles.checkbox}
           color={themeColors.checkbox.color}
         />
-        <TouchableOpacity onPress={deleteSelected} style={{...commonStyles.icon, opacity : isSongSelected() ? 1 : 0}}>
+        
+        <TouchableOpacity onPress={() => onUpdate('openSongListModal', false)} style={[commonStyles.icon, {width: 30}]}>
           {/* <Ionicons name="trash-bin" size={20} color="#d11a2a" /> */}
-          <Ionicons name="trash-outline" size={20} color="#d11a2a" />
+          <Ionicons name="close-circle-outline" size={30} color="#d11a2a" />
         </TouchableOpacity>
 
         <View style={{flex: 1, gap: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
@@ -222,10 +233,11 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity onPress={() => onUpdate('openSongListModal', false)} style={[commonStyles.icon, {width: 30}]}>
+        <TouchableOpacity onPress={deleteSelected} style={{...commonStyles.icon, opacity : isSongSelected() ? 1 : 0}}>
           {/* <Ionicons name="trash-bin" size={20} color="#d11a2a" /> */}
-          <Ionicons name="close-circle-outline" size={30} color="#d11a2a" />
+          <Ionicons name="trash-outline" size={20} color="#d11a2a" />
         </TouchableOpacity>
+
       </View>
 
       <View style={styles.body}>
