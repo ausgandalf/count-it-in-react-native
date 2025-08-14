@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -74,6 +75,7 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
   useEffect(() => {
     setCurrentViewMode(viewMode);
   }, [viewMode]);
+
   
   //   const isAllSelected = (songs.length > 0) && (selectedIds.length === songs.length);
   const isAllSelected = useCallback(() => {
@@ -112,6 +114,10 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
         }
       }
     });
+  }
+
+  const getSelectedSongsCount = () => {
+    return songs.filter(song => (!song.isLabel || song.isLabel != 1) && selectedIds.includes(song.id ?? '')).length;
   }
 
   const onAddtoSetlist = () => {
@@ -216,7 +222,30 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
         )}
         
         {(!(item.isLabel && item.isLabel == 1)) ? (
-          <TouchableOpacity activeOpacity={0.8} style={[commonStyles.icon]} onPress={() => onDelete([item.id ?? ''])}>
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            style={[commonStyles.icon]} 
+            onPress={() => {
+              Alert.alert(
+                "Delete a song",
+                `Are you sure to delete [${item.name}]?`,
+                [
+                  { 
+                    text: "No",
+                  },
+                  { 
+                    text: "Yes", 
+                    onPress: () => {
+                      // console.log('User chose Yes, setting importConfirmed to yes');
+                      setTimeout(() => {
+                        onDelete([item.id ?? ''])
+                      }, 200); // delay allows alert to close first
+                    }
+                  }
+                ]
+              );
+            }}
+          >
             <Ionicons name="trash-outline" size={30} color="#d11a2a" />
           </TouchableOpacity>
         ) : (
@@ -256,7 +285,27 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity onPress={deleteSelected} style={{...commonStyles.icon, opacity : isSongSelected() ? 1 : 0}}>
+        <TouchableOpacity 
+          onPress={() => {
+            Alert.alert(
+              "Delete songs",
+              `Are you sure to delete ${getSelectedSongsCount()} selected songs?`,
+              [
+                { 
+                  text: "No",
+                },
+                { 
+                  text: "Yes", 
+                  onPress: () => {
+                    // console.log('User chose Yes, setting importConfirmed to yes');
+                    setTimeout(() => {
+                      deleteSelected();
+                    }, 200); // delay allows alert to close first
+                  }
+                }
+              ]
+            );
+          }} style={{...commonStyles.icon, opacity : isSongSelected() ? 1 : 0}}>
           {/* <Ionicons name="trash-bin" size={20} color="#d11a2a" /> */}
           <Ionicons name="trash-outline" size={30} color="#d11a2a" />
         </TouchableOpacity>
