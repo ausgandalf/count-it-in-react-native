@@ -230,7 +230,7 @@ export default function SongList({ type = 'select', songs = [], viewMode = 'song
   return (
     <View style={styles.container}>
       <View style={styles.closeHeader}>
-        <Text style={commonStyles.text}>Tap song title to select.</Text>
+        <Text style={[commonStyles.text, {fontStyle: 'italic', opacity: 0.8}]}>Tap song title to select.</Text>
         <TouchableOpacity activeOpacity={0.8} onPress={() => onUpdate('openSongListModal', false)} style={[commonStyles.icon, {width: 30}]}>
           {/* <Ionicons name="trash-bin" size={20} color="#d11a2a" /> */}
           <Ionicons name="close-circle-outline" size={30} color="#d11a2a" />
